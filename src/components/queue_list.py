@@ -1,14 +1,5 @@
-import os
 import re
-import sys
-import time
-
-from qtpy.QtCore import Qt, QUrl, QAbstractTableModel, QModelIndex, Slot
-
-from bluesky_queueserver_api import WaitMonitor
-from bluesky_widgets.models.run_engine_client import RunEngineClient
-
-from suitscase.utilities.threading import AsyncFunction
+from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
 
 
 def getItemRecursively(original_obj: object, attrs: list):
@@ -16,39 +7,6 @@ def getItemRecursively(original_obj: object, attrs: list):
     for attr in attrs:
         _prev = getattr(_prev, attr, _prev[attr])
     return _prev
-
-
-class QueueServerModel:
-    def __init__(self):
-        http_server_api_key = os.environ.get("QSERVER_HTTP_SERVER_API_KEY", None)
-
-        self.run_engine = RunEngineClient(
-            http_server_uri="http://127.0.0.1:http_server_port",
-            http_server_api_key=http_server_api_key,
-        )
-
-        self.monitor_queue_changes()
-
-    def exit(self):
-        self.__queue_monitor.cancel()
-        while self.__monitoring_queue:
-            time.sleep(0.01)
-
-    @AsyncFunction
-    def monitor_queue_changes(self):
-        self.__monitoring_queue = True
-        self.__queue_monitor = WaitMonitor()
-        while True:
-            self.__queue_uid = self.run_engine._plan_queue_uid
-            try:
-                self.run_engine._client.wait_for_condition(lambda status: status["plan_queue_uid"] != self.__queue_uid, timeout=sys.float_info.max, monitor=self.__queue_monitor)
-            except self.run_engine._client.WaitCancelError:
-                break
-            except self.run_engine._client.WaitTimeoutError:
-                pass
-            self.run_engine.load_plan_queue()
-        self.__monitoring_queue = False
-
 
 class QueueModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
@@ -254,49 +212,3 @@ class QueueModel(QAbstractTableModel):
         self.__selected_rows = [self.rowCount() - i - 1 for i in range(len(self.__selected_rows))]
 
         self.dataChanged.emit(self.index(__last_modified_row, 0), self.index(self.rowCount() - 1, self.columnCount() - 1))
-
-
-if __name__ == "__main__":
-    mode = "qml"
-
-    __backend_model = QueueServerModel()
-
-    model = QueueModel(__backend_model)
-
-    if mode == "qml":
-        from qtpy.QtGui import QGuiApplication
-        from qtpy.QtQuick import QQuickView
-
-        curr_path = os.path.dirname(os.path.abspath(__file__))
-
-        # This is necessary to avoid a possible crash when running from another
-        # directory by ensuring the compiled version of the embedded QML file
-        # doesn't get mixed up with another of the same name.
-        os.chdir(curr_path)
-
-        app = QGuiApplication(sys.argv)
-
-        view = QQuickView()
-        view.setResizeMode(QQuickView.SizeRootObjectToView)
-        ctxt = view.rootContext()
-        ctxt.setContextProperty('qsModel', model)
-
-        view.setSource(QUrl('file://{}'.format(os.path.join(curr_path, 'queue_list.qml'))))
-        view.show()
-
-    else:
-        from qtpy.QtWidgets import QApplication, QTableView
-
-        app = QApplication(sys.argv)
-
-        view = QTableView()
-        view.horizontalHeader().setStretchLastSection(True)
-        view.setModel(model)
-
-        view.show()
-
-    __backend_model.run_engine.load_re_manager_status(unbuffered=True)
-
-    ret = app.exec_()
-    __backend_model.exit()
-    sys.exit(ret)
