@@ -2,10 +2,11 @@
 
 import sys
 import signal
-from qtpy.QtWidgets import QApplication, QTableView
+from qtpy.QtWidgets import QApplication
 
 from sophys_gui.server import QueueServerModel
-from sophys_gui.components import QueueModel
+from sophys_gui.components import QueueModel, \
+    SophysQueueTable
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -15,10 +16,7 @@ model = QueueModel(__backend_model)
 
 app = QApplication(sys.argv)
 
-view = QTableView()
-view.horizontalHeader().setStretchLastSection(True)
-view.setModel(model)
-
+view = SophysQueueTable(model, __backend_model)
 view.show()
 
 __backend_model.run_engine.load_re_manager_status(unbuffered=True)

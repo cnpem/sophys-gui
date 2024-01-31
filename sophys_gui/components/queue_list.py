@@ -1,12 +1,7 @@
 import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
+from sophys_gui.functions import getItemRecursively
 
-
-def getItemRecursively(original_obj: object, attrs: list):
-    _prev = original_obj
-    for attr in attrs:
-        _prev = getattr(_prev, attr, _prev[attr])
-    return _prev
 
 class QueueModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
@@ -107,8 +102,10 @@ class QueueModel(QAbstractTableModel):
 
         self._re_model = re_model
         re_model.run_engine.events.plan_queue_changed.connect(self.onQueueChanged)
-
         self.__selected_rows = []
+
+    def getColumns(self):
+        return self._columns
 
     def rowCount(self, parent=QModelIndex()):
         if parent.isValid():
