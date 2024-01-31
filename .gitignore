@@ -1,9 +1,2 @@
-build
-dist
-quati
-mirrors/__pycache__
-mirrors/control/__pycache__
-mirrors/all_gui/__pycache__
-mirrors/motors/__pycache__
-mirrors/temperature/__pycache__
-quati_mirror_guis.egg-info
+sophys_gui.*
+**__pycache__

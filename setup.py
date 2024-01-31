@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='bluesky-queue-gui',
+    name='sophys-gui',
     version='0.1.0',
     author='lnls-sirius',
     description='Control GUI for the Bluesky queue.',
@@ -16,6 +16,6 @@ setup(
     packages=find_packages(),
     package_data={"": ["*.svg", "*.css", "*.yml"]},
     scripts=[
-        'scripts/bluesky-queue-gui.py'
+        'scripts/sophys-gui.py'
     ]
 )

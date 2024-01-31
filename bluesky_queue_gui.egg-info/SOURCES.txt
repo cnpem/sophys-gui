@@ -1,8 +1,0 @@
-README.md
-setup.py
-bluesky_queue_gui.egg-info/PKG-INFO
-bluesky_queue_gui.egg-info/SOURCES.txt
-bluesky_queue_gui.egg-info/dependency_links.txt
-bluesky_queue_gui.egg-info/requires.txt
-bluesky_queue_gui.egg-info/top_level.txt
-scripts/bluesky-queue-gui.py

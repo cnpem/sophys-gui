@@ -4,11 +4,10 @@ import sys
 import signal
 from qtpy.QtWidgets import QApplication, QTableView
 
-from src.server import QueueServerModel
-from src.components import QueueModel
+from sophys_gui.server import QueueServerModel
+from sophys_gui.components import QueueModel
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
 
 __backend_model = QueueServerModel()
 

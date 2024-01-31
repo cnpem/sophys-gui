@@ -1,2 +1,0 @@
-QtPy<=2.3.1
-QtAwesome>=1.2.3
