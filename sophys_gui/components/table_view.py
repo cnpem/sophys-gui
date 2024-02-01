@@ -77,8 +77,10 @@ class SophysQueueTable(QWidget):
         cmd()
         self.updateIndex(model)
 
-    def create_btns(self, glay, btn_dict, model, idx):
-        for idy, btn_dict in enumerate(btn_dict):
+    def create_btns(self, glay, btn_dict, model):
+        idx = 0
+        idy = 0
+        for btn_dict in btn_dict:
             title = btn_dict["title"]
             permission = btn_dict["permission"]
             btn = QPushButton(title)
@@ -91,8 +93,12 @@ class SophysQueueTable(QWidget):
                 "permission": permission
             }
             glay.addWidget(btn, idx, idy, 1, 1)
+            idy += 1
+            if idy%4==0:
+                idx += 1
+                idy = 0
 
-    def setOrderButtons(self, model, glay):
+    def setCommandButtons(self, model, glay):
         control_btns = [
             {
                 "title": "Top",
@@ -121,12 +127,7 @@ class SophysQueueTable(QWidget):
                 "cmd": model.move_bottom,
                 "enabled": False,
                 "permission": 2
-            }
-        ]
-        self.create_btns(glay, control_btns, model, 0)
-
-    def setManageButtons(self, model, glay):
-        control_btns = [
+            },
             {
                 "title": "Clear",
                 "icon": "mdi.sort-variant-remove",
@@ -149,20 +150,33 @@ class SophysQueueTable(QWidget):
                 "permission": 1
             },
             {
+                "title": "Edit",
+                "icon": "fa5s.pencil-alt",
+                "cmd": model.move_up,
+                "enabled": True,
+                "permission": 0
+            },
+            {
                 "title": "Add",
-                "icon": "mdi6.content-copy",
+                "icon": "fa5s.plus",
+                "cmd": model.move_up,
+                "enabled": True,
+                "permission": 0
+            },
+            {
+                "title": "Stop",
+                "icon": "mdi6.block-helper",
                 "cmd": model.move_up,
                 "enabled": True,
                 "permission": 0
             }
         ]
-        self.create_btns(glay, control_btns, model, 1)
+        self.create_btns(glay, control_btns, model)
 
     def getTableControls(self, model):
         glay = QGridLayout()
 
-        self.setOrderButtons(model, glay)
-        self.setManageButtons(model, glay)
+        self.setCommandButtons(model, glay)
 
         return glay
 
@@ -181,6 +195,7 @@ class SophysQueueTable(QWidget):
         vlay.addLayout(controls)
 
         self.setLayout(vlay)
+
 
 class SophysTable(QTableView):
 
