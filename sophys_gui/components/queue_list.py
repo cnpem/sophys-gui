@@ -1,5 +1,6 @@
 import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
+from qtpy.QtGui import QBrush
 from sophys_gui.functions import getItemRecursively
 
 
@@ -120,13 +121,16 @@ class QueueModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return
-
+        row = index.row()
         try:
-            item = self._re_model.run_engine._plan_queue_items[index.row()]
+            item = self._re_model.run_engine._plan_queue_items[row]
         except IndexError:
             return
 
         column_spec = self._columns[index.column()]
+
+        if row in self.__selected_rows and role == Qt.BackgroundRole:
+            return QBrush(Qt.lightGray)
         if role == Qt.DisplayRole:
             return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
         if role == Qt.ToolTipRole:
@@ -137,12 +141,13 @@ class QueueModel(QAbstractTableModel):
             return index.row() in self.__selected_rows
 
     def headerData(self, section, orientation, role):
-        if orientation != Qt.Horizontal:
-            return
-
-        column_spec = self._columns[section]
-        if role == Qt.DisplayRole:
-            return str(column_spec[0])
+        if orientation == Qt.Horizontal:
+            column_spec = self._columns[section]
+            if role == Qt.DisplayRole:
+                return str(column_spec[0])
+        else:
+            if role == Qt.DisplayRole:
+                return str(section+1)
 
     def flags(self, index):
         if not index.isValid():
@@ -154,7 +159,11 @@ class QueueModel(QAbstractTableModel):
         return self._roles
 
     def setSelectedItems(self):
-        self._re_model.run_engine.selected_queue_item_uids = [self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.__selected_rows]
+        self._re_model.run_engine.selected_queue_item_uids = [
+            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.__selected_rows]
+
+    def getSelectedRows(self):
+        return self.__selected_rows
 
     @Slot(object)
     def onQueueChanged(self, _):
@@ -164,48 +173,48 @@ class QueueModel(QAbstractTableModel):
     @Slot(int)
     def select(self, row):
         changed_rows = [*self.__selected_rows, row]
-        if row not in self.__selected_rows:
-            self.__selected_rows = [row]
-        else:
-            self.__selected_rows = []
-
+        self.__selected_rows = [row]
         for changed_row in changed_rows:
-            self.dataChanged.emit(self.index(changed_row, 0), self.index(changed_row, self.columnCount() - 1))
+            self.dataChanged.emit(
+                self.index(changed_row, 0),
+                self.index(changed_row, self.columnCount() - 1))
 
     @Slot()
     def move_up(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_up()
-
         self.__selected_rows = [i - 1 for i in self.__selected_rows]
         for changed_row in self.__selected_rows:
-            self.dataChanged.emit(self.index(changed_row, 0), self.index(changed_row + 1, self.columnCount() - 1))
+            self.dataChanged.emit(
+                self.index(changed_row, 0),
+                self.index(changed_row + 1, self.columnCount() - 1))
 
     @Slot()
     def move_down(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_down()
-
         self.__selected_rows = [i + 1 for i in self.__selected_rows]
         for changed_row in self.__selected_rows:
-            self.dataChanged.emit(self.index(changed_row - 1, 0), self.index(changed_row, self.columnCount() - 1))
+            self.dataChanged.emit(
+                self.index(changed_row - 1, 0),
+                self.index(changed_row, self.columnCount() - 1))
 
     @Slot()
     def move_top(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_to_top()
-
         __last_modified_row = max(self.__selected_rows)
         self.__selected_rows = [i for i in range(len(self.__selected_rows))]
-
-        self.dataChanged.emit(self.index(0, 0), self.index(__last_modified_row, self.columnCount() - 1))
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(__last_modified_row, self.columnCount() - 1))
 
     @Slot()
     def move_bottom(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_to_bottom()
-
         __last_modified_row = min(self.__selected_rows)
         self.__selected_rows = [self.rowCount() - i - 1 for i in range(len(self.__selected_rows))]
-
-        self.dataChanged.emit(self.index(__last_modified_row, 0), self.index(self.rowCount() - 1, self.columnCount() - 1))
+        self.dataChanged.emit(
+            self.index(__last_modified_row, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1))

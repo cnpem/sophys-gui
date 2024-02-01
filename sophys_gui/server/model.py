@@ -6,8 +6,6 @@ from functools import partial
 from bluesky_queueserver_api import WaitMonitor
 from bluesky_widgets.models.run_engine_client import RunEngineClient
 
-from qtpy.QtWidgets import QApplication
-
 from suitscase.utilities.threading import AsyncFunction
 
 
@@ -40,7 +38,6 @@ class QueueServerModel:
             self.__queue_monitor = WaitMonitor()
             while True:
                 try:
-                    print(param)
                     self.run_engine._client.wait_for_condition(
                         param, timeout=sys.float_info.max, monitor=self.__queue_monitor)
                 except self.run_engine._client.WaitCancelError:

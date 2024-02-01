@@ -1,6 +1,8 @@
-from qtpy.QtCore import Qt, Slot
+import qtawesome as qta
+from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QTableView, QHeaderView, \
-    QVBoxLayout, QHBoxLayout, QWidget, QLabel
+    QVBoxLayout, QHBoxLayout, QWidget, QLabel, QGridLayout, \
+    QPushButton
 from .switch import SophysSwitchButton
 
 
@@ -11,6 +13,7 @@ class SophysQueueTable(QWidget):
         self.queueModel = model
         self.serverModel = backend_model
         self.loop = None
+        self.cmd_btns = {}
         self._setupUi()
 
     def updateLoopState(self, evt):
@@ -41,6 +44,128 @@ class SophysQueueTable(QWidget):
 
         return hlay
 
+    def getLimitsPermissions(self, sel_row, condition):
+        status = True
+        for item in sel_row:
+            if condition(item):
+                status = False
+        return status
+
+    def handleBtnEnabled(self, permission, key, model):
+        if permission == 0:
+            return
+        selected_rows = model.getSelectedRows()
+        if len(selected_rows) > 0:
+            if permission == 2:
+                rows = model.rowCount()
+                status = self.getLimitsPermissions(
+                    selected_rows, lambda idx, rows=rows: (idx+1) >= rows)
+            elif permission == 3:
+                status = self.getLimitsPermissions(
+                    selected_rows, lambda idx: idx <= 0)
+            else:
+                status = True
+        else:
+            status = False
+        self.cmd_btns[key]["btn"].setEnabled(status)
+
+    def updateIndex(self, model):
+        for key, value in self.cmd_btns.items():
+            self.handleBtnEnabled(value["permission"], key, model)
+
+    def handleCommand(self, cmd, model):
+        cmd()
+        self.updateIndex(model)
+
+    def create_btns(self, glay, btn_dict, model, idx):
+        for idy, btn_dict in enumerate(btn_dict):
+            title = btn_dict["title"]
+            permission = btn_dict["permission"]
+            btn = QPushButton(title)
+            btn.clicked.connect(
+                lambda _, model=model, cmd=btn_dict["cmd"]: self.handleCommand(cmd, model))
+            btn.setIcon(qta.icon(btn_dict["icon"]))
+            btn.setEnabled(btn_dict["enabled"])
+            self.cmd_btns[title] = {
+                "btn": btn,
+                "permission": permission
+            }
+            glay.addWidget(btn, idx, idy, 1, 1)
+
+    def setOrderButtons(self, model, glay):
+        control_btns = [
+            {
+                "title": "Top",
+                "icon": "ri.align-top",
+                "cmd": model.move_top,
+                "enabled": False,
+                "permission": 3
+            },
+            {
+                "title": "Up",
+                "icon": "fa5s.arrow-up",
+                "cmd": model.move_up,
+                "enabled": False,
+                "permission": 3
+            },
+            {
+                "title": "Down",
+                "icon": "fa5s.arrow-down",
+                "cmd": model.move_down,
+                "enabled": False,
+                "permission": 2
+            },
+            {
+                "title": "Bottom",
+                "icon": "ri.align-bottom",
+                "cmd": model.move_bottom,
+                "enabled": False,
+                "permission": 2
+            }
+        ]
+        self.create_btns(glay, control_btns, model, 0)
+
+    def setManageButtons(self, model, glay):
+        control_btns = [
+            {
+                "title": "Clear",
+                "icon": "mdi.sort-variant-remove",
+                "cmd": model.move_bottom,
+                "enabled": True,
+                "permission": 0
+            },
+            {
+                "title": "Delete",
+                "icon": "fa5s.trash-alt",
+                "cmd": model.move_top,
+                "enabled": False,
+                "permission": 1
+            },
+            {
+                "title": "Copy",
+                "icon": "mdi6.content-copy",
+                "cmd": model.move_up,
+                "enabled": False,
+                "permission": 1
+            },
+            {
+                "title": "Add",
+                "icon": "mdi6.content-copy",
+                "cmd": model.move_up,
+                "enabled": True,
+                "permission": 0
+            }
+        ]
+        self.create_btns(glay, control_btns, model, 1)
+
+    def getTableControls(self, model):
+        glay = QGridLayout()
+
+        self.setOrderButtons(model, glay)
+        self.setManageButtons(model, glay)
+
+        return glay
+
     def _setupUi(self):
         vlay = QVBoxLayout(self)
 
@@ -48,7 +173,12 @@ class SophysQueueTable(QWidget):
         vlay.addLayout(header)
 
         table = SophysTable(self.queueModel)
+        table.pressed.connect(
+            lambda _, model=table.model(): self.updateIndex(model))
         vlay.addWidget(table)
+
+        controls = self.getTableControls(table.model())
+        vlay.addLayout(controls)
 
         self.setLayout(vlay)
 
@@ -57,10 +187,16 @@ class SophysTable(QTableView):
     def __init__(self, model):
         super().__init__()
         self.setModel(model)
-        columns = model.getColumns()
-        self.setResizable(columns)
+        self.setResizable()
+        self.pressed.connect(self.selectItem)
 
-    def setResizable(self, columns):
+    def selectItem(self):
+        table_model = self.model()
+        row = self.currentIndex().row()
+        table_model.select(row)
+
+    def setResizable(self):
+        columns = self.model().getColumns()
         self.verticalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
         hor_header = self.horizontalHeader()
