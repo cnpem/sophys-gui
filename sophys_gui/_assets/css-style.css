@@ -1,0 +1,82 @@
+QMainWindow{
+    color: black;
+    background-color: @color_prim;
+}
+
+QTableView {
+    background-color: @color_sec;
+}
+
+QTableView:item:hover {
+    background-color: @hover_color_sec;
+}
+
+QTableView:item:selected {
+    background-color: @select_color_sec;
+}
+
+QTableView:item:selected:focus {
+    background-color: @press_color_sec;
+}
+
+QCheckBox::indicator {
+    background-color: @color_sec;
+    border-radius: 5px;
+}
+
+QCheckBox::indicator:checked {
+    background-color: @press_color_sec;
+    border: @param_border @color_sec;
+}
+
+QHeaderView {
+    background-color: @dark_color_sec;
+}
+
+QPushButton {
+    background-color: @btn_color_sec;
+}
+
+QPushButton:hover {
+    background-color: @btn_hover_color_sec;
+}
+
+QPushButton:pressed {
+    background-color: @press_color_sec;
+}
+
+QPushButton:disabled {
+    background-color: @disabled_color_sec;
+}
+
+QGroupBox {
+    background-color: #cfc5b4;
+    border: @param_border @border;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+QSlider{
+    background: #00000000;
+    border-radius: 5px;
+}
+
+QSlider::sub-page {
+    background: #00cc00;
+    border: 1px solid #777;
+    border-radius: 5px;
+}
+
+QSlider::add-page {
+    background: #1c6f0d;
+    border: 1px solid #777;
+    border-radius: 5px;
+}
+
+QSlider::handle {
+    background: #ffffff;
+    border: 1px solid #777;
+    width: 13px;
+    border-radius: 5px;
+}

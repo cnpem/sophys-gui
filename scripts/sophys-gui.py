@@ -18,6 +18,7 @@ app = QApplication(sys.argv)
 
 window = SophysOperationGUI(__backend_model)
 window.setWindowIcon(qtawesome.icon("mdi.cloud"))
+window.setWindowTitle("SOPHYS GUI")
 window.show()
 
 __backend_model.run_engine.load_re_manager_status(unbuffered=True)

@@ -1,3 +1,4 @@
+import os as _os
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel
 
@@ -21,3 +22,11 @@ def getHeader(text):
     )
 
     return title
+
+def getFilePath(file_path):
+    """
+        Get the absolute path for files inside the sapoti package.
+    """
+    abspath = _os.path.abspath(_os.path.dirname(__file__))
+    admin_file = _os.path.join(abspath, file_path)
+    return admin_file

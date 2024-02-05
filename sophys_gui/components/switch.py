@@ -11,35 +11,6 @@ class SophysSwitchButton(QWidget):
         self.cmd = command
         self.setupUi()
 
-    def set_slider_style(self: QWidget, slider: QSlider) -> None:
-        """
-            Set the style of the switch widget.
-        """
-        slider.setStyleSheet(
-            """
-                QSlider{
-                    background: #00000000;
-                    border-radius: 5px;
-                }
-                QSlider::sub-page {
-                    background: #00cc00;
-                    border: 1px solid #777;
-                    border-radius: 5px;
-                }
-                QSlider::add-page {
-                    background: #1c6f0d;
-                    border: 1px solid #777;
-                    border-radius: 5px;
-                }
-                QSlider::handle {
-                    background: #ffffff;
-                    border: 1px solid #777;
-                    width: 13px;
-                    border-radius: 5px;
-                }
-            """
-        )
-
     def set_slider_parameters(self: QWidget, slider: QSlider) -> None:
         """
             Set slider default parameters for it to become a switch.
@@ -54,7 +25,6 @@ class SophysSwitchButton(QWidget):
             Create a slider widget and configure it.
         """
         slider = QSlider(Qt.Horizontal)
-        self.set_slider_style(slider)
         self.set_slider_parameters(slider)
         slider.setMaximumHeight(50)
         return slider
