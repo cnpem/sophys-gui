@@ -1,7 +1,7 @@
 from qtpy.QtWidgets import QMainWindow, QGridLayout, \
     QWidget
-from sophys_gui.components import QueueModel, \
-    SophysQueueTable
+from sophys_gui.components import SophysQueueTable, \
+    SophysHistoryTable, SophysRunningItem
 
 
 class SophysOperationGUI(QMainWindow):
@@ -16,8 +16,13 @@ class SophysOperationGUI(QMainWindow):
         glay = QGridLayout()
         wid.setLayout(glay)
 
-        model = QueueModel(self.model)
-        queue = SophysQueueTable(model, self.model)
+        queue = SophysQueueTable(self.model)
         glay.addWidget(queue, 0, 0, 1, 1)
+
+        running = SophysRunningItem(self.model)
+        glay.addWidget(running, 0, 1, 1, 1)
+
+        history = SophysHistoryTable(self.model)
+        glay.addWidget(history, 0, 2, 1, 1)
 
         self.setCentralWidget(wid)
