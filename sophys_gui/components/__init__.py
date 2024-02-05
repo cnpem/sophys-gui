@@ -1,3 +1,2 @@
-from .queue_list import QueueModel
-from .table_view import SophysQueueTable
+from .table_view import SophysQueueTable, SophysHistoryTable
 from .switch import SophysSwitchButton

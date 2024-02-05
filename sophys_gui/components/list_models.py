@@ -4,7 +4,7 @@ from qtpy.QtGui import QBrush
 from sophys_gui.functions import getItemRecursively
 
 
-class QueueModel(QAbstractTableModel):
+class ListModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
     _roles = {Qt.DisplayRole: b"value", Qt.ToolTipRole: b"tooltip", SelectedRole: b"selected"}
 
@@ -98,12 +98,14 @@ class QueueModel(QAbstractTableModel):
         ("Keyword Arguments", ["kwargs"], kwRender, kwTooltipRender),
     ]
 
-    def __init__(self, re_model, parent=None):
+    def __init__(self, re_model, plan_changed, plan_items, row_count, parent=None):
         super().__init__(parent)
 
         self._re_model = re_model
-        re_model.run_engine.events.plan_queue_changed.connect(self.onQueueChanged)
-        self.__selected_rows = []
+        self.plan_items = plan_items
+        self.row_count = row_count
+        plan_changed.connect(self.onPlanListChanged)
+        self.selected_rows = []
 
     def getColumns(self):
         return self._columns
@@ -111,7 +113,7 @@ class QueueModel(QAbstractTableModel):
     def rowCount(self, parent=QModelIndex()):
         if parent.isValid():
             return 0
-        return len(self._re_model.run_engine._plan_queue_items)
+        return len(self.plan_items)
 
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
@@ -123,13 +125,13 @@ class QueueModel(QAbstractTableModel):
             return
         row = index.row()
         try:
-            item = self._re_model.run_engine._plan_queue_items[row]
+            item = self.plan_items[row]
         except IndexError:
             return
 
         column_spec = self._columns[index.column()]
 
-        if row in self.__selected_rows and role == Qt.BackgroundRole:
+        if row in self.selected_rows and role == Qt.BackgroundRole:
             return QBrush(Qt.lightGray)
         if role == Qt.DisplayRole:
             return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
@@ -138,7 +140,7 @@ class QueueModel(QAbstractTableModel):
                 return
             return column_spec[3](self, item, getItemRecursively(item, column_spec[1]))
         if role == self.SelectedRole:
-            return index.row() in self.__selected_rows
+            return index.row() in self.selected_rows
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
@@ -147,7 +149,7 @@ class QueueModel(QAbstractTableModel):
                 return str(column_spec[0])
         else:
             if role == Qt.DisplayRole:
-                return str(section+1)
+                return str(self.row_count(section))
 
     def flags(self, index):
         if not index.isValid():
@@ -158,33 +160,50 @@ class QueueModel(QAbstractTableModel):
     def roleNames(self):
         return self._roles
 
-    def setSelectedItems(self):
-        self._re_model.run_engine.selected_queue_item_uids = [
-            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.__selected_rows]
-
     def getSelectedRows(self):
-        return self.__selected_rows
+        return self.selected_rows
 
     @Slot(object)
-    def onQueueChanged(self, _):
+    def onPlanListChanged(self, _):
         self.beginResetModel()
         self.endResetModel()
 
     @Slot(int)
     def select(self, row):
-        changed_rows = [*self.__selected_rows, row]
-        self.__selected_rows = [row]
+        changed_rows = [*self.selected_rows, row]
+        self.selected_rows = [row]
         for changed_row in changed_rows:
             self.dataChanged.emit(
                 self.index(changed_row, 0),
                 self.index(changed_row, self.columnCount() - 1))
 
+
+class HistoryModel(ListModel):
+
+    def __init__(self, re_model, parent=None):
+        history_changed = re_model.run_engine.events.plan_history_changed
+        history_items = re_model.run_engine._plan_history_items
+        row_count = lambda section: self.rowCount()-section
+        super().__init__(re_model, history_changed, history_items, row_count, parent)
+
+
+class QueueModel(ListModel):
+    def __init__(self, re_model, parent=None):
+        queue_changed = re_model.run_engine.events.plan_queue_changed
+        queue_items = re_model.run_engine._plan_queue_items
+        row_count = lambda section: section+1
+        super().__init__(re_model, queue_changed, queue_items, row_count, parent)
+
+    def setSelectedItems(self):
+        self._re_model.run_engine.selected_queue_item_uids = [
+            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.selected_rows]
+
     @Slot()
     def move_up(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_up()
-        self.__selected_rows = [i - 1 for i in self.__selected_rows]
-        for changed_row in self.__selected_rows:
+        self.selected_rows = [i - 1 for i in self.selected_rows]
+        for changed_row in self.selected_rows:
             self.dataChanged.emit(
                 self.index(changed_row, 0),
                 self.index(changed_row + 1, self.columnCount() - 1))
@@ -193,8 +212,8 @@ class QueueModel(QAbstractTableModel):
     def move_down(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_down()
-        self.__selected_rows = [i + 1 for i in self.__selected_rows]
-        for changed_row in self.__selected_rows:
+        self.selected_rows = [i + 1 for i in self.selected_rows]
+        for changed_row in self.selected_rows:
             self.dataChanged.emit(
                 self.index(changed_row - 1, 0),
                 self.index(changed_row, self.columnCount() - 1))
@@ -203,8 +222,8 @@ class QueueModel(QAbstractTableModel):
     def move_top(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_to_top()
-        __last_modified_row = max(self.__selected_rows)
-        self.__selected_rows = [i for i in range(len(self.__selected_rows))]
+        __last_modified_row = max(self.selected_rows)
+        self.selected_rows = [i for i in range(len(self.selected_rows))]
         self.dataChanged.emit(
             self.index(0, 0),
             self.index(__last_modified_row, self.columnCount() - 1))
@@ -213,8 +232,8 @@ class QueueModel(QAbstractTableModel):
     def move_bottom(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_move_to_bottom()
-        __last_modified_row = min(self.__selected_rows)
-        self.__selected_rows = [self.rowCount() - i - 1 for i in range(len(self.__selected_rows))]
+        __last_modified_row = min(self.selected_rows)
+        self.selected_rows = [self.rowCount() - i - 1 for i in range(len(self.selected_rows))]
         self.dataChanged.emit(
             self.index(__last_modified_row, 0),
             self.index(self.rowCount() - 1, self.columnCount() - 1))

@@ -1,17 +1,19 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QTableView, QHeaderView, \
-    QVBoxLayout, QHBoxLayout, QWidget, QLabel, QGridLayout, \
-    QPushButton
+    QVBoxLayout, QHBoxLayout, QWidget, QGridLayout, QPushButton
+
+from sophys_gui.functions import getHeader
 from .switch import SophysSwitchButton
+from .list_models import QueueModel, HistoryModel
 
 
 class SophysQueueTable(QWidget):
 
-    def __init__(self, model, backend_model):
+    def __init__(self, model):
         super().__init__()
-        self.queueModel = model
-        self.serverModel = backend_model
+        self.queueModel = QueueModel(model)
+        self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
         self._setupUi()
@@ -25,14 +27,7 @@ class SophysQueueTable(QWidget):
     def getHeader(self):
         hlay = QHBoxLayout()
 
-        title = QLabel("Queue")
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet(
-            """
-                font-weight: 800;
-                font-size: 18px;
-            """
-        )
+        title = getHeader("Queue")
         hlay.addWidget(title)
 
         enable_loop = self.serverModel.run_engine.queue_mode_loop_enable
@@ -129,7 +124,7 @@ class SophysQueueTable(QWidget):
                 "permission": 2
             },
             {
-                "title": "Clear",
+                "title": "Clear All",
                 "icon": "mdi.sort-variant-remove",
                 "cmd": model.move_bottom,
                 "enabled": True,
@@ -153,8 +148,8 @@ class SophysQueueTable(QWidget):
                 "title": "Edit",
                 "icon": "fa5s.pencil-alt",
                 "cmd": model.move_up,
-                "enabled": True,
-                "permission": 0
+                "enabled": False,
+                "permission": 1
             },
             {
                 "title": "Add",
@@ -189,6 +184,60 @@ class SophysQueueTable(QWidget):
         table = SophysTable(self.queueModel)
         table.pressed.connect(
             lambda _, model=table.model(): self.updateIndex(model))
+        vlay.addWidget(table)
+
+        controls = self.getTableControls(table.model())
+        vlay.addLayout(controls)
+
+        self.setLayout(vlay)
+
+
+class SophysHistoryTable(QWidget):
+
+    def __init__(self, model):
+        super().__init__()
+        self.queueModel = HistoryModel(model)
+        self.cmd_btns = {}
+        self._setupUi()
+
+    def create_btns(self, glay, btn_dict):
+        for idy, btn_dict in enumerate(btn_dict):
+            title = btn_dict["title"]
+            btn = QPushButton(title)
+            btn.clicked.connect(btn_dict["cmd"])
+            btn.setIcon(qta.icon(btn_dict["icon"]))
+            self.cmd_btns[title] = btn
+            glay.addWidget(btn, 1, idy, 1, 1)
+
+    def setCommandButtons(self, model, glay):
+        control_btns = [
+            {
+                "title": "Clear All",
+                "icon": "mdi.sort-variant-remove",
+                "cmd": print
+            },
+            {
+                "title": "Copy to Queue",
+                "icon": "mdi6.content-copy",
+                "cmd": print
+            }
+        ]
+        self.create_btns(glay, control_btns)
+
+    def getTableControls(self, model):
+        glay = QGridLayout()
+
+        self.setCommandButtons(model, glay)
+
+        return glay
+
+    def _setupUi(self):
+        vlay = QVBoxLayout(self)
+
+        header = getHeader("History")
+        vlay.addWidget(header)
+
+        table = SophysTable(self.queueModel)
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
