@@ -241,3 +241,8 @@ class QueueModel(ListModel):
     @Slot()
     def clear_all(self):
         self._re_model.run_engine.clear()
+
+    @Slot()
+    def delete_item(self):
+        self.setSelectedItems()
+        self._re_model.run_engine.queue_items_remove()

@@ -133,7 +133,7 @@ class SophysQueueTable(QWidget):
             {
                 "title": "Delete",
                 "icon": "fa5s.trash-alt",
-                "cmd": model.move_top,
+                "cmd": model.delete_item,
                 "enabled": False,
                 "permission": 1
             },
@@ -152,16 +152,16 @@ class SophysQueueTable(QWidget):
                 "permission": 1
             },
             {
-                "title": "Add",
+                "title": "Add Plan",
                 "icon": "fa5s.plus",
                 "cmd": model.move_up,
                 "enabled": True,
                 "permission": 0
             },
             {
-                "title": "Stop",
+                "title": "Add Stop Item",
                 "icon": "mdi6.block-helper",
-                "cmd": model.move_up,
+                "cmd": model.move_bottom,
                 "enabled": True,
                 "permission": 0
             }
