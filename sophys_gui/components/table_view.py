@@ -214,7 +214,7 @@ class SophysHistoryTable(QWidget):
             {
                 "title": "Clear All",
                 "icon": "mdi.sort-variant-remove",
-                "cmd": print
+                "cmd": model.clear_all
             },
             {
                 "title": "Copy to Queue",

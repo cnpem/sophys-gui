@@ -177,6 +177,9 @@ class ListModel(QAbstractTableModel):
                 self.index(changed_row, 0),
                 self.index(changed_row, self.columnCount() - 1))
 
+    @Slot()
+    def clear_all(self):
+        self._re_model.run_engine.history_clear()
 
 class HistoryModel(ListModel):
 
@@ -240,7 +243,7 @@ class QueueModel(ListModel):
 
     @Slot()
     def clear_all(self):
-        self._re_model.run_engine.clear()
+        self._re_model.run_engine.queue_clear()
 
     @Slot()
     def delete_item(self):
