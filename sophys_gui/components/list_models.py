@@ -8,6 +8,10 @@ class ListModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
     _roles = {Qt.DisplayRole: b"value", Qt.ToolTipRole: b"tooltip", SelectedRole: b"selected"}
 
+    def statusRender(self, item: dict, status: str):
+        """Renders the 'Status' column items."""
+        return str(status.capitalize())
+
     def typeRender(self, item: dict, type: str):
         """Renders the 'Type' column items."""
         return type[0].upper()
@@ -42,6 +46,10 @@ class ListModel(QAbstractTableModel):
                 desc.append("{} = {}".format(key, val))
             return "\n".join(desc)
         return str(kwargs)
+
+    def statusTooltipRender(self, item: dict, status: str):
+        """Renders the 'Status' column item tooltips."""
+        return "Exit status received after the item execution."
 
     def typeTooltipRender(self, item: dict, type: str):
         """Renders the 'Type' column item tooltips."""
@@ -91,14 +99,18 @@ class ListModel(QAbstractTableModel):
     # (Column title, Attribute value, Display value, ToolTip value)
     # Display value: (self, item, value) => (display)
     # ToolTip value: (self, item, value) => (toolTip)
-    _columns = [
+    columns = [
         ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
         ("Arguments", ["args"], argumentsRender, argumentsTooltipRender),
         ("Keyword Arguments", ["kwargs"], kwRender, kwTooltipRender),
     ]
 
-    def __init__(self, re_model, plan_changed, plan_items, row_count, parent=None):
+    columns_history = [
+        ("Status", ["result", "exit_status"], statusRender, statusTooltipRender)
+    ] + columns
+
+    def __init__(self, re_model, plan_changed, plan_items, row_count, listId, parent=None):
         super().__init__(parent)
 
         self._re_model = re_model
@@ -106,9 +118,11 @@ class ListModel(QAbstractTableModel):
         self.row_count = row_count
         plan_changed.connect(self.onPlanListChanged)
         self.selected_rows = []
+        if listId == "History":
+            self.columns = self.columns_history
 
     def getColumns(self):
-        return self._columns
+        return self.columns
 
     def rowCount(self, parent=QModelIndex()):
         if parent.isValid():
@@ -118,7 +132,7 @@ class ListModel(QAbstractTableModel):
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
             return 0
-        return len(self._columns)
+        return len(self.columns)
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -129,7 +143,7 @@ class ListModel(QAbstractTableModel):
         except IndexError:
             return
 
-        column_spec = self._columns[index.column()]
+        column_spec = self.columns[index.column()]
 
         if row in self.selected_rows and role == Qt.BackgroundRole:
             return QBrush(QColor("#ddccad"))
@@ -144,7 +158,7 @@ class ListModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
-            column_spec = self._columns[section]
+            column_spec = self.columns[section]
             if role == Qt.DisplayRole:
                 return str(column_spec[0])
         else:
@@ -188,7 +202,7 @@ class HistoryModel(ListModel):
         history_changed = re_model.run_engine.events.plan_history_changed
         history_items = re_model.run_engine._plan_history_items
         row_count = lambda section: self.rowCount()-section
-        super().__init__(re_model, history_changed, history_items, row_count, parent)
+        super().__init__(re_model, history_changed, history_items, row_count, "History", parent)
 
     @Slot()
     def clear_all(self):
@@ -198,12 +212,14 @@ class HistoryModel(ListModel):
     def copy_to_queue(self):
         self.setSelectedItems()
 
+
 class QueueModel(ListModel):
+
     def __init__(self, re_model, parent=None):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section+1
-        super().__init__(re_model, queue_changed, queue_items, row_count, parent)
+        super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
 
     @Slot()
     def move_up(self):
