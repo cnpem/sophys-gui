@@ -33,7 +33,7 @@ class SophysRunningItem(QWidget):
             {
                 "title": "Update Environment",
                 "icon": "mdi6.update",
-                "cmd": print
+                "cmd": model.run_engine.environment_update
             }
         ]
         self.create_btns(glay, control_btns)
