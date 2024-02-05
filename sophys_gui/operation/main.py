@@ -2,7 +2,7 @@ import json
 from qtpy.QtWidgets import QMainWindow, QGridLayout, \
     QWidget
 from sophys_gui.components import SophysQueueTable, \
-    SophysHistoryTable, SophysRunningItem
+    SophysHistoryTable, SophysRunningItem, QueueController
 from sophys_gui.functions import getFilePath
 
 
@@ -35,14 +35,17 @@ class SophysOperationGUI(QMainWindow):
         glay = QGridLayout()
         wid.setLayout(glay)
 
+        controller = QueueController(self.model)
+        glay.addWidget(controller, 0, 0, 1, 3)
+
         queue = SophysQueueTable(self.model)
-        glay.addWidget(queue, 0, 0, 1, 1)
+        glay.addWidget(queue, 1, 0, 1, 1)
 
         running = SophysRunningItem(self.model)
-        glay.addWidget(running, 0, 1, 1, 1)
+        glay.addWidget(running, 1, 1, 1, 1)
 
         history = SophysHistoryTable(self.model)
-        glay.addWidget(history, 0, 2, 1, 1)
+        glay.addWidget(history, 1, 2, 1, 1)
 
         self.setCentralWidget(wid)
 
