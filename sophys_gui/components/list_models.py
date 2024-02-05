@@ -1,6 +1,6 @@
 import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
-from qtpy.QtGui import QBrush
+from qtpy.QtGui import QBrush, QColor
 from sophys_gui.functions import getItemRecursively
 
 
@@ -132,7 +132,7 @@ class ListModel(QAbstractTableModel):
         column_spec = self._columns[index.column()]
 
         if row in self.selected_rows and role == Qt.BackgroundRole:
-            return QBrush(Qt.lightGray)
+            return QBrush(QColor("#ddccad"))
         if role == Qt.DisplayRole:
             return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
         if role == Qt.ToolTipRole:
@@ -177,9 +177,10 @@ class ListModel(QAbstractTableModel):
                 self.index(changed_row, 0),
                 self.index(changed_row, self.columnCount() - 1))
 
-    @Slot()
-    def clear_all(self):
-        self._re_model.run_engine.history_clear()
+    def setSelectedItems(self):
+        self._re_model.run_engine.selected_queue_item_uids = [
+            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.selected_rows]
+
 
 class HistoryModel(ListModel):
 
@@ -189,6 +190,13 @@ class HistoryModel(ListModel):
         row_count = lambda section: self.rowCount()-section
         super().__init__(re_model, history_changed, history_items, row_count, parent)
 
+    @Slot()
+    def clear_all(self):
+        self._re_model.run_engine.history_clear()
+
+    @Slot()
+    def copy_to_queue(self):
+        self.setSelectedItems()
 
 class QueueModel(ListModel):
     def __init__(self, re_model, parent=None):
@@ -196,10 +204,6 @@ class QueueModel(ListModel):
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section+1
         super().__init__(re_model, queue_changed, queue_items, row_count, parent)
-
-    def setSelectedItems(self):
-        self._re_model.run_engine.selected_queue_item_uids = [
-            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.selected_rows]
 
     @Slot()
     def move_up(self):
