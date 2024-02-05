@@ -126,7 +126,7 @@ class SophysQueueTable(QWidget):
             {
                 "title": "Clear All",
                 "icon": "mdi.sort-variant-remove",
-                "cmd": model.move_bottom,
+                "cmd": model.clear_all,
                 "enabled": True,
                 "permission": 0
             },

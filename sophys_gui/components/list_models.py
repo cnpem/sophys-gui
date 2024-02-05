@@ -237,3 +237,7 @@ class QueueModel(ListModel):
         self.dataChanged.emit(
             self.index(__last_modified_row, 0),
             self.index(self.rowCount() - 1, self.columnCount() - 1))
+
+    @Slot()
+    def clear_all(self):
+        self._re_model.run_engine.clear()
