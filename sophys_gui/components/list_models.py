@@ -2,6 +2,7 @@ import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
 from qtpy.QtGui import QBrush, QColor
 from sophys_gui.functions import getItemRecursively
+from .form import SophysForm
 
 
 class ListModel(QAbstractTableModel):
@@ -191,10 +192,6 @@ class ListModel(QAbstractTableModel):
                 self.index(changed_row, 0),
                 self.index(changed_row, self.columnCount() - 1))
 
-    def setSelectedItems(self):
-        self._re_model.run_engine.selected_queue_item_uids = [
-            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.selected_rows]
-
 
 class HistoryModel(ListModel):
 
@@ -204,6 +201,9 @@ class HistoryModel(ListModel):
         row_count = lambda section: self.rowCount()-section
         super().__init__(re_model, history_changed, history_items, row_count, "History", parent)
 
+    def setSelectedItems(self):
+        self._re_model.run_engine.selected_history_item_pos = self.selected_rows
+
     @Slot()
     def clear_all(self):
         self._re_model.run_engine.history_clear()
@@ -211,6 +211,7 @@ class HistoryModel(ListModel):
     @Slot()
     def copy_to_queue(self):
         self.setSelectedItems()
+        self._re_model.run_engine.history_item_add_to_queue()
 
 
 class QueueModel(ListModel):
@@ -220,6 +221,10 @@ class QueueModel(ListModel):
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section+1
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
+
+    def setSelectedItems(self):
+        self._re_model.run_engine.selected_queue_item_uids = [
+            self._re_model.run_engine.queue_item_pos_to_uid(i) for i in self.selected_rows]
 
     @Slot()
     def move_up(self):
@@ -269,3 +274,12 @@ class QueueModel(ListModel):
     def delete_item(self):
         self.setSelectedItems()
         self._re_model.run_engine.queue_items_remove()
+
+    @Slot()
+    def duplicate_item(self):
+        self.setSelectedItems()
+        self._re_model.run_engine.queue_item_copy_to_queue()
+
+    @Slot()
+    def add_queue_item(self):
+        SophysForm(self._re_model.run_engine).exec()
