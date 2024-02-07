@@ -280,16 +280,52 @@ class QueueModel(ListModel):
         self.setSelectedItems()
         self._re_model.run_engine.queue_item_copy_to_queue()
 
+    def get_item_type(self):
+        re = self._re_model.run_engine
+        sel_item = re._selected_queue_item_uids
+        pos = re.queue_item_uid_to_pos(sel_item[0])
+        return re._plan_queue_items[pos]['item_type']
+
+    def get_name_param_variables(self, item_type):
+        re = self._re_model.run_engine
+        if item_type == 'plan':
+            allowed_parameters = re.get_allowed_plan_parameters
+            allowed_names = re.get_allowed_plan_names
+        else:
+            allowed_parameters = re.get_allowed_instruction_parameters
+            allowed_names = re.get_allowed_instruction_names
+        return allowed_parameters, allowed_names
+
     @Slot()
-    def add_queue_item(self):
-        SophysForm(self._re_model.run_engine, "add").exec()
+    def add_plan_item(self):
+        allowed_parameters, allowed_names = self.get_name_param_variables("plan")
+        SophysForm(self._re_model.run_engine, "add",
+            allowed_parameters, allowed_names).exec()
+
+    @Slot()
+    def add_instruction_item(self):
+        allowed_parameters, allowed_names = self.get_name_param_variables("instruction")
+        SophysForm(self._re_model.run_engine, "add_instruction",
+            allowed_parameters, allowed_names).exec()
+
+    @Slot()
+    def add_stop_queue(self):
+        allowed_parameters, allowed_names = self.get_name_param_variables('instruction')
+        form = SophysForm(self._re_model.run_engine, "add_instruction", allowed_parameters, allowed_names)
+        form.addPlanToQueue()
 
     @Slot()
     def copy_queue_item(self):
         self.setSelectedItems()
-        SophysForm(self._re_model.run_engine, "copy").exec()
+        item_type = self.get_item_type()
+        allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
+        SophysForm(self._re_model.run_engine, "copy",
+            allowed_parameters, allowed_names).exec()
 
     @Slot()
     def edit_queue_item(self):
         self.setSelectedItems()
-        SophysForm(self._re_model.run_engine, "edit").exec()
+        item_type = self.get_item_type()
+        allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
+        SophysForm(self._re_model.run_engine, "edit",
+            allowed_parameters, allowed_names).exec()

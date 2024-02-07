@@ -164,21 +164,21 @@ class SophysQueueTable(QWidget):
             {
                 "title": "Add Plan",
                 "icon": "fa5s.plus",
-                "cmd": model.add_queue_item,
+                "cmd": model.add_plan_item,
                 "enabled": True,
                 "permission": 0
             },
             {
                 "title": "Add Instruction",
                 "icon": "mdi6.block-helper",
-                "cmd": model.move_bottom,
+                "cmd": model.add_instruction_item,
                 "enabled": True,
                 "permission": 0
             },
             {
                 "title": "Add Stop Item",
                 "icon": "mdi6.block-helper",
-                "cmd": model.move_bottom,
+                "cmd": model.add_stop_queue,
                 "enabled": True,
                 "permission": 0
             }

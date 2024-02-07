@@ -6,11 +6,14 @@ from .popup import PopupWidget
 
 class SophysForm(QDialog):
 
-    def __init__(self, model, modalMode):
+    def __init__(self, model, modalMode, allowed_parameters, allowed_names):
         super().__init__()
+        self.allowed_parameters = allowed_parameters
+        self.allowed_names = allowed_names
         self.inputWidgets = {}
         self.model = model
         self.modalMode = modalMode
+        self.item_type = 'instruction' if 'instruction' in modalMode else 'plan'
         self.group = QGroupBox()
         self.planParameters = QGridLayout()
         self.setMaximumSize(1000, 500)
@@ -25,6 +28,10 @@ class SophysForm(QDialog):
     def getPlanParameters(self):
         inputValues = {}
         isValid = True
+
+        if self.item_type == 'instruction':
+            return isValid
+
         for key, inputWid in self.inputWidgets.items():
             value = inputWid["widget"].text()
             if len(value) > 0:
@@ -39,11 +46,12 @@ class SophysForm(QDialog):
 
     def getPlanMetadata(self, plan_parameters):
         metadata = {
-            'item_type': 'plan',
-            'name': self.currentPlan,
-            'args': [],
-            'kwargs': plan_parameters
+            'item_type': self.item_type,
+            'name': self.chosenItem
         }
+        if self.item_type == 'plan':
+            metadata['args'] = []
+            metadata['kwargs'] = plan_parameters
         if self.modalMode == 'edit':
             metadata['item_uid'] = self.selectedItemMetadata()['item_uid']
         return metadata
@@ -52,15 +60,15 @@ class SophysForm(QDialog):
         plan_parameters = self.getPlanParameters()
         if plan_parameters:
             item = self.getPlanMetadata(plan_parameters)
-            # try:
-            if self.modalMode == "edit":
-                self.model.queue_item_update(item=item)
-            else:
-                self.model.queue_item_add(item=item)
-            self.accept()
-            # except Exception:
-            #     self.popup.set_text("Parameter input error!!")
-            #     self.popup.show_popup()
+            try:
+                if self.modalMode == "edit":
+                    self.model.queue_item_update(item=item)
+                else:
+                    self.model.queue_item_add(item=item)
+                self.accept()
+            except Exception:
+                self.popup.set_text("Parameter input error!!")
+                self.popup.show_popup()
         else:
             self.popup.set_text("Missing required fields!!")
             self.popup.show_popup()
@@ -124,12 +132,12 @@ class SophysForm(QDialog):
         return pos
 
     def changePlan(self, currentPlan):
-        allowed_params = self.model.get_allowed_plan_parameters(name=currentPlan)
+        allowed_params = self.allowed_parameters(name=currentPlan)
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
-        self.currentPlan = allowed_params["name"]
-        group.setTitle(self.currentPlan)
+        self.setChosenItem(allowed_params["name"])
+        group.setTitle(self.chosenItem)
         parameters = allowed_params["parameters"]
         self.inputWidgets = {}
 
@@ -144,6 +152,9 @@ class SophysForm(QDialog):
         self.planParameters.addWidget(group)
         self.group = group
 
+    def setChosenItem(self, itemName):
+        self.chosenItem = itemName
+
     def changeCurrentPlan(self):
         group = QGroupBox()
         group.setMaximumHeight(75)
@@ -152,9 +163,13 @@ class SophysForm(QDialog):
         group.setTitle("Plan")
 
         cb = QComboBox()
-        cb.addItems(self.model.get_allowed_plan_names())
-        cb.activated.connect(lambda idx, cb=cb: self.changePlan(cb.itemText(idx)))
-        self.changePlan(cb.itemText(0))
+        cb.addItems(self.allowed_names())
+        if 'instruction' != self.item_type:
+            cb.activated.connect(lambda idx, cb=cb: self.changePlan(cb.itemText(idx)))
+            self.changePlan(cb.itemText(0))
+        else:
+            cb.activated.connect(lambda idx, cb=cb: self.setChosenItem(cb.itemText(idx)))
+            self.setChosenItem(cb.itemText(0))
         hlay.addWidget(cb)
 
         return group
@@ -162,13 +177,14 @@ class SophysForm(QDialog):
     def setupUi(self):
         lay = QVBoxLayout(self)
 
-        if self.modalMode == 'add':
+        if 'add' in self.modalMode:
             planCb = self.changeCurrentPlan()
             lay.addWidget(planCb)
         else:
             self.changePlan(self.selectedItemMetadata()['name'])
 
-        lay.addLayout(self.planParameters)
+        if 'instruction' != self.item_type:
+            lay.addLayout(self.planParameters)
 
         btns = self.getDialogBtns()
         lay.addWidget(btns)

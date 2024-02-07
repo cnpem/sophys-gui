@@ -36,7 +36,7 @@ app = QApplication(sys.argv)
 setStyle(app)
 
 window = SophysOperationGUI(__backend_model)
-window.setWindowIcon(qtawesome.icon("mdi.cloud"))
+window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
 window.setWindowTitle("SOPHYS GUI")
 window.show()
 
