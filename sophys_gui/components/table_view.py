@@ -143,14 +143,14 @@ class SophysQueueTable(QWidget):
             {
                 "title": "Copy",
                 "icon": "fa5s.copy",
-                "cmd": model.move_up,
+                "cmd": model.copy_queue_item,
                 "enabled": False,
                 "permission": 1
             },
             {
                 "title": "Edit",
                 "icon": "fa5s.pencil-alt",
-                "cmd": model.move_up,
+                "cmd": model.edit_queue_item,
                 "enabled": False,
                 "permission": 1
             },

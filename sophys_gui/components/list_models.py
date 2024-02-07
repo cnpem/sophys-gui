@@ -282,4 +282,14 @@ class QueueModel(ListModel):
 
     @Slot()
     def add_queue_item(self):
-        SophysForm(self._re_model.run_engine).exec()
+        SophysForm(self._re_model.run_engine, "add").exec()
+
+    @Slot()
+    def copy_queue_item(self):
+        self.setSelectedItems()
+        SophysForm(self._re_model.run_engine, "copy").exec()
+
+    @Slot()
+    def edit_queue_item(self):
+        self.setSelectedItems()
+        SophysForm(self._re_model.run_engine, "edit").exec()
