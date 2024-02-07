@@ -45,4 +45,4 @@ class SophysLed(QStackedWidget):
         self.addWidget(self.addLed(self.onColor))
         self.updateEvent.connect(
             self.updateLoopState)
-        self.setFixedSize(30, 20)
+        self.setFixedSize(20, 20)
