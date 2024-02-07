@@ -1,6 +1,7 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout
+from .popup import PopupWidget
 
 
 class SophysForm(QDialog):
@@ -42,8 +43,16 @@ class SophysForm(QDialog):
         plan_parameters = self.getPlanParameters()
         if plan_parameters:
             item = self.getPlanMetadata(plan_parameters)
-            self.model.queue_item_add(item=item)
-            self.accept()
+            try:
+                self.model.queue_item_add(item=item)
+                self.accept()
+            except Exception:
+                self.popup.set_text("Parameter input error!!")
+                self.popup.show_popup()
+        else:
+            self.popup.set_text("Missing required fields!!")
+            self.popup.show_popup()
+
 
     def getDialogBtns(self):
         self.btns = QDialogButtonBox(
@@ -73,6 +82,27 @@ class SophysForm(QDialog):
         hasDefaultValue = "default" in paramMeta
         return not (hasDefaultValue or isPositional or isKeyword)
 
+    def addParameterInput(self, paramMeta, pos, glay):
+        isRequired = self.isRequired(paramMeta)
+
+        title = paramMeta["name"]
+        reqText = ' (required)' if isRequired else ''
+        lbl = QLabel(title + reqText)
+        lbl.setAlignment(Qt.AlignCenter)
+        glay.addWidget(lbl, *pos)
+        pos[0] += 1
+
+        inputWid = self.getInputWidget(paramMeta)
+        glay.addWidget(inputWid, *pos)
+        pos[0] += 1
+
+        self.inputWidgets[title] = {
+            "widget": inputWid,
+            "required": isRequired
+        }
+
+        return pos
+
     def changePlan(self, currentPlan):
         allowed_params = self.model.get_allowed_plan_parameters(name=currentPlan)
         group = QGroupBox()
@@ -84,24 +114,7 @@ class SophysForm(QDialog):
 
         pos = [0, 0]
         for paramMeta in parameters:
-            isRequired = self.isRequired(paramMeta)
-
-            title = paramMeta["name"]
-            reqText = ' (required)' if isRequired else ''
-            lbl = QLabel(title + reqText)
-            lbl.setAlignment(Qt.AlignCenter)
-            glay.addWidget(lbl, *pos)
-            pos[0] += 1
-
-            inputWid = self.getInputWidget(paramMeta)
-            glay.addWidget(inputWid, *pos)
-
-            self.inputWidgets[title] = {
-                "widget": inputWid,
-                "required": isRequired
-            }
-
-            pos[0] += 1
+            pos = self.addParameterInput(paramMeta, pos, glay)
             if pos[0] > 4:
                 pos[0] = 0
                 pos[1] += 2
@@ -126,7 +139,7 @@ class SophysForm(QDialog):
         return group
 
     def setupUi(self):
-        lay = QVBoxLayout()
+        lay = QVBoxLayout(self)
 
         planCb = self.changeCurrentPlan()
         lay.addWidget(planCb)
@@ -136,4 +149,5 @@ class SophysForm(QDialog):
         btns = self.getDialogBtns()
         lay.addWidget(btns)
 
-        self.setLayout(lay)
+        self.popup = PopupWidget(self)
+        self.popup.setVisible(False)

@@ -10,7 +10,7 @@ setup(
         'QtPy==2.3.1',
         'QtAwesome==1.2.3',
         'bluesky-queueserver-api==0.0.10',
-        'bluesky-widgets==0.0.15'
+        'bluesky-widgets'
     ],
     include_package_data=True,
     packages=find_packages(),
