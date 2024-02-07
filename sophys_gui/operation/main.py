@@ -2,6 +2,7 @@ from qtpy.QtWidgets import QMainWindow, QGridLayout, \
     QWidget
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController
+from kafka_bluesky_live.live_view import LiveView
 
 
 class SophysOperationGUI(QMainWindow):
@@ -27,5 +28,8 @@ class SophysOperationGUI(QMainWindow):
 
         history = SophysHistoryTable(self.model)
         glay.addWidget(history, 1, 2, 1, 1)
+
+        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
+        glay.addWidget(live_view, 2, 0, 1, 3)
 
         self.setCentralWidget(wid)

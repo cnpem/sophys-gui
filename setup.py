@@ -10,11 +10,12 @@ setup(
         'QtPy==2.3.1',
         'QtAwesome==1.2.3',
         'bluesky-queueserver-api==0.0.10',
-        'bluesky-widgets'
+        'bluesky-widgets',
+        'kafka-bluesky-live'
     ],
     include_package_data=True,
     packages=find_packages(),
-    package_data={"": ["*.svg", "*.css", "*.yml"]},
+    package_data={"": ["*.css", "*.yml", "*json"]},
     scripts=[
         'scripts/sophys-gui.py'
     ]

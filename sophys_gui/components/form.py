@@ -73,7 +73,6 @@ class SophysForm(QDialog):
             self.popup.set_text("Missing required fields!!")
             self.popup.show_popup()
 
-
     def getDialogBtns(self):
         self.btns = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
