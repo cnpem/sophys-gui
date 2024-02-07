@@ -1,4 +1,4 @@
-QMainWindow{
+QMainWindow, QDialog {
     color: black;
     background-color: @color_prim;
 }
@@ -74,7 +74,7 @@ QSlider::add-page {
     border-radius: 5px;
 }
 
-QSlider::handle {
+QSlider::handle, QLineEdit {
     background: #ffffff;
     border: 1px solid #777;
     width: 13px;
