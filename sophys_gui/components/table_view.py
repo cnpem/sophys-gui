@@ -8,6 +8,38 @@ from .switch import SophysSwitchButton
 from .list_models import QueueModel, HistoryModel
 
 
+def getLimitsPermissions(sel_row, condition):
+    status = True
+    for item in sel_row:
+        if condition(item):
+            status = False
+    return status
+
+def handleBtnEnabled(permission, model):
+    if permission == 0:
+        return True
+    selected_rows = model.getSelectedRows()
+    if len(selected_rows) > 0:
+        if permission == 2:
+            rows = model.rowCount()
+            status = getLimitsPermissions(
+                selected_rows, lambda idx, rows=rows: (idx+1) >= rows)
+        elif permission == 3:
+            status = getLimitsPermissions(
+                selected_rows, lambda idx: idx <= 0)
+        else:
+            status = True
+    else:
+        status = False
+
+    return status
+
+def updateIndex(model, cmd_btns):
+    for key, value in cmd_btns.items():
+        status = handleBtnEnabled(value["permission"], model)
+        cmd_btns[key]["btn"].setEnabled(status)
+
+
 class SophysQueueTable(QWidget):
 
     def __init__(self, model):
@@ -39,38 +71,9 @@ class SophysQueueTable(QWidget):
 
         return hlay
 
-    def getLimitsPermissions(self, sel_row, condition):
-        status = True
-        for item in sel_row:
-            if condition(item):
-                status = False
-        return status
-
-    def handleBtnEnabled(self, permission, key, model):
-        if permission == 0:
-            return
-        selected_rows = model.getSelectedRows()
-        if len(selected_rows) > 0:
-            if permission == 2:
-                rows = model.rowCount()
-                status = self.getLimitsPermissions(
-                    selected_rows, lambda idx, rows=rows: (idx+1) >= rows)
-            elif permission == 3:
-                status = self.getLimitsPermissions(
-                    selected_rows, lambda idx: idx <= 0)
-            else:
-                status = True
-        else:
-            status = False
-        self.cmd_btns[key]["btn"].setEnabled(status)
-
-    def updateIndex(self, model):
-        for key, value in self.cmd_btns.items():
-            self.handleBtnEnabled(value["permission"], key, model)
-
     def handleCommand(self, cmd, model):
         cmd()
-        self.updateIndex(model)
+        updateIndex(model, self.cmd_btns)
 
     def create_btns(self, glay, btn_dict, model):
         idx = 0
@@ -124,13 +127,6 @@ class SophysQueueTable(QWidget):
                 "permission": 2
             },
             {
-                "title": "Clear All",
-                "icon": "mdi.sort-variant-remove",
-                "cmd": model.clear_all,
-                "enabled": True,
-                "permission": 0
-            },
-            {
                 "title": "Delete",
                 "icon": "fa5s.trash-alt",
                 "cmd": model.delete_item,
@@ -138,8 +134,15 @@ class SophysQueueTable(QWidget):
                 "permission": 1
             },
             {
+                "title": "Duplicate",
+                "icon": "fa5s.clone",
+                "cmd": model.duplicate_item,
+                "enabled": False,
+                "permission": 1
+            },
+            {
                 "title": "Copy",
-                "icon": "mdi6.content-copy",
+                "icon": "fa5s.copy",
                 "cmd": model.move_up,
                 "enabled": False,
                 "permission": 1
@@ -152,9 +155,23 @@ class SophysQueueTable(QWidget):
                 "permission": 1
             },
             {
+                "title": "Clear All",
+                "icon": "mdi.sort-variant-remove",
+                "cmd": model.clear_all,
+                "enabled": True,
+                "permission": 0
+            },
+            {
                 "title": "Add Plan",
                 "icon": "fa5s.plus",
-                "cmd": model.move_up,
+                "cmd": model.add_queue_item,
+                "enabled": True,
+                "permission": 0
+            },
+            {
+                "title": "Add Instruction",
+                "icon": "mdi6.block-helper",
+                "cmd": model.move_bottom,
                 "enabled": True,
                 "permission": 0
             },
@@ -182,12 +199,14 @@ class SophysQueueTable(QWidget):
         vlay.addLayout(header)
 
         table = SophysTable(self.queueModel)
-        table.pressed.connect(
-            lambda _, model=table.model(): self.updateIndex(model))
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
         vlay.addLayout(controls)
+
+        table.pressed.connect(
+            lambda _, model=table.model(),
+            cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
 
         self.setLayout(vlay)
 
@@ -206,29 +225,32 @@ class SophysHistoryTable(QWidget):
             btn = QPushButton(title)
             btn.clicked.connect(btn_dict["cmd"])
             btn.setIcon(qta.icon(btn_dict["icon"]))
-            self.cmd_btns[title] = btn
+            btn.setEnabled(btn_dict["enabled"])
+            self.cmd_btns[title] = {
+                "btn": btn,
+                "permission": btn_dict["permission"]
+            }
             glay.addWidget(btn, 1, idy, 1, 1)
 
-    def setCommandButtons(self, model, glay):
+    def getTableControls(self, model):
+        glay = QGridLayout()
         control_btns = [
             {
                 "title": "Clear All",
                 "icon": "mdi.sort-variant-remove",
-                "cmd": model.clear_all
+                "cmd": model.clear_all,
+                "enabled": True,
+                "permission": 0
             },
             {
                 "title": "Copy to Queue",
                 "icon": "mdi6.content-copy",
-                "cmd": print
+                "cmd": model.copy_to_queue,
+                "enabled": False,
+                "permission": 1
             }
         ]
         self.create_btns(glay, control_btns)
-
-    def getTableControls(self, model):
-        glay = QGridLayout()
-
-        self.setCommandButtons(model, glay)
-
         return glay
 
     def _setupUi(self):
@@ -242,6 +264,10 @@ class SophysHistoryTable(QWidget):
 
         controls = self.getTableControls(table.model())
         vlay.addLayout(controls)
+
+        table.pressed.connect(
+            lambda _, model=table.model(),
+            cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
 
         self.setLayout(vlay)
 
