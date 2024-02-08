@@ -1,3 +1,4 @@
+import ast
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout
@@ -35,7 +36,12 @@ class SophysForm(QDialog):
         for key, inputWid in self.inputWidgets.items():
             value = inputWid["widget"].text()
             if len(value) > 0:
-                inputValues[key] = value
+                try:
+                    value = ast.literal_eval(value)
+                    inputValues[key] = value
+                except Exception:
+                    inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
+                    isValid = False
             elif inputWid["required"]:
                 inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                 isValid = False

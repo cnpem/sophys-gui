@@ -31,10 +31,12 @@ class ListModel(QAbstractTableModel):
         desc = []
 
         if item["item_type"] == "plan":
-            params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
-            for i, arg in enumerate(args):
-                desc.append("{} = {}".format(params[i]["name"], arg))
-            return " | ".join(desc)
+            planParams = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])
+            if planParams:
+                params = planParams["parameters"]
+                for i, arg in enumerate(args):
+                    desc.append("{} = {}".format(params[i]["name"], arg))
+                return " | ".join(desc)
         return str(args)
 
     def kwRender(self, item: dict, kwargs: dict):
