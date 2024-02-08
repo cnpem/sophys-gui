@@ -156,7 +156,6 @@ class ListModel(QAbstractTableModel):
             return
 
         column_spec = self.columns[index.column()]
-
         if role == Qt.BackgroundRole:
             return QBrush(QColor(self.getBackgroundColor(row)))
         if role == Qt.DisplayRole:

@@ -16,7 +16,7 @@ class QueueServerModel:
 
         self.run_engine = RunEngineClient(
             http_server_uri="http://127.0.0.1:http_server_port",
-            http_server_api_key=http_server_api_key,
+            http_server_api_key=http_server_api_key
         )
 
         self.server_callback(

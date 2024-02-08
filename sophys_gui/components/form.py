@@ -53,7 +53,9 @@ class SophysForm(QDialog):
     def getPlanMetadata(self, plan_parameters):
         metadata = {
             'item_type': self.item_type,
-            'name': self.chosenItem
+            'name': self.chosenItem,
+            'user': self.model._user_name,
+            'user_group': self.model._user_group
         }
         if self.item_type == 'plan':
             metadata['args'] = []
