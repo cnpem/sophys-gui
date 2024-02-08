@@ -1,5 +1,6 @@
 import re
-from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot
+from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
+    Signal
 from qtpy.QtGui import QBrush, QColor
 from sophys_gui.functions import getItemRecursively
 from .form import SophysForm
@@ -8,6 +9,7 @@ from .form import SophysForm
 class ListModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
     _roles = {Qt.DisplayRole: b"value", Qt.ToolTipRole: b"tooltip", SelectedRole: b"selected"}
+    updateTable = Signal([int])
 
     def statusRender(self, item: dict, status: str):
         """Renders the 'Status' column items."""
@@ -104,7 +106,7 @@ class ListModel(QAbstractTableModel):
         ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
         ("Arguments", ["args"], argumentsRender, argumentsTooltipRender),
-        ("Keyword Arguments", ["kwargs"], kwRender, kwTooltipRender),
+        ("Keyword Arguments", ["kwargs"], kwRender, kwTooltipRender)
     ]
 
     columns_history = [
@@ -135,10 +137,17 @@ class ListModel(QAbstractTableModel):
             return 0
         return len(self.columns)
 
+    def getBackgroundColor(self, row):
+        if row in self.selected_rows:
+            return "#ddccad"
+        if row%2 == 0:
+            return "#ede7db"
+        return "#efebe5"
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return
-        row = index.row()
+        row = self.row_count(index.row()) - 1
         try:
             item = self.plan_items[row]
         except IndexError:
@@ -146,8 +155,8 @@ class ListModel(QAbstractTableModel):
 
         column_spec = self.columns[index.column()]
 
-        if row in self.selected_rows and role == Qt.BackgroundRole:
-            return QBrush(QColor("#ddccad"))
+        if role == Qt.BackgroundRole:
+            return QBrush(QColor(self.getBackgroundColor(row)))
         if role == Qt.DisplayRole:
             return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
         if role == Qt.ToolTipRole:
@@ -158,13 +167,12 @@ class ListModel(QAbstractTableModel):
             return index.row() in self.selected_rows
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal:
-            column_spec = self.columns[section]
-            if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                column_spec = self.columns[section]
                 return str(column_spec[0])
-        else:
-            if role == Qt.DisplayRole:
-                return str(self.row_count(section))
+            else:
+                return self.row_count(section)
 
     def flags(self, index):
         if not index.isValid():
@@ -180,6 +188,7 @@ class ListModel(QAbstractTableModel):
 
     @Slot(object)
     def onPlanListChanged(self, _):
+        self.updateTable.emit(self.rowCount())
         self.beginResetModel()
         self.endResetModel()
 
@@ -219,7 +228,7 @@ class QueueModel(ListModel):
     def __init__(self, re_model, parent=None):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
-        row_count = lambda section: section+1
+        row_count = lambda section: section + 1
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
 
     def setSelectedItems(self):

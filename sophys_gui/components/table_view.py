@@ -1,5 +1,5 @@
 import qtawesome as qta
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QTableView, QHeaderView, \
     QVBoxLayout, QHBoxLayout, QWidget, QGridLayout, QPushButton
 
@@ -48,6 +48,7 @@ class SophysQueueTable(QWidget):
         self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
+        self.setMinimumWidth(350)
         self._setupUi()
 
     def updateLoopState(self, evt):
@@ -199,6 +200,7 @@ class SophysQueueTable(QWidget):
         vlay.addLayout(header)
 
         table = SophysTable(self.queueModel)
+        self.queueModel.updateTable.connect(table.detectChange)
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
@@ -217,6 +219,7 @@ class SophysHistoryTable(QWidget):
         super().__init__()
         self.queueModel = HistoryModel(model)
         self.cmd_btns = {}
+        self.setMinimumWidth(425)
         self._setupUi()
 
     def create_btns(self, glay, btn_dict):
@@ -260,6 +263,7 @@ class SophysHistoryTable(QWidget):
         vlay.addWidget(header)
 
         table = SophysTable(self.queueModel)
+        self.queueModel.updateTable.connect(table.detectChange)
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
@@ -276,9 +280,24 @@ class SophysTable(QTableView):
 
     def __init__(self, model):
         super().__init__()
+        self.currRows = 0
         self.setModel(model)
         self.setResizable()
+        self.timer=QTimer()
+        self.timer.timeout.connect(self.resetBorder)
         self.pressed.connect(self.selectItem)
+
+    def resetBorder(self):
+        self.setStyleSheet("QTableView{ border: 1px solid #ddd;}")
+        self.timer.stop()
+
+    def detectChange(self, rowCount):
+        if rowCount < self.currRows:
+            self.setStyleSheet("QTableView{ border: 1px solid #ff0000;}")
+        elif rowCount > self.currRows:
+            self.setStyleSheet("QTableView{ border: 1px solid #00ff00;}")
+        self.currRows = rowCount
+        self.timer.start(1000)
 
     def selectItem(self):
         table_model = self.model()
@@ -288,7 +307,7 @@ class SophysTable(QTableView):
     def setResizable(self):
         columns = self.model().getColumns()
         self.verticalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
+            QHeaderView.ResizeToContents)
         hor_header = self.horizontalHeader()
         for idcol, item in enumerate(columns):
             resize_pol = QHeaderView.ResizeToContents
