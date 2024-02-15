@@ -18,6 +18,8 @@ class SophysOperationGUI(QMainWindow):
         if isLogged:
             re._user_name = self.login._email.text()
             re._user_group = self.login._allowed_group
+            self.login._email.setText("")
+            self.login._password.setText("")
         else:
             re._user_name = 'Unknown'
             re._user_group = 'Unknown'
