@@ -1,7 +1,8 @@
 import qtawesome as qta
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QTableView, QHeaderView, \
-    QVBoxLayout, QHBoxLayout, QWidget, QGridLayout, QPushButton
+    QVBoxLayout, QHBoxLayout, QWidget, QGridLayout, QPushButton, \
+    QMessageBox
 
 from sophys_gui.functions import getHeader
 from .switch import SophysSwitchButton
@@ -39,6 +40,13 @@ def updateIndex(model, cmd_btns):
         status = handleBtnEnabled(value["permission"], model)
         cmd_btns[key]["btn"].setEnabled(status)
 
+def confirmationDialog(parent, title):
+    resCode = QMessageBox.question(parent, title + " Action Confirmation",
+        "Are you sure you want to proceed?")
+    if resCode == QMessageBox.Yes:
+        return True
+    return False
+
 
 class SophysQueueTable(QWidget):
 
@@ -73,9 +81,13 @@ class SophysQueueTable(QWidget):
 
         return hlay
 
-    def handleCommand(self, cmd, model):
-        cmd()
-        updateIndex(model, self.cmd_btns)
+    def handleCommand(self, cmd, model, title, hasConfirmation):
+        confirmation = True
+        if hasConfirmation:
+            confirmation = confirmationDialog(self, title)
+        if confirmation:
+            cmd()
+            updateIndex(model, self.cmd_btns)
 
     def create_btns(self, glay, btn_dict, model):
         idx = 0
@@ -84,8 +96,11 @@ class SophysQueueTable(QWidget):
             title = btn_dict["title"]
             permission = btn_dict["permission"]
             btn = QPushButton(title)
+            hasConfirmation = "confirm" in btn_dict
             btn.clicked.connect(
-                lambda _, model=model, cmd=btn_dict["cmd"]: self.handleCommand(cmd, model))
+                lambda _, model=model, cmd=btn_dict["cmd"],
+                title=btn_dict["title"], hasConf=hasConfirmation: self.handleCommand(
+                    cmd, model, title, hasConf))
             btn.setIcon(qta.icon(btn_dict["icon"]))
             btn.setEnabled(btn_dict["enabled"])
             self.cmd_btns[title] = {
@@ -133,6 +148,7 @@ class SophysQueueTable(QWidget):
                 "icon": "fa5s.trash-alt",
                 "cmd": model.delete_item,
                 "enabled": False,
+                "confirm": True,
                 "permission": 1
             },
             {
@@ -161,6 +177,7 @@ class SophysQueueTable(QWidget):
                 "icon": "mdi.sort-variant-remove",
                 "cmd": model.clear_all,
                 "enabled": True,
+                "confirm": True,
                 "permission": 0
             },
             {
@@ -223,13 +240,24 @@ class SophysHistoryTable(QWidget):
         self.setMinimumWidth(425)
         self._setupUi()
 
+    def handleCommand(self, cmd, title, hasConfirmation):
+        confirmation = True
+        if hasConfirmation:
+            confirmation = confirmationDialog(self, title)
+        print(confirmation, hasConfirmation)
+        if confirmation:
+            cmd()
+
     def create_btns(self, glay, btn_dict):
         for idy, btn_dict in enumerate(btn_dict):
             title = btn_dict["title"]
             btn = QPushButton(title)
-            btn.clicked.connect(btn_dict["cmd"])
+            hasConfirmation = "confirm" in btn_dict
+            btn.clicked.connect(lambda _, hasConf=hasConfirmation,
+                cmd=btn_dict["cmd"], title=title: self.handleCommand(cmd, title, hasConf))
             btn.setIcon(qta.icon(btn_dict["icon"]))
             btn.setEnabled(btn_dict["enabled"])
+
             self.cmd_btns[title] = {
                 "btn": btn,
                 "permission": btn_dict["permission"]
@@ -244,6 +272,7 @@ class SophysHistoryTable(QWidget):
                 "icon": "mdi.sort-variant-remove",
                 "cmd": model.clear_all,
                 "enabled": True,
+                "confirm": True,
                 "permission": 0
             },
             {
