@@ -1,4 +1,5 @@
 import qtawesome as qta
+from qtpy.QtCore import QSize
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QGroupBox, \
     QStackedWidget, QPushButton
 from .led import SophysLed
@@ -8,23 +9,34 @@ class QueueController(QWidget):
 
     def __init__(self, model):
         super().__init__()
-        self.serverModel = model
-        self.updateEvent = self.serverModel.run_engine.events.status_changed
-        self.statusVar = self.serverModel.run_engine.re_manager_status
+        self.run_engine = model.run_engine
+        self.updateEvent = self.run_engine.events.status_changed
+        self.statusVar = self.run_engine.re_manager_status
         self.setMaximumHeight(75)
         self._setupUi()
 
     def statusChanged(self, evt):
-        statusVal = self.statusVar.get('re_state', None)
-        currIndex = 0 if statusVal == 'idle' else 1 if statusVal == 'running' else 2
-        self.play_stack.setCurrentIndex(currIndex)
-        self.stop_stack.setCurrentIndex(currIndex)
+        if evt.is_connected:
+            envVal = self.statusVar.get('worker_environment_exists', None)
+            statusVal = self.statusVar.get('manager_state', None)
+            currIndex = 0 if statusVal == 'idle' else 1 if statusVal == 'executing_queue' else 2
+            self.play_stack.setCurrentIndex(currIndex)
+            self.play_stack.setEnabled(envVal)
+            self.stop_stack.setCurrentIndex(currIndex)
+            self.stop_stack.setEnabled(envVal)
+
+            currIndex = 1 if envVal else 0
+            self.env_stack.setCurrentIndex(currIndex)
 
     def addStatusGroup(self, title, param_dict):
         group = QGroupBox()
         group.setTitle(title)
         groupLay = QHBoxLayout()
+        groupLay.setContentsMargins(25, 2, 25, 2)
         group.setLayout(groupLay)
+
+        if 'control' in param_dict:
+            self.addEnvironmentController(groupLay)
 
         statusKey = param_dict["key"]
         statusComp = param_dict["comp"]
@@ -44,7 +56,8 @@ class QueueController(QWidget):
             },
             'Environment': {
                 'key': 'worker_environment_exists',
-                'comp': lambda boolVar: boolVar
+                'comp': lambda boolVar: boolVar,
+                'control': self.run_engine.environment_open
             },
             'Running': {
                 'key': 're_state',
@@ -65,6 +78,7 @@ class QueueController(QWidget):
         for btn_stack in cmd_btn_dict:
             btn = QPushButton(btn_stack["title"])
             btn.setIcon(qta.icon(btn_stack["icon"]))
+            btn.setIconSize(QSize(20, 20))
             btn.clicked.connect(btn_stack["cmd"])
             if 'enabled' in btn_stack:
                 btn.setEnabled(False)
@@ -72,22 +86,38 @@ class QueueController(QWidget):
 
         return stack
 
+    def addEnvironmentController(self, hlay):
+        cmd_env = [
+            {
+                'icon': 'mdi6.progress-check',
+                'title': 'Open',
+                'cmd': self.run_engine.environment_open
+            },
+            {
+                'icon': 'mdi6.progress-close',
+                'title': 'Close',
+                'cmd': self.run_engine.environment_close
+            }
+        ]
+        self.env_stack = self.addQueueController(cmd_env)
+        hlay.addWidget(self.env_stack)
+
     def addPlayController(self, hlay):
         cmd_start = [
             {
                 'icon': 'fa5s.play',
                 'title': 'Start',
-                'cmd': self.serverModel.run_engine.queue_start
+                'cmd': self.run_engine.queue_start
             },
             {
                 'icon': 'fa5s.pause',
                 'title': 'Pause',
-                'cmd': lambda _: self.serverModel.run_engine.re_pause(option='deferred')
+                'cmd': lambda _: self.run_engine.re_pause(option='deferred')
             },
             {
                 'icon': 'fa5s.play',
                 'title': 'Resume',
-                'cmd': self.serverModel.run_engine.re_resume
+                'cmd': self.run_engine.re_resume
             }
         ]
         self.play_stack = self.addQueueController(cmd_start)
@@ -104,12 +134,12 @@ class QueueController(QWidget):
             {
                 'icon': 'fa5s.stop',
                 'title': 'Stop',
-                'cmd': self.serverModel.run_engine.queue_stop
+                'cmd': self.run_engine.queue_stop
             },
             {
                 'icon': 'fa5s.stop',
                 'title': 'Abort',
-                'cmd': self.serverModel.run_engine.re_abort
+                'cmd': self.run_engine.re_abort
             }
         ]
         self.stop_stack = self.addQueueController(cmd_start)
