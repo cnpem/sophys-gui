@@ -16,7 +16,11 @@ class SophysOperationGUI(QMainWindow):
     def loginUser(self, isLogged):
         re = self.model.run_engine
         if isLogged:
-            re._user_name = self.login._email.text()
+            username = self.login._email.text()
+            password = self.login._password.text()
+            client_data = re._client.login(username=username, password=password, provider='ldap/token')
+            re._client.apikey_new(expires_in=3600)
+            re._user_name = username
             re._user_group = self.login._allowed_group
             self.login._email.setText("")
             self.login._password.setText("")
