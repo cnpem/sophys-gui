@@ -130,6 +130,7 @@ class SophysRunningItem(QWidget):
         glay.addWidget(self.loading, 0, 1, 1, 1)
 
         self.attributesDisplay = QHBoxLayout()
+        self.attributesDisplay.addWidget(self.group)
         glay.addLayout(self.attributesDisplay, 1, 0, 5, 2)
 
         self.setCommandButtons(self.model, glay)

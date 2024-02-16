@@ -52,10 +52,11 @@ class SophysQueueTable(QWidget):
         self._setupUi()
 
     def updateLoopState(self, evt):
-        status = self.serverModel.run_engine.re_manager_status
-        queueMode = status.get("plan_queue_mode", None)
-        loopEnabled = queueMode.get("loop", None) if queueMode else None
-        self.loop.slider.setValue(1 if loopEnabled else 0)
+        if evt.is_connected:
+            status = self.serverModel.run_engine.re_manager_status
+            queueMode = status.get("plan_queue_mode", None)
+            loopEnabled = queueMode.get("loop", None) if queueMode else None
+            self.loop.slider.setValue(1 if loopEnabled else 0)
 
     def getHeader(self):
         hlay = QHBoxLayout()
