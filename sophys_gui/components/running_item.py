@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QGridLayout, QPushButton, \
     QLabel, QGroupBox, QHBoxLayout, QApplication, QSizePolicy
 
-from sophys_gui.functions import getHeader
+from sophys_gui.functions import getHeader, getLoadingButton
 
 from suitscase.utilities.threading import DeferredFunction
 
@@ -113,20 +113,13 @@ class SophysRunningItem(QWidget):
         self.attributesDisplay.addWidget(group)
         self.group = group
 
-    def getLoadingButton(self):
-        self.loading = QPushButton('')
-        self.loading.setIcon(qta.icon(
-            'fa5s.spinner', animation=qta.Spin(self.loading)))
-        self.loading.setVisible(False)
-        self.loading.setFlat(True)
-
     def _setupUi(self):
         glay = QGridLayout(self)
 
         header = getHeader("Running")
         glay.addWidget(header, 0, 0, 1, 1)
 
-        self.getLoadingButton()
+        self.loading = getLoadingButton()
         glay.addWidget(self.loading, 0, 1, 1, 1)
 
         self.attributesDisplay = QHBoxLayout()

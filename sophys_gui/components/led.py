@@ -1,22 +1,25 @@
-from qtpy.QtWidgets import QStackedWidget, QLabel
+import qtawesome as qta
+from qtpy.QtWidgets import QStackedWidget, QLabel, QPushButton
+from sophys_gui.functions import getLoadingButton
 
 
 class SophysLed(QStackedWidget):
 
-    def __init__(self, updateEvent, statusVar, statusKey, statusComp, isConn=False):
+    def __init__(self, updateEvent, statusVar, statusKey, statusComp, isConn=False, isLoading=False):
         super().__init__()
         self.updateEvent = updateEvent
         self.statusVar = statusVar
         self.statusKey = statusKey
         self.statusComp = statusComp
         self.isConn = isConn
+        self.isLoading = isLoading
 
         self.onColor = ["#00ee00", "#00c700"]
         self.offColor = ["#1c6f0d", "#0f3f07"]
 
         self.setupUi()
 
-    def updateLoopState(self, evt):
+    def updateState(self, evt):
         if self.isConn:
             ledStatus = evt.is_connected
         else:
@@ -24,6 +27,11 @@ class SophysLed(QStackedWidget):
             statusVal = status.get(self.statusKey, None)
             ledStatus = self.statusComp(statusVal)
         self.setCurrentIndex(1 if ledStatus else 0)
+
+    def addLoading(self):
+        loading = getLoadingButton()
+        loading.setVisible(True)
+        return loading
 
     def addLed(self, color):
         label = QLabel('')
@@ -41,8 +49,8 @@ class SophysLed(QStackedWidget):
         return label
 
     def setupUi(self):
-        self.addWidget(self.addLed(self.offColor))
-        self.addWidget(self.addLed(self.onColor))
+        self.addWidget(QLabel() if self.isLoading else self.addLed(self.offColor))
+        self.addWidget(self.addLoading() if self.isLoading else self.addLed(self.onColor))
         self.updateEvent.connect(
-            self.updateLoopState)
+            self.updateState)
         self.setFixedSize(20, 20)

@@ -45,6 +45,15 @@ class QueueController(QWidget):
             self.updateEvent, self.statusVar, statusKey,
             statusComp, isConn)
         groupLay.addWidget(led)
+
+        if 'loading' in param_dict:
+            loadingKey = param_dict["loading"]["key"]
+            loadingComp = param_dict["loading"]["comp"]
+            loading = SophysLed(
+                self.updateEvent, self.statusVar, loadingKey,
+                loadingComp, isLoading=True)
+            groupLay.addWidget(loading)
+
         return group
 
     def addStatusLeds(self, hlay):
@@ -57,11 +66,12 @@ class QueueController(QWidget):
             'Environment': {
                 'key': 'worker_environment_exists',
                 'comp': lambda boolVar: boolVar,
-                'control': self.run_engine.environment_open
-            },
-            'Running': {
-                'key': 're_state',
-                'comp': lambda stateVar: stateVar=="running"
+                'control': self.run_engine.environment_open,
+                'loading': {
+                    'key': 'manager_state',
+                    'comp': lambda stateVar:
+                        stateVar=="creating_environment" or stateVar=="closing_environment"
+                }
             },
             'Stop Pending': {
                 'key': 'queue_stop_pending',

@@ -18,15 +18,18 @@ class SophysOperationGUI(QMainWindow):
         if isLogged:
             username = self.login._email.text()
             password = self.login._password.text()
-            client_data = re._client.login(username=username, password=password, provider='ldap/token')
+            client_data = re._client.login(
+                username=username, password=password,
+                provider='ldap/token')
             re._client.apikey_new(expires_in=3600)
             re._user_name = username
             re._user_group = self.login._allowed_group
             self.login._email.setText("")
             self.login._password.setText("")
         else:
-            re._user_name = 'Unknown'
-            re._user_group = 'Unknown'
+            re._user_name = 'GUI Client'
+            re._user_group = 'primary'
+            re._client.logout()
 
     def _setupUi(self):
         wid = QWidget()
