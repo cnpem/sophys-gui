@@ -15,6 +15,7 @@ window = SophysOperationGUI(__backend_model)
 window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
 window.setWindowTitle("SOPHYS GUI")
 window.show()
+app.createPopup(window)
 
 __backend_model.run_engine.load_re_manager_status(unbuffered=True)
 

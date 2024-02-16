@@ -1,8 +1,8 @@
 import ast
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
-    QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout
-from .popup import PopupWidget
+    QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
+    QApplication
 
 
 class SophysForm(QDialog):
@@ -42,12 +42,14 @@ class SophysForm(QDialog):
                 except Exception:
                     inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                     isValid = False
+                    exception = "001: Invalid Input type!!"
             elif inputWid["required"]:
                 inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                 isValid = False
+                exception = "002: Missing required fields!!"
 
         if not isValid:
-            return False
+            raise Exception(exception)
         return inputValues
 
     def getPlanMetadata(self, plan_parameters):
@@ -66,20 +68,12 @@ class SophysForm(QDialog):
 
     def addPlanToQueue(self):
         plan_parameters = self.getPlanParameters()
-        if plan_parameters:
-            item = self.getPlanMetadata(plan_parameters)
-            try:
-                if self.modalMode == "edit":
-                    self.model.queue_item_update(item=item)
-                else:
-                    self.model.queue_item_add(item=item)
-                self.accept()
-            except Exception:
-                self.popup.set_text("Parameter input error!!")
-                self.popup.show_popup()
+        item = self.getPlanMetadata(plan_parameters)
+        if self.modalMode == "edit":
+            self.model.queue_item_update(item=item)
         else:
-            self.popup.set_text("Missing required fields!!")
-            self.popup.show_popup()
+            self.model.queue_item_add(item=item)
+        self.accept()
 
     def getDialogBtns(self):
         self.btns = QDialogButtonBox(
@@ -196,5 +190,5 @@ class SophysForm(QDialog):
         btns = self.getDialogBtns()
         lay.addWidget(btns)
 
-        self.popup = PopupWidget(self)
-        self.popup.setVisible(False)
+        app = QApplication.instance()
+        app.createPopup(self)
