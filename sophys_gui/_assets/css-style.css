@@ -18,10 +18,7 @@ QTableView:item:hover {
 
 QTableView:item:selected {
     background-color: @select_color_sec;
-}
-
-QTableView:item:selected:focus {
-    background-color: @press_color_sec;
+    color: black;
 }
 
 QCheckBox::indicator {

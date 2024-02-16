@@ -244,7 +244,6 @@ class SophysHistoryTable(QWidget):
         confirmation = True
         if hasConfirmation:
             confirmation = confirmationDialog(self, title)
-        print(confirmation, hasConfirmation)
         if confirmation:
             cmd()
 
@@ -257,7 +256,6 @@ class SophysHistoryTable(QWidget):
                 cmd=btn_dict["cmd"], title=title: self.handleCommand(cmd, title, hasConf))
             btn.setIcon(qta.icon(btn_dict["icon"]))
             btn.setEnabled(btn_dict["enabled"])
-
             self.cmd_btns[title] = {
                 "btn": btn,
                 "permission": btn_dict["permission"]
