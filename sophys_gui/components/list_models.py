@@ -40,6 +40,9 @@ class ListModel(QAbstractTableModel):
             return "\n".join(desc)
         return str(kwargs)
 
+    def uidRender(self, item: dict, uid: str):
+        return ''
+
     def statusTooltipRender(self, item: dict, status: str):
         """Renders the 'Status' column item tooltips."""
         return "Exit status received after the item execution."
@@ -94,6 +97,11 @@ class ListModel(QAbstractTableModel):
         ("Status", ["result", "exit_status"], statusRender, statusTooltipRender)
     ] + columns
 
+    columns_queue = columns + [
+        ("Delete", ["item_uid"], uidRender, statusTooltipRender),
+        ("Edit", ["item_uid"], uidRender, statusTooltipRender)
+    ]
+
     def __init__(self, re_model, plan_changed, plan_items, row_count, listId, parent=None):
         super().__init__(parent)
 
@@ -104,6 +112,8 @@ class ListModel(QAbstractTableModel):
         self.selected_rows = []
         if listId == "History":
             self.columns = self.columns_history
+        else:
+            self.columns = self.columns_queue
 
     def getColumns(self):
         return self.columns
@@ -168,9 +178,9 @@ class ListModel(QAbstractTableModel):
 
     @Slot(object)
     def onPlanListChanged(self, _):
-        self.updateTable.emit(self.rowCount())
         self.beginResetModel()
         self.endResetModel()
+        self.updateTable.emit(self.rowCount())
 
     @Slot(int)
     def select(self, row):

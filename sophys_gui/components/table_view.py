@@ -81,29 +81,35 @@ class SophysQueueTable(QWidget):
 
         return hlay
 
-    def handleCommand(self, cmd, model, title, hasConfirmation):
+    def handleCommand(self, cmd, model, title, hasConfirmation, row):
         confirmation = True
         if hasConfirmation:
             confirmation = confirmationDialog(self, title)
+        if row!=None:
+            self.queueModel.select(row)
         if confirmation:
             cmd()
             updateIndex(model, self.cmd_btns)
 
-    def create_btns(self, glay, btn_dict, model):
+    def createSingleBtn(self, btn_dict, model, idx=None):
+        title = btn_dict["title"]
+        btn = QPushButton(title)
+        hasConfirmation = "confirm" in btn_dict
+        btn.clicked.connect(
+            lambda _, model=model, cmd=btn_dict["cmd"],
+            title=title, hasConf=hasConfirmation, idx=idx: self.handleCommand(
+                cmd, model, title, hasConf, idx))
+        btn.setIcon(qta.icon(btn_dict["icon"]))
+        btn.setEnabled(btn_dict["enabled"])
+        return btn
+
+    def createBtns(self, glay, btn_dict, model):
         idx = 0
         idy = 0
         for btn_dict in btn_dict:
-            title = btn_dict["title"]
             permission = btn_dict["permission"]
-            btn = QPushButton(title)
-            hasConfirmation = "confirm" in btn_dict
-            btn.clicked.connect(
-                lambda _, model=model, cmd=btn_dict["cmd"],
-                title=btn_dict["title"], hasConf=hasConfirmation: self.handleCommand(
-                    cmd, model, title, hasConf))
-            btn.setIcon(qta.icon(btn_dict["icon"]))
-            btn.setEnabled(btn_dict["enabled"])
-            self.cmd_btns[title] = {
+            btn = self.createSingleBtn(btn_dict, model)
+            self.cmd_btns[btn_dict["title"]] = {
                 "btn": btn,
                 "permission": permission
             }
@@ -202,7 +208,7 @@ class SophysQueueTable(QWidget):
                 "permission": 0
             }
         ]
-        self.create_btns(glay, control_btns, model)
+        self.createBtns(glay, control_btns, model)
 
     def getTableControls(self, model):
         glay = QGridLayout()
@@ -210,6 +216,29 @@ class SophysQueueTable(QWidget):
         self.setCommandButtons(model, glay)
 
         return glay
+
+    def setTableOperationButtons(self, table):
+        rows = self.queueModel.rowCount()
+        for idx in range(0, rows):
+            control_btns = [
+                {
+                    "title": "Edit",
+                    "icon": "fa5s.pencil-alt",
+                    "cmd": self.queueModel.edit_queue_item,
+                    "enabled": True
+                },
+                {
+                    "title": "Delete",
+                    "icon": "fa5s.trash-alt",
+                    "cmd": self.queueModel.delete_item,
+                    "enabled": True,
+                    "confirm": True
+                }
+            ]
+            for idy, btn_dict in enumerate(control_btns):
+                btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
+                btn.setMinimumHeight(20)
+                table.setIndexWidget(self.queueModel.index(idx, 4+idy), btn)
 
     def _setupUi(self):
         vlay = QVBoxLayout(self)
@@ -227,6 +256,10 @@ class SophysQueueTable(QWidget):
         table.pressed.connect(
             lambda _, model=table.model(),
             cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
+
+        self.setTableOperationButtons(table)
+        self.queueModel.updateTable.connect(
+            lambda _, table=table: self.setTableOperationButtons(table))
 
         self.setLayout(vlay)
 
@@ -247,7 +280,7 @@ class SophysHistoryTable(QWidget):
         if confirmation:
             cmd()
 
-    def create_btns(self, glay, btn_dict):
+    def createBtns(self, glay, btn_dict):
         for idy, btn_dict in enumerate(btn_dict):
             title = btn_dict["title"]
             btn = QPushButton(title)
@@ -281,7 +314,7 @@ class SophysHistoryTable(QWidget):
                 "permission": 1
             }
         ]
-        self.create_btns(glay, control_btns)
+        self.createBtns(glay, control_btns)
         return glay
 
     def _setupUi(self):
