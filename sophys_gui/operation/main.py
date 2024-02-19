@@ -11,14 +11,19 @@ class SophysOperationGUI(QMainWindow):
     def __init__(self, model):
         super().__init__()
         self.model = model
+        self.client_data = None
         self._setupUi()
+
+    def closeEvent(self, event):
+        if self.client_data:
+            self.model._client.logout()
 
     def loginUser(self, isLogged):
         re = self.model.run_engine
         if isLogged:
             username = self.login._email.text()
             password = self.login._password.text()
-            client_data = re._client.login(
+            self.client_data = re._client.login(
                 username=username, password=password,
                 provider='ldap/token')
             re._client.apikey_new(expires_in=3600)
@@ -30,6 +35,7 @@ class SophysOperationGUI(QMainWindow):
             re._user_name = 'GUI Client'
             re._user_group = 'primary'
             re._client.logout()
+            self.client_data = None
 
     def _setupUi(self):
         wid = QWidget()

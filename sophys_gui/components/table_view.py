@@ -339,7 +339,7 @@ class SophysTable(QTableView):
         hor_header = self.horizontalHeader()
         for idcol, item in enumerate(columns):
             resize_pol = QHeaderView.ResizeToContents
-            if "Keyword" in item[0]:
+            if "Arguments" in item[0]:
                 resize_pol = QHeaderView.Stretch
             hor_header.setSectionResizeMode(
                 idcol, resize_pol)

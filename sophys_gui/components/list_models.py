@@ -23,23 +23,11 @@ class ListModel(QAbstractTableModel):
         """Renders the 'Name' column items."""
         return str(name)
 
-    def argumentsRender(self, item: dict, args: list):
-        """Renders the 'Arguments' column items."""
-        if len(args) == 0:
-            return "None"
+    def userRender(self, item: dict, user: str):
+        """Renders the 'User' column items."""
+        return str(user)
 
-        desc = []
-
-        if item["item_type"] == "plan":
-            planParams = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])
-            if planParams:
-                params = planParams["parameters"]
-                for i, arg in enumerate(args):
-                    desc.append("{} = {}".format(params[i]["name"], arg))
-                return " | ".join(desc)
-        return str(args)
-
-    def kwRender(self, item: dict, kwargs: dict):
+    def argumentsRender(self, item: dict, kwargs: dict):
         """Renders the 'Keyword Arguments' column items."""
         if len(kwargs) == 0:
             return "None"
@@ -72,20 +60,11 @@ class ListModel(QAbstractTableModel):
 
             return "{}\n{}".format(description, source)
 
-    def argumentsTooltipRender(self, item: dict, args: list):
-        """Renders the 'Arguments' column item tooltips."""
-        if len(args) == 0:
-            return
+    def userTooltipRender(self, item: dict, user: str):
+        """Renders the 'User' column item tooltips."""
+        return str(user)
 
-        desc = []
-
-        if item["item_type"] == "plan":
-            params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
-            for i in range(len(args)):
-                desc.append("{}: {}".format(params[i]["name"], params[i]["description"]))
-            return "\n".join(desc)
-
-    def kwTooltipRender(self, item: dict, kwargs: dict):
+    def argumentsTooltipRender(self, item: dict, kwargs: dict):
         """Renders the 'Keyword Arguments' column item tooltips."""
         if len(kwargs) == 0:
             return
@@ -107,8 +86,8 @@ class ListModel(QAbstractTableModel):
     columns = [
         ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
-        ("Arguments", ["args"], argumentsRender, argumentsTooltipRender),
-        ("Keyword Arguments", ["kwargs"], kwRender, kwTooltipRender)
+        ("User", ["user"], userRender, userTooltipRender),
+        ("Arguments", ["kwargs"], argumentsRender, argumentsTooltipRender)
     ]
 
     columns_history = [
