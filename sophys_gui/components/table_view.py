@@ -56,7 +56,7 @@ class SophysQueueTable(QWidget):
         self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
-        self.setMinimumWidth(350)
+        self.setMinimumWidth(550)
         self._setupUi()
 
     def updateLoopState(self, evt):
