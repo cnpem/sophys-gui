@@ -15,8 +15,8 @@ class SophysOperationGUI(QMainWindow):
         self._setupUi()
 
     def closeEvent(self, event):
-        if self.client_data:
-            self.model._client.logout()
+        if self.client_data != None:
+            self.model.run_engine._client.logout()
 
     def loginUser(self, isLogged):
         re = self.model.run_engine
