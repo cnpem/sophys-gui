@@ -105,11 +105,8 @@ class SophysForm(QDialog):
         return inputWid
 
     def isRequired(self, paramMeta):
-        kindName = paramMeta["kind"]["name"]
-        isKeyword = 'KEYWORD_ONLY' == kindName
-        isPositional = 'POSITIONAL_ONLY' == kindName
         hasDefaultValue = "default" in paramMeta
-        return not (hasDefaultValue or isPositional or isKeyword)
+        return not (hasDefaultValue)
 
     def addParameterInput(self, paramMeta, pos, glay):
         isRequired = self.isRequired(paramMeta)
