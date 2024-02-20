@@ -98,8 +98,8 @@ class ListModel(QAbstractTableModel):
     ] + columns
 
     columns_queue = columns + [
-        ("Delete", ["item_uid"], uidRender, statusTooltipRender),
-        ("Edit", ["item_uid"], uidRender, statusTooltipRender)
+        ("Edit", ["item_uid"], uidRender, statusTooltipRender),
+        ("Delete", ["item_uid"], uidRender, statusTooltipRender)
     ]
 
     def __init__(self, re_model, plan_changed, plan_items, row_count, listId, parent=None):
