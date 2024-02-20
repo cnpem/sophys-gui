@@ -92,7 +92,9 @@ class SophysQueueTable(QWidget):
             updateIndex(model, self.cmd_btns)
 
     def createSingleBtn(self, btn_dict, model, idx=None):
-        title = btn_dict["title"]
+        title = ""
+        if "title" in btn_dict:
+            title = btn_dict["title"]
         btn = QPushButton(title)
         hasConfirmation = "confirm" in btn_dict
         btn.clicked.connect(
@@ -222,13 +224,11 @@ class SophysQueueTable(QWidget):
         for idx in range(0, rows):
             control_btns = [
                 {
-                    "title": "Edit",
                     "icon": "fa5s.pencil-alt",
                     "cmd": self.queueModel.edit_queue_item,
                     "enabled": True
                 },
                 {
-                    "title": "Delete",
                     "icon": "fa5s.trash-alt",
                     "cmd": self.queueModel.delete_item,
                     "enabled": True,
