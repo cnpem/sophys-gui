@@ -182,15 +182,6 @@ class ListModel(QAbstractTableModel):
         self.endResetModel()
         self.updateTable.emit(self.rowCount())
 
-    @Slot(int)
-    def select(self, row):
-        changed_rows = [*self.selected_rows, row]
-        self.selected_rows = [row]
-        for changed_row in changed_rows:
-            self.dataChanged.emit(
-                self.index(changed_row, 0),
-                self.index(changed_row, self.columnCount() - 1))
-
 
 class HistoryModel(ListModel):
 
@@ -199,6 +190,15 @@ class HistoryModel(ListModel):
         history_items = re_model.run_engine._plan_history_items
         row_count = lambda section: self.rowCount()-section
         super().__init__(re_model, history_changed, history_items, row_count, "History", parent)
+
+    @Slot(int)
+    def select(self, row):
+        changed_rows = [*self.selected_rows, row]
+        self.selected_rows = [self.rowCount() - row - 1]
+        for changed_row in changed_rows:
+            self.dataChanged.emit(
+                self.index(changed_row, 0),
+                self.index(changed_row, self.columnCount() - 1))
 
     def setSelectedItems(self):
         self._re_model.run_engine.selected_history_item_pos = self.selected_rows
@@ -220,6 +220,15 @@ class QueueModel(ListModel):
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
+
+    @Slot(int)
+    def select(self, row):
+        changed_rows = [*self.selected_rows, row]
+        self.selected_rows = [row]
+        for changed_row in changed_rows:
+            self.dataChanged.emit(
+                self.index(changed_row, 0),
+                self.index(changed_row, self.columnCount() - 1))
 
     def setSelectedItems(self):
         self._re_model.run_engine.selected_queue_item_uids = [
