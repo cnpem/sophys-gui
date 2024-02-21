@@ -1,9 +1,11 @@
 import typing
+import ast
 import typesentry
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication
+from .input import SophysInputList, SophysInputDict, SophysSpinBox
 
 
 class SophysForm(QDialog):
@@ -36,16 +38,21 @@ class SophysForm(QDialog):
 
         for key, inputWid in self.inputWidgets.items():
             value = inputWid["widget"].text()
-            if len(value) > 0:
+            hasParam = True
+            try:
+                hasParam = len(value) > 0
+            except Exception:
+                print("")
+            if hasParam:
                 try:
-                    value = eval(value)
+                    value = ast.literal_eval(value)
                 except Exception:
-                    value = "'"+value+"'"
-                if inputWid['type'] != "":
-                    var_type = eval(inputWid['type'])
-                else:
-                    var_type = object
-                if typesentry.Config().is_type(value, var_type):
+                    value = value
+                try:
+                    validParam = typesentry.Config().is_type(value, inputWid['type'])
+                except Exception:
+                    print(value, inputWid['type'])
+                if validParam:
                     inputValues[key] = value
                 else:
                     inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
@@ -92,23 +99,40 @@ class SophysForm(QDialog):
 
         return self.btns
 
-    def handleModalMode(self, inputWid, paramMeta):
+    def handleModalMode(self, inputWid, paramMeta, isStr):
         if self.modalMode != "add":
             paramName = paramMeta["name"]
             itemParams = self.selectedItemMetadata()['kwargs']
             if paramName in itemParams:
-                inputWid.setText(str(itemParams[paramName]))
+                item = itemParams[paramName]
+                if isStr:
+                    inputWid.setText(str(item))
+                else:
+                    inputWid.setValue(item)
                 return
-        default = ''
-        if "default" in paramMeta:
-            default = paramMeta["default"]
-        inputWid.setPlaceholderText(default)
+        if isinstance(inputWid, QLineEdit) or isinstance(inputWid, SophysSpinBox):
+            default = ''
+            if "default" in paramMeta:
+                default = paramMeta["default"]
+            inputWid.setPlaceholderText(default)
 
-    def getInputWidget(self, paramMeta):
-        inputWid = QLineEdit()
-        inputWid.textChanged.connect(
-            lambda _, wid=inputWid: wid.setStyleSheet("border: 1px solid #777;"))
-        self.handleModalMode(inputWid, paramMeta)
+    def getInputWidget(self, paramMeta, paramType):
+        isNumber =any([True if numType in paramType else False for numType in ['int', 'float']])
+        isIterable = 'Iterable' in paramType
+        isDict  = 'dict' in paramType
+        if isDict:
+            inputWid = SophysInputDict()
+        elif isIterable:
+            inputWid = SophysInputList(None, isNumber, isNumber)
+        elif isNumber:
+            inputWid = SophysSpinBox()
+        else:
+            inputWid = QLineEdit()
+
+        # inputWid.textChanged.connect(
+        #     lambda _, wid=inputWid: wid.setStyleSheet("border: 1px solid #777;"))
+        isStr = not (isNumber or isDict or isIterable)
+        self.handleModalMode(inputWid, paramMeta, isStr)
 
         return inputWid
 
@@ -118,7 +142,8 @@ class SophysForm(QDialog):
 
     def addParameterInput(self, paramMeta, pos, glay):
         isRequired = self.isRequired(paramMeta)
-        paramType = paramMeta['annotation']['type'] if 'annotation' in paramMeta else ""
+        NoneType = type(None)
+        paramType = eval(paramMeta['annotation']['type']) if 'annotation' in paramMeta else object
 
         title = paramMeta["name"]
         reqText = ' (required)' if isRequired else ''
@@ -127,7 +152,7 @@ class SophysForm(QDialog):
         glay.addWidget(lbl, *pos)
         pos[0] += 1
 
-        inputWid = self.getInputWidget(paramMeta)
+        inputWid = self.getInputWidget(paramMeta, str(paramType))
         glay.addWidget(inputWid, *pos)
         pos[0] += 1
 
@@ -141,6 +166,7 @@ class SophysForm(QDialog):
 
     def changePlan(self, currentPlan):
         allowed_params = self.allowed_parameters(name=currentPlan)
+
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)

@@ -3,18 +3,31 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
     QLineEdit, QVBoxLayout, QHBoxLayout, QStackedWidget, \
-    QSizePolicy
+    QSizePolicy, QCheckBox, QSpinBox
 
 
 class SophysInputList(QWidget):
 
-    def __init__(self, itemList):
+    def __init__(self, itemList, isNumber, optionalList=False):
         super().__init__()
         self.selectedItems = []
         self.selectedWidgets = []
         self.availableItems = itemList
+        self.isNumber = isNumber
+        self.optionalList = optionalList
         self.curr_index = [0, 0]
         self._setupUi()
+
+    def text(self):
+        if self.optionalList and len(self.selectedItems)==1:
+            return self.selectedItems[0]
+        return self.selectedItems
+
+    def setValue(self, value):
+        if not isinstance(value, list):
+            value = [value]
+        self.selectedItems = value
+        self.showSelectedItems(self.selectedItems)
 
     def getSelectedTag(self, title):
         group = QGroupBox()
@@ -22,7 +35,7 @@ class SophysInputList(QWidget):
         hlay.setContentsMargins(2, 2, 2, 2)
         group.setLayout(hlay)
 
-        itemLbl = QLabel(title)
+        itemLbl = QLabel(str(title))
         itemLbl.setAlignment(Qt.AlignCenter)
         hlay.addWidget(itemLbl)
 
@@ -52,28 +65,43 @@ class SophysInputList(QWidget):
         self.selectedItems.remove(item)
         self.showSelectedItems(self.selectedItems)
 
-        self.availableItems.append(item)
-        self.cb.clear()
-        self.cb.addItems(self.availableItems)
+        if self.availableItems != None:
+            self.availableItems.append(item)
+            self.edit.clear()
+            self.edit.addItems(self.availableItems)
 
     def selectItem(self):
-        selectedItem = self.cb.currentText()
-        if selectedItem and not selectedItem in self.selectedItems:
-            self.selectedItems.append(selectedItem)
-            self.showSelectedItems([selectedItem])
+        if self.availableItems != None:
+            selectedItem = self.edit.currentText()
+            if selectedItem and not selectedItem in self.selectedItems:
+                self.selectedItems.append(selectedItem)
+                self.showSelectedItems([selectedItem])
 
-            self.availableItems.remove(selectedItem)
-            self.cb.clear()
-            self.cb.addItems(self.availableItems)
+                self.availableItems.remove(selectedItem)
+                self.edit.clear()
+                self.edit.addItems(self.availableItems)
+            return
+        elif self.isNumber:
+            value = self.edit.value()
+        else:
+            value = self.edit.text()
+        self.selectedItems.append(value)
+        self.showSelectedItems([value])
 
     def _setupUi(self):
         glay = QGridLayout()
         glay.setContentsMargins(2, 2, 2, 2)
         glay.setSpacing(2)
 
-        self.cb = QComboBox()
-        self.cb.addItems(self.availableItems)
-        glay.addWidget(self.cb, 0, 0, 1, 2)
+        if self.availableItems != None:
+            wid = QComboBox()
+            wid.addItems(self.availableItems)
+        elif self.isNumber:
+            wid = QSpinBox()
+        else:
+            wid = QLineEdit()
+        glay.addWidget(wid, 0, 0, 1, 2)
+        self.edit = wid
 
         addBtn = QPushButton()
         addBtn.setIcon(qta.icon("fa5s.plus"))
@@ -98,6 +126,13 @@ class SophysInputDict(QWidget):
         self.valueEdit = {}
         self._setupUi()
 
+    def text(self):
+        return self.inputDict
+
+    def setValue(self, item):
+        self.inputDict = item
+        self.createAllInputDict()
+
     def saveEditRow(self, key, row):
         newValue = self.valueEdit[key].text()
         self.inputDict[key] = newValue
@@ -110,15 +145,18 @@ class SophysInputDict(QWidget):
         self.inputWid[row][1].setCurrentIndex(1)
         self.inputWid[row][2].setCurrentIndex(1)
 
+    def createAllInputDict(self):
+        self.rowIndex = 0
+        self.inputWid = []
+        for key, value in self.inputDict.items():
+            self.createKeyValueWidget(key, value)
+
     def deleteRow(self, key):
         del self.inputDict[key]
         for widgetList in self.inputWid:
             for widget in widgetList:
                 widget.deleteLater()
-        self.rowIndex = 0
-        self.inputWid = []
-        for key, value in self.inputDict.items():
-            self.createKeyValueWidget(key, value)
+        self.createAllInputDict()
 
     def createValueStack(self, key, value):
         valueStack = QStackedWidget()
@@ -212,3 +250,52 @@ class SophysInputDict(QWidget):
         vlay.addLayout(self.inputDictList, 4)
 
         self.setLayout(vlay)
+
+
+class SophysSpinBox(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.value = None
+        self._setupUi()
+
+    def text(self):
+        return str(self.value)
+
+    def setPlaceholderText(self, value):
+        if value == '' or value == 'None':
+            self.stack.setCurrentIndex(0)
+        else:
+            self.spinbox.setValue(float(value))
+            self.stack.setCurrentIndex(1)
+            self.cb.setChecked(True)
+        self.value = value
+
+    def setValue(self, value):
+        self.value = value
+        self.spinbox.setValue(value)
+        self.stack.setCurrentIndex(1)
+        self.cb.setChecked(True)
+
+    def toggleStack(self, value):
+        self.stack.setCurrentIndex(value)
+        if not value:
+            self.value = ''
+
+    def _setupUi(self):
+        hlay = QHBoxLayout(self)
+
+        self.cb = QCheckBox()
+        hlay.addWidget(self.cb)
+
+        self.stack = QStackedWidget()
+        hlay.addWidget(self.stack)
+
+        noneLbl = QLabel("None")
+        self.stack.addWidget(noneLbl)
+
+        self.spinbox = QSpinBox()
+        self.spinbox.valueChanged.connect(self.setValue)
+        self.stack.addWidget(self.spinbox)
+
+        self.cb.clicked.connect(self.toggleStack)
