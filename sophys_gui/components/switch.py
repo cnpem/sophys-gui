@@ -1,26 +1,27 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QGridLayout, \
-    QSlider
+    QSlider, QPushButton
 
 
-class SophysSwitchButton(QWidget):
+class SophysSwitchButton(QPushButton):
 
-    def __init__(self: QWidget, title: str, command: object) -> None:
+    def __init__(self: QPushButton, title: str, command: object) -> None:
         super().__init__()
         self.title = title
         self.cmd = command
+        self.setFlat(True)
         self.setupUi()
 
-    def set_slider_parameters(self: QWidget, slider: QSlider) -> None:
+    def set_slider_parameters(self: QPushButton, slider: QSlider) -> None:
         """
             Set slider default parameters for it to become a switch.
         """
         slider.setMinimum(0)
         slider.setMaximum(1)
         slider.setTickInterval = 1
-        slider.valueChanged.connect(self.cmd)
+        slider.setEnabled(False)
 
-    def build_slider(self: QWidget) -> QSlider:
+    def build_slider(self: QPushButton) -> QSlider:
         """
             Create a slider widget and configure it.
         """
@@ -35,7 +36,7 @@ class SophysSwitchButton(QWidget):
         lay.addWidget(upper_limit, 0, 0, 1, 2)
 
 
-    def add_lower_and_higher_labels(self: QWidget, lay: QGridLayout) -> None:
+    def add_lower_and_higher_labels(self: QPushButton, lay: QGridLayout) -> None:
         """
             Add labels for both sides of the switch.
         """
@@ -47,17 +48,16 @@ class SophysSwitchButton(QWidget):
         upper_limit.setAlignment(Qt.AlignRight|Qt.AlignTop)
         lay.addWidget(upper_limit, 2, 1, 1, 1)
 
-    def setupUi(self: QWidget) -> None:
+    def setupUi(self: QPushButton) -> None:
         """
             Create and group the slider and labels.
         """
-        glay = QGridLayout()
+        self.setMaximumWidth(65)
+        self.setMinimumHeight(40)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.clicked.connect(self.cmd)
 
-        wid = QWidget()
         slide_lay = QGridLayout()
-        wid.setLayout(slide_lay)
-
-        wid.setMaximumWidth(50)
         slide_lay.setContentsMargins(0, 0, 0, 0)
         slide_lay.setSpacing(0)
 
@@ -66,5 +66,4 @@ class SophysSwitchButton(QWidget):
         self.add_lower_and_higher_labels(slide_lay)
         slide_lay.addWidget(self.slider, 1, 0, 1, 2)
 
-        glay.addWidget(wid)
-        self.setLayout(glay)
+        self.setLayout(slide_lay)
