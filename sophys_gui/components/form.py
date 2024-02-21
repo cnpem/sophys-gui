@@ -149,11 +149,14 @@ class SophysForm(QDialog):
         reqText = ' (required)' if isRequired else ''
         lbl = QLabel(title + reqText)
         lbl.setAlignment(Qt.AlignCenter)
-        glay.addWidget(lbl, *pos)
+        glay.addWidget(lbl, *pos, 1, 1)
         pos[0] += 1
 
+        rowStretch = 1
+        if title == 'md':
+            rowStretch = 6 - pos[0]
         inputWid = self.getInputWidget(paramMeta, str(paramType))
-        glay.addWidget(inputWid, *pos)
+        glay.addWidget(inputWid, *pos, rowStretch, 1)
         pos[0] += 1
 
         self.inputWidgets[title] = {
