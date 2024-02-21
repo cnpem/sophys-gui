@@ -200,7 +200,6 @@ class SophysInputDict(QWidget):
 
         return glay
 
-
     def _setupUi(self):
         vlay = QVBoxLayout()
         vlay.setContentsMargins(2, 2, 2, 2)

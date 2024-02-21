@@ -11,7 +11,8 @@ setup(
         'QtAwesome==1.2.3',
         'bluesky-queueserver-api==0.0.10',
         'bluesky-widgets',
-        'kafka-bluesky-live'
+        'kafka-bluesky-live',
+        'typesentry==0.2.7'
     ],
     include_package_data=True,
     packages=find_packages(),

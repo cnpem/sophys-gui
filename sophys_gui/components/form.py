@@ -1,4 +1,5 @@
-import ast
+import typing
+import typesentry
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
@@ -37,9 +38,16 @@ class SophysForm(QDialog):
             value = inputWid["widget"].text()
             if len(value) > 0:
                 try:
-                    value = ast.literal_eval(value)
-                    inputValues[key] = value
+                    value = eval(value)
                 except Exception:
+                    value = "'"+value+"'"
+                if inputWid['type'] != "":
+                    var_type = eval(inputWid['type'])
+                else:
+                    var_type = object
+                if typesentry.Config().is_type(value, var_type):
+                    inputValues[key] = value
+                else:
                     inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                     isValid = False
                     exception = "001: Invalid Input type!!"
@@ -110,6 +118,7 @@ class SophysForm(QDialog):
 
     def addParameterInput(self, paramMeta, pos, glay):
         isRequired = self.isRequired(paramMeta)
+        paramType = paramMeta['annotation']['type'] if 'annotation' in paramMeta else ""
 
         title = paramMeta["name"]
         reqText = ' (required)' if isRequired else ''
@@ -124,7 +133,8 @@ class SophysForm(QDialog):
 
         self.inputWidgets[title] = {
             "widget": inputWid,
-            "required": isRequired
+            "required": isRequired,
+            "type": paramType
         }
 
         return pos
@@ -161,7 +171,8 @@ class SophysForm(QDialog):
         group.setTitle("Plan")
 
         cb = QComboBox()
-        cb.addItems(self.allowed_names())
+        allowedPlans = self.allowed_names()
+        cb.addItems(sorted(allowedPlans))
         if 'instruction' != self.item_type:
             cb.activated.connect(lambda idx, cb=cb: self.changePlan(cb.itemText(idx)))
             self.changePlan(cb.itemText(0))
