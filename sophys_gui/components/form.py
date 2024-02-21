@@ -118,7 +118,7 @@ class SophysForm(QDialog):
 
     def getInputWidget(self, paramMeta, paramType):
         isNumber =any([True if numType in paramType else False for numType in ['int', 'float']])
-        isIterable = 'Iterable' in paramType
+        isIterable = 'Iterable' in paramType or 'Sequence' in paramType
         isDict  = 'dict' in paramType
         if isDict:
             inputWid = SophysInputDict()
