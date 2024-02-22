@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
     QLineEdit, QVBoxLayout, QHBoxLayout, QStackedWidget, \
-    QSizePolicy, QCheckBox, QSpinBox
+    QSizePolicy, QCheckBox, QDoubleSpinBox, QSpinBox
 
 
 class SophysInputList(QWidget):
@@ -97,7 +97,8 @@ class SophysInputList(QWidget):
             wid = QComboBox()
             wid.addItems(self.availableItems)
         elif self.isNumber:
-            wid = QSpinBox()
+            wid = QDoubleSpinBox()
+            wid.setMaximum(10000)
         else:
             wid = QLineEdit()
         glay.addWidget(wid, 0, 0, 1, 2)
@@ -254,10 +255,10 @@ class SophysInputDict(QWidget):
 
 class SophysSpinBox(QWidget):
 
-    def __init__(self):
+    def __init__(self, valueType):
         super().__init__()
         self.value = None
-        self._setupUi()
+        self._setupUi(valueType)
 
     def text(self):
         return str(self.value)
@@ -282,7 +283,7 @@ class SophysSpinBox(QWidget):
         if not value:
             self.value = ''
 
-    def _setupUi(self):
+    def _setupUi(self, valueType):
         hlay = QHBoxLayout(self)
 
         self.cb = QCheckBox()
@@ -294,7 +295,11 @@ class SophysSpinBox(QWidget):
         noneLbl = QLabel("None")
         self.stack.addWidget(noneLbl)
 
-        self.spinbox = QSpinBox()
+        if valueType == 'float':
+            self.spinbox = QDoubleSpinBox()
+        else:
+            self.spinbox = QSpinBox()
+        self.spinbox.setMaximum(10000)
         self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)
 

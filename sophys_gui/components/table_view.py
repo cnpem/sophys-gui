@@ -84,7 +84,6 @@ class SophysQueueTable(QWidget):
             self.updateLoopState)
         self.loop = SophysSwitchButton(
             "Loop", enable_loop, self.getLoopStatus())
-        enable_loop(True)
         hlay.addWidget(self.loop)
 
         return hlay
@@ -278,7 +277,7 @@ class SophysHistoryTable(QWidget):
         super().__init__()
         self.queueModel = HistoryModel(model)
         self.cmd_btns = {}
-        self.setMinimumWidth(425)
+        self.setMinimumWidth(500)
         self._setupUi()
 
     def handleCommand(self, cmd, title, hasConfirmation):

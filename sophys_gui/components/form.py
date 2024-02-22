@@ -7,6 +7,8 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QApplication
 from .input import SophysInputList, SophysInputDict, SophysSpinBox
 
+NoneType = type(None)
+
 
 class SophysForm(QDialog):
 
@@ -30,27 +32,35 @@ class SophysForm(QDialog):
         return self.model._plan_queue_items[pos]
 
     def getPlanParameters(self):
-        inputValues = {}
+        inputValues = {
+            'kwargs': {},
+            'args': []
+        }
         isValid = True
 
         for key, inputWid in self.inputWidgets.items():
-            value = inputWid["widget"].text()
+            validParam = False
             hasParam = True
+            value = inputWid["widget"].text()
             try:
                 hasParam = len(value) > 0
             except Exception:
                 print("")
             if hasParam:
-                try:
-                    value = ast.literal_eval(value)
-                except Exception:
-                    value = value
+                if isinstance(value, str):
+                    try:
+                        value = ast.literal_eval(value)
+                    except Exception:
+                        print("Eval error - ", value)
                 try:
                     validParam = typesentry.Config().is_type(value, inputWid['type'])
                 except Exception:
-                    print(value, inputWid['type'])
+                    print(value, type(value), inputWid['type'])
                 if validParam:
-                    inputValues[key] = value
+                    if key != 'args':
+                       inputValues['kwargs'][key] = value
+                    else:
+                        inputValues[key] = value
                 else:
                     inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                     isValid = False
@@ -72,8 +82,8 @@ class SophysForm(QDialog):
             'user_group': self.model._user_group
         }
         if self.item_type == "plan":
-            metadata['args'] = []
-            metadata['kwargs'] = plan_parameters
+            metadata['args'] = plan_parameters['args']
+            metadata['kwargs'] = plan_parameters['kwargs']
         if "edit" in self.modalMode:
             metadata['item_uid'] = self.selectedItemMetadata()["item_uid"]
         return metadata
@@ -114,21 +124,23 @@ class SophysForm(QDialog):
             inputWid.setPlaceholderText(default)
 
     def getInputWidget(self, paramMeta, paramType):
-        isNumber =any([True if numType in paramType else False for numType in ['int', 'float']])
-        isIterable = 'Iterable' in paramType or 'Sequence' in paramType
+        isInt = 'int' in paramType
+        isFloat = 'float' in paramType
+        isIterable = 'Iterable' in paramType or 'List' in paramType
         isDict  = 'dict' in paramType
         if isDict:
             inputWid = SophysInputDict()
         elif isIterable:
-            inputWid = SophysInputList(None, isNumber, isNumber)
-        elif isNumber:
-            inputWid = SophysSpinBox()
+            inputWid = SophysInputList(None, isFloat, isFloat)
+        elif isInt or isFloat:
+            numType = 'int' if isInt else 'float'
+            inputWid = SophysSpinBox(numType)
         else:
             inputWid = QLineEdit()
 
         # inputWid.textChanged.connect(
         #     lambda _, wid=inputWid: wid.setStyleSheet("border: 1px solid #777;"))
-        isStr = not (isNumber or isDict or isIterable)
+        isStr = not (isInt or isFloat or isDict or isIterable)
         self.handleModalMode(inputWid, paramMeta, isStr)
 
         return inputWid
@@ -139,8 +151,9 @@ class SophysForm(QDialog):
 
     def addParameterInput(self, paramMeta, pos, glay):
         isRequired = self.isRequired(paramMeta)
-        NoneType = type(None)
-        paramType = eval(paramMeta['annotation']['type']) if 'annotation' in paramMeta else object
+        varType = paramMeta['annotation']['type'] if 'annotation' in paramMeta else ''
+        varType = varType.replace('typing.Sequence', 'typing.List')
+        paramType = eval(varType) if varType != '' else object
 
         title = paramMeta["name"]
         reqText = ' (required)' if isRequired else ''
