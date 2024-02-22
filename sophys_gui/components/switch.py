@@ -1,14 +1,15 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QLabel, QGridLayout, \
+from qtpy.QtWidgets import QLabel, QGridLayout, \
     QSlider, QPushButton
 
 
 class SophysSwitchButton(QPushButton):
 
-    def __init__(self: QPushButton, title: str, command: object) -> None:
+    def __init__(self: QPushButton, title: str, command: object, state: int) -> None:
         super().__init__()
         self.title = title
         self.cmd = command
+        self.state = bool(state)
         self.setFlat(True)
         self.setupUi()
 
@@ -19,6 +20,7 @@ class SophysSwitchButton(QPushButton):
         slider.setMinimum(0)
         slider.setMaximum(1)
         slider.setTickInterval = 1
+        slider.setValue(self.state)
         slider.setEnabled(False)
 
     def build_slider(self: QPushButton) -> QSlider:
@@ -48,6 +50,9 @@ class SophysSwitchButton(QPushButton):
         upper_limit.setAlignment(Qt.AlignRight|Qt.AlignTop)
         lay.addWidget(upper_limit, 2, 1, 1, 1)
 
+    def sendCmd(self):
+        self.cmd(not self.state)
+
     def setupUi(self: QPushButton) -> None:
         """
             Create and group the slider and labels.
@@ -55,7 +60,7 @@ class SophysSwitchButton(QPushButton):
         self.setMaximumWidth(65)
         self.setMinimumHeight(40)
         self.setContentsMargins(0, 0, 0, 0)
-        self.clicked.connect(self.cmd)
+        self.clicked.connect(self.sendCmd)
 
         slide_lay = QGridLayout()
         slide_lay.setContentsMargins(0, 0, 0, 0)

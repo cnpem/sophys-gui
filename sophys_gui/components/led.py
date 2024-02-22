@@ -1,5 +1,4 @@
-import qtawesome as qta
-from qtpy.QtWidgets import QStackedWidget, QLabel, QPushButton
+from qtpy.QtWidgets import QStackedWidget, QLabel
 from sophys_gui.functions import getLoadingButton
 
 
