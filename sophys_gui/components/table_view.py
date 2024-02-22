@@ -19,6 +19,8 @@ def getLimitsPermissions(sel_row, condition):
 def handleBtnEnabled(permission, model):
     if permission == 0:
         return True
+    if model.rowCount()==0:
+        return False
     selected_rows = model.getSelectedRows()
     if len(selected_rows) > 0:
         if permission == 2:
@@ -288,6 +290,7 @@ class SophysHistoryTable(QWidget):
             confirmation = confirmationDialog(self, title)
         if confirmation:
             cmd()
+            updateIndex(self.queueModel, self.cmd_btns)
 
     def createBtns(self, glay, btn_dict):
         for idy, btn_dict in enumerate(btn_dict):
