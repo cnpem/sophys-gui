@@ -307,7 +307,7 @@ class QueueModel(ListModel):
     @Slot()
     def add_plan_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
-        SophysForm(self._re_model.run_engine, "add",
+        SophysForm(self._re_model.run_engine, "add_plan",
             allowed_parameters, allowed_names).exec()
 
     @Slot()
@@ -335,5 +335,5 @@ class QueueModel(ListModel):
         self.setSelectedItems()
         item_type = self.get_item_type()
         allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
-        SophysForm(self._re_model.run_engine, "edit",
+        SophysForm(self._re_model.run_engine, "edit_"+item_type,
             allowed_parameters, allowed_names).exec()

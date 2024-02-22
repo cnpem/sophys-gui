@@ -33,9 +33,6 @@ class SophysForm(QDialog):
         inputValues = {}
         isValid = True
 
-        if self.item_type == 'instruction':
-            return isValid
-
         for key, inputWid in self.inputWidgets.items():
             value = inputWid["widget"].text()
             hasParam = True
@@ -74,17 +71,17 @@ class SophysForm(QDialog):
             'user': self.model._user_name,
             'user_group': self.model._user_group
         }
-        if self.item_type == 'plan':
+        if self.item_type == "plan":
             metadata['args'] = []
             metadata['kwargs'] = plan_parameters
-        if self.modalMode == 'edit':
-            metadata['item_uid'] = self.selectedItemMetadata()['item_uid']
+        if "edit" in self.modalMode:
+            metadata['item_uid'] = self.selectedItemMetadata()["item_uid"]
         return metadata
 
     def addPlanToQueue(self):
         plan_parameters = self.getPlanParameters()
         item = self.getPlanMetadata(plan_parameters)
-        if self.modalMode == "edit":
+        if "edit" in self.modalMode:
             self.model.queue_item_update(item=item)
         else:
             self.model.queue_item_add(item=item)
@@ -100,9 +97,9 @@ class SophysForm(QDialog):
         return self.btns
 
     def handleModalMode(self, inputWid, paramMeta, isStr):
-        if self.modalMode != "add":
+        if "add" not in self.modalMode:
             paramName = paramMeta["name"]
-            itemParams = self.selectedItemMetadata()['kwargs']
+            itemParams = self.selectedItemMetadata()["kwargs"]
             if paramName in itemParams:
                 item = itemParams[paramName]
                 if isStr:
@@ -175,16 +172,21 @@ class SophysForm(QDialog):
         group.setLayout(glay)
         self.setChosenItem(allowed_params["name"])
         group.setTitle(self.chosenItem)
-        parameters = allowed_params["parameters"]
-        self.inputWidgets = {}
+        if "parameters" in allowed_params:
+            parameters = allowed_params["parameters"]
+            self.inputWidgets = {}
 
-        pos = [0, 0]
-        for paramMeta in parameters:
-            pos = self.addParameterInput(paramMeta, pos, glay)
-            if pos[0] > 4:
-                pos[0] = 0
-                pos[1] += 2
+            pos = [0, 0]
+            for paramMeta in parameters:
+                pos = self.addParameterInput(paramMeta, pos, glay)
+                if pos[0] > 4:
+                    pos[0] = 0
+                    pos[1] += 2
 
+        else:
+            noParamLbl = "There are no configurable parameters " \
+                f"for the choosen {self.item_type}."
+            glay.addWidget(QLabel(noParamLbl))
         self.group.deleteLater()
         self.planParameters.addWidget(group)
         self.group = group
@@ -202,12 +204,8 @@ class SophysForm(QDialog):
         cb = QComboBox()
         allowedPlans = self.allowed_names()
         cb.addItems(sorted(allowedPlans))
-        if 'instruction' != self.item_type:
-            cb.activated.connect(lambda idx, cb=cb: self.changePlan(cb.itemText(idx)))
-            self.changePlan(cb.itemText(0))
-        else:
-            cb.activated.connect(lambda idx, cb=cb: self.setChosenItem(cb.itemText(idx)))
-            self.setChosenItem(cb.itemText(0))
+        cb.activated.connect(lambda idx, cb=cb: self.changePlan(cb.itemText(idx)))
+        self.changePlan(cb.itemText(0))
         hlay.addWidget(cb)
 
         return group
@@ -221,8 +219,7 @@ class SophysForm(QDialog):
         else:
             self.changePlan(self.selectedItemMetadata()['name'])
 
-        if 'instruction' != self.item_type:
-            lay.addLayout(self.planParameters)
+        lay.addLayout(self.planParameters)
 
         btns = self.getDialogBtns()
         lay.addWidget(btns)

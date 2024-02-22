@@ -243,10 +243,7 @@ class SophysQueueTable(QWidget):
                     "confirm": True
                 }
             ]
-            isPlan = self.queueModel.index(idx, 0).data() == 'P'
             for idy, btn_dict in enumerate(control_btns):
-                if idy == 0 and not isPlan:
-                    continue
                 btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
                 btn.setMinimumHeight(20)
                 table.setIndexWidget(self.queueModel.index(idx, 4+idy), btn)
