@@ -41,6 +41,7 @@ class SophysInputList(QWidget):
 
         removeItem = QPushButton()
         removeItem.setIcon(qta.icon("fa.close"))
+        removeItem.setFixedSize(40, 25)
         removeItem.clicked.connect(
             lambda _, item=title: self.removeItem(item))
         hlay.addWidget(removeItem)
@@ -90,8 +91,6 @@ class SophysInputList(QWidget):
 
     def _setupUi(self):
         glay = QGridLayout()
-        glay.setContentsMargins(2, 2, 2, 2)
-        glay.setSpacing(2)
 
         if self.availableItems != None:
             wid = QComboBox()
@@ -105,13 +104,13 @@ class SophysInputList(QWidget):
         self.edit = wid
 
         addBtn = QPushButton()
+        addBtn.setFixedSize(40, 25)
         addBtn.setIcon(qta.icon("fa5s.plus"))
         addBtn.clicked.connect(self.selectItem)
         glay.addWidget(addBtn, 0, 2, 1, 1)
 
         self.selectedItemList = QGridLayout()
         self.selectedItemList.setContentsMargins(0, 0, 0, 0)
-        self.selectedItemList.setSpacing(2)
         glay.addLayout(self.selectedItemList, 1, 0, 2, 3)
 
         self.setLayout(glay)
@@ -216,6 +215,7 @@ class SophysInputDict(QWidget):
 
     def getKeyValueInput(self):
         glay = QGridLayout()
+        glay.setAlignment(Qt.AlignTop)
 
         lbl = QLabel("Key")
         lbl.setAlignment(Qt.AlignCenter)
@@ -233,7 +233,7 @@ class SophysInputDict(QWidget):
 
         addBtn = QPushButton()
         addBtn.setIcon(qta.icon("fa5s.plus"))
-        addBtn.setFixedSize(82, 25)
+        addBtn.setFixedSize(40, 25)
         addBtn.clicked.connect(self.addDictionaryItem)
         glay.addWidget(addBtn, 1, 2, 1, 1)
 
@@ -264,19 +264,16 @@ class SophysSpinBox(QWidget):
         return str(self.value)
 
     def setPlaceholderText(self, value):
-        if value == '' or value == 'None':
+        self.setValue(value)
+
+    def setValue(self, value):
+        if not value or value == '' or value == 'None':
             self.stack.setCurrentIndex(0)
         else:
             self.spinbox.setValue(float(value))
             self.stack.setCurrentIndex(1)
             self.cb.setChecked(True)
         self.value = value
-
-    def setValue(self, value):
-        self.value = value
-        self.spinbox.setValue(value)
-        self.stack.setCurrentIndex(1)
-        self.cb.setChecked(True)
 
     def toggleStack(self, value):
         self.stack.setCurrentIndex(value)
@@ -299,6 +296,7 @@ class SophysSpinBox(QWidget):
             self.spinbox = QDoubleSpinBox()
         else:
             self.spinbox = QSpinBox()
+        self.spinbox.setMaximumHeight(50)
         self.spinbox.setMaximum(10000)
         self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)

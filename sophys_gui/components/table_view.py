@@ -58,7 +58,6 @@ class SophysQueueTable(QWidget):
         self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
-        self.setMinimumWidth(550)
         self._setupUi()
 
     def getLoopStatus(self):
@@ -103,6 +102,7 @@ class SophysQueueTable(QWidget):
         if "title" in btn_dict:
             title = btn_dict["title"]
         btn = QPushButton(title)
+        btn.setMaximumHeight(50)
         hasConfirmation = "confirm" in btn_dict
         btn.clicked.connect(
             lambda _, model=model, cmd=btn_dict["cmd"],
@@ -228,6 +228,7 @@ class SophysQueueTable(QWidget):
 
     def setTableOperationButtons(self, table):
         rows = self.queueModel.rowCount()
+        colCount = self.queueModel.columnCount()-2
         for idx in range(0, rows):
             control_btns = [
                 {
@@ -244,8 +245,7 @@ class SophysQueueTable(QWidget):
             ]
             for idy, btn_dict in enumerate(control_btns):
                 btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
-                btn.setMinimumHeight(20)
-                table.setIndexWidget(self.queueModel.index(idx, 4+idy), btn)
+                table.setIndexWidget(self.queueModel.index(idx, colCount+idy), btn)
 
     def _setupUi(self):
         vlay = QVBoxLayout(self)
@@ -277,7 +277,6 @@ class SophysHistoryTable(QWidget):
         super().__init__()
         self.queueModel = HistoryModel(model)
         self.cmd_btns = {}
-        self.setMinimumWidth(500)
         self._setupUi()
 
     def handleCommand(self, cmd, title, hasConfirmation):

@@ -135,6 +135,7 @@ class SophysForm(QDialog):
         elif isInt or isFloat:
             numType = 'int' if isInt else 'float'
             inputWid = SophysSpinBox(numType)
+            inputWid.setMaximumHeight(50)
         else:
             inputWid = QLineEdit()
 
@@ -158,6 +159,7 @@ class SophysForm(QDialog):
         title = paramMeta["name"]
         reqText = ' (required)' if isRequired else ''
         lbl = QLabel(title + reqText)
+        lbl.setMaximumHeight(50)
         lbl.setAlignment(Qt.AlignCenter)
         glay.addWidget(lbl, *pos, 1, 1)
         pos[0] += 1
