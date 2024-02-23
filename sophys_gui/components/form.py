@@ -26,6 +26,15 @@ class SophysForm(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setupUi()
 
+    def keyPressEvent(self: QDialog, event: object) -> None:
+        """
+            Override close dialog on pressing the Enter key.
+        """
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            event.accept()
+        else:
+            super(SophysForm, self).keyPressEvent(event)
+
     def selectedItemMetadata(self):
         sel_item = self.model._selected_queue_item_uids
         pos = self.model.queue_item_uid_to_pos(sel_item[0])
@@ -42,7 +51,7 @@ class SophysForm(QDialog):
             hasParam = True
             value = inputWid["widget"].text()
             hasParam = bool(value) and value != 'None'
-            if hasParam:
+            if hasParam and isinstance(value, str):
                 hasParam = len(value) > 0
             if hasParam:
                 value = evaluateValue(value)
@@ -58,11 +67,9 @@ class SophysForm(QDialog):
                     else:
                         inputValues["kwargs"][key] = value
                 else:
-                    inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                     isValid = False
                     exception = "001: Invalid Input type!!"
             elif inputWid["required"]:
-                inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                 isValid = False
                 exception = "002: Missing required fields!!"
 
@@ -133,9 +140,6 @@ class SophysForm(QDialog):
             inputWid.setMaximumHeight(50)
         else:
             inputWid = QLineEdit()
-
-        # inputWid.textChanged.connect(
-        #     lambda _, wid=inputWid: wid.setStyleSheet("border: 1px solid #777;"))
         isStr = not (isInt or isFloat or isDict or isIterable)
         self.handleModalMode(inputWid, paramMeta, isStr)
 
