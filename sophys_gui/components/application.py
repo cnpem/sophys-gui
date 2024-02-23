@@ -1,7 +1,6 @@
 import sys
 import time
 import signal
-import json
 import traceback
 from qtpy.QtWidgets import QApplication, QMessageBox
 from sophys_gui.functions import getFilePath
@@ -16,13 +15,6 @@ class SophysApplication(QApplication):
         self.popup = []
         self._setupUi()
 
-    def setVariables(self, stylesheet):
-        file = getFilePath("_assets/css-variables.json")
-        variables = json.load(open(file))
-        for key, value in variables.items():
-            stylesheet = stylesheet.replace(key, value)
-        return stylesheet
-
     def setStyle(self):
         """
             Generate a generic style for the applications.
@@ -30,7 +22,6 @@ class SophysApplication(QApplication):
         style_file = getFilePath("_assets/css-style.css")
         with open(style_file, 'r') as f:
             style = f.read()
-        style = self.setVariables(style)
         self.setStyleSheet(style)
 
     def showBugError(self, exctype, excvalue, tracebackobj):

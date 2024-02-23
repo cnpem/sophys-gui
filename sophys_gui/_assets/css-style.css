@@ -1,10 +1,5 @@
 QMainWindow, QDialog {
     color: black;
-    background-color: @color_prim;
-}
-
-QTableView {
-    background-color: @color_sec;
 }
 
 QTableView:item {
@@ -13,47 +8,39 @@ QTableView:item {
 }
 
 QTableView:item:hover {
-    background-color: @hover_color_sec;
+    background-color: lightgray;
 }
 
 QTableView:item:selected {
-    background-color: @select_color_sec;
+    background-color:gray;
     color: black;
 }
 
 QCheckBox::indicator {
-    background-color: @color_sec;
+    background-color: lightgray;
     border-radius: 5px;
 }
 
 QCheckBox::indicator:checked {
-    background-color: @press_color_sec;
-    border: @param_border @color_sec;
+    background-color: black;
+    border: 2px solid lightgray;
 }
 
 QHeaderView {
-    background-color: @dark_color_sec;
-}
-
-QPushButton {
-    background-color: @btn_color_sec;
+    background-color: #c2c2c2;
 }
 
 QPushButton:hover {
-    background-color: @btn_hover_color_sec;
-}
-
-QPushButton:pressed {
-    background-color: @press_color_sec;
+    background-color: lightgray;
 }
 
 QPushButton:disabled {
-    background-color: @disabled_color_sec;
+    background-color: #d3d3d3;
 }
 
 QGroupBox {
-    background-color: #cfc5b4;
-    border: @param_border @border;
+    background-color: #c4c4c4;
+    border: 1px solid #808080;
     border-radius: 5px;
     font-weight: bold;
     margin-top: 1em;
@@ -66,19 +53,19 @@ QSlider{
 
 QSlider::sub-page {
     background: #00cc00;
-    border: 1px solid @border;
+    border: 1px solid #808080;
     border-radius: 5px;
 }
 
 QSlider::add-page {
     background: #1c6f0d;
-    border: 1px solid @border;
+    border: 1px solid #808080;
     border-radius: 5px;
 }
 
 QSlider::handle, QLineEdit {
     background: #ffffff;
-    border: 1px solid @border;
+    border: 1px solid #808080;
     width: 13px;
     border-radius: 5px;
 }
@@ -86,6 +73,6 @@ QSlider::handle, QLineEdit {
 #popup QWidget {
     margin: 1em;
     background-color: #ffdb3b;
-    border: 1px solid @border;
+    border: 1px solid #808080;
     border-radius: 10px;
 }
