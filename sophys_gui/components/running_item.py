@@ -49,6 +49,22 @@ class SophysRunningItem(QWidget):
         self.detectLoading(running_item)
         self.getItemAttributes(running_item)
 
+    def createListWidget(self, arg_list):
+        widget = QWidget()
+        lay = QGridLayout()
+        widget.setLayout(lay)
+        idpos = [0, 0]
+        for value in arg_list:
+            title = QLabel(str(value))
+            title.setStyleSheet("font-weight: 300;")
+            lay.addWidget(title, *idpos)
+            idpos[0] += 1
+            if idpos[0] > 2:
+                idpos[1] += 1
+                idpos[0] = 0
+
+        return widget
+
     def createDictionaryWidget(self, arg_dict):
         widget = QWidget()
         lay = QGridLayout()
@@ -100,6 +116,8 @@ class SophysRunningItem(QWidget):
                 if isinstance(item, str):
                     value = QLabel(item)
                     value.setAlignment(Qt.AlignCenter)
+                elif isinstance(item, list):
+                    value = self.createListWidget(item)
                 else:
                     value = self.createDictionaryWidget(item)
                 lay.addWidget(value)
