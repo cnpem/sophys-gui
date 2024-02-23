@@ -1,5 +1,6 @@
-from qtpy.QtWidgets import QMainWindow, QGridLayout, \
-    QWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
+    QGridLayout
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController
 from kafka_bluesky_live.live_view import LiveView
@@ -37,6 +38,9 @@ class SophysOperationGUI(QMainWindow):
             re._client.logout()
             self.client_data = None
 
+    # def _process_new_console_output(self, res):
+    #     self.lbl.setText(res)
+
     def _setupUi(self):
         wid = QWidget()
         glay = QGridLayout()
@@ -51,16 +55,28 @@ class SophysOperationGUI(QMainWindow):
         self.login._password.setMinimumWidth(150)
         glay.addWidget(self.login, 0, 2, 1, 1)
 
+
+        vsplitter = QSplitter(Qt.Vertical)
+
+        hsplitter = QSplitter(Qt.Horizontal)
         queue = SophysQueueTable(self.model)
-        glay.addWidget(queue, 1, 0, 1, 1)
+        hsplitter.addWidget(queue)
 
         running = SophysRunningItem(self.model)
-        glay.addWidget(running, 1, 1, 1, 1)
+        hsplitter.addWidget(running)
 
         history = SophysHistoryTable(self.model)
-        glay.addWidget(history, 1, 2, 1, 1)
+        hsplitter.addWidget(history)
+
+        hsplitter.setSizes([500, 100, 500])
+        vsplitter.addWidget(hsplitter)
 
         live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
-        glay.addWidget(live_view, 2, 0, 1, 3)
+        vsplitter.addWidget(live_view)
+
+        glay.addWidget(vsplitter, 1, 0, 1, 3)
+        # self.model.run_engine.start_console_output_monitoring()
+        # self.lbl = QLabel()
+        # self.model.run_engine.console_monitoring_thread.returned.connect(self._process_new_console_output)
 
         self.setCentralWidget(wid)
