@@ -55,7 +55,6 @@ class SophysOperationGUI(QMainWindow):
         self.login._password.setMinimumWidth(150)
         glay.addWidget(self.login, 0, 2, 1, 1)
 
-
         vsplitter = QSplitter(Qt.Vertical)
 
         hsplitter = QSplitter(Qt.Horizontal)
@@ -74,6 +73,7 @@ class SophysOperationGUI(QMainWindow):
         live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
         vsplitter.addWidget(live_view)
 
+        vsplitter.setSizes([600, 200])
         glay.addWidget(vsplitter, 1, 0, 1, 3)
         # self.model.run_engine.start_console_output_monitoring()
         # self.lbl = QLabel()

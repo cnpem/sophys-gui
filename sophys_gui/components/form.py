@@ -108,17 +108,34 @@ class SophysForm(QDialog):
 
         return self.btns
 
+    def setWidgetValue(self, inputWid, item, isStr):
+        if isStr:
+            inputWid.setText(str(item))
+        else:
+            inputWid.setValue(item)
+
     def handleModalMode(self, inputWid, paramMeta, isStr):
         if "add" not in self.modalMode:
             paramName = paramMeta["name"]
-            itemParams = self.selectedItemMetadata()
-            if paramName in itemParams["kwargs"]:
-                item = itemParams[paramName]
-                if isStr:
-                    inputWid.setText(str(item))
-                else:
-                    inputWid.setValue(item)
-                return
+            metadata = self.selectedItemMetadata()
+            if "kwargs" in metadata:
+                kwargsParams = metadata["kwargs"]
+                if paramName in kwargsParams:
+                    item = kwargsParams[paramName]
+                    self.setWidgetValue(inputWid, item, isStr)
+                    return
+            if "args" in metadata:
+                argsParams = metadata["args"]
+                if paramName == "detectors":
+                    item = argsParams[0]
+                    self.setWidgetValue(inputWid, item, isStr)
+                    return
+                elif paramName == "args":
+                    argsParams = argsParams.copy()
+                    argsParams.pop(0)
+                    item = argsParams
+                    self.setWidgetValue(inputWid, item, isStr)
+                    return
         if isinstance(inputWid, QLineEdit) or isinstance(inputWid, SophysSpinBox):
             default = ''
             if "default" in paramMeta:
@@ -153,6 +170,11 @@ class SophysForm(QDialog):
         isRequired = self.isRequired(paramMeta)
         varType = paramMeta['annotation']['type'] if 'annotation' in paramMeta else ''
         varType = varType.replace('typing.Sequence', 'typing.List')
+        varType = varType.replace('__READABLE__', 'typing.Any')
+        varType = varType.replace('__DEVICE__', 'typing.Any')
+        varType = varType.replace('__CALLABLE__', 'typing.Any')
+        varType = varType.replace('__MOVABLE__', 'typing.Any')
+        varType = varType.replace('__FLYABLE__', 'typing.Any')
         paramType = eval(varType) if varType != '' else object
 
         title = paramMeta["name"]

@@ -24,8 +24,9 @@ class SophysInputList(QWidget):
             return self.selectedItems[0]
         evaluatedItems = []
         for item in self.selectedItems:
-            if (item.strip('-')).isnumeric():
-                item = evaluateValue(item)
+            if isinstance(item, str):
+                if (item.strip('-')).isnumeric():
+                    item = evaluateValue(item)
             evaluatedItems.append(item)
         return evaluatedItems
 
