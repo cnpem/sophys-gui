@@ -1,5 +1,6 @@
 import os as _os
 import qtawesome as qta
+import ast
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QPushButton
 
@@ -41,3 +42,11 @@ def getLoadingButton():
     loading.setVisible(False)
     loading.setFlat(True)
     return loading
+
+def evaluateValue(value):
+    if isinstance(value, str):
+        try:
+            value = ast.literal_eval(value)
+        except Exception:
+            print("Eval error - ", value)
+    return value

@@ -130,10 +130,10 @@ class ListModel(QAbstractTableModel):
 
     def getBackgroundColor(self, row):
         if row in self.selected_rows:
-            return "#ddccad"
+            return "gray"
         if row%2 == 0:
-            return "#ede7db"
-        return "#efebe5"
+            return "#dfdfdf"
+        return "#f7f7f7"
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():

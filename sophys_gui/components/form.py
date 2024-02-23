@@ -1,10 +1,10 @@
 import typing
-import ast
 import typesentry
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication
+from sophys_gui.functions import evaluateValue
 from .input import SophysInputList, SophysInputDict, SophysSpinBox
 
 NoneType = type(None)
@@ -37,30 +37,26 @@ class SophysForm(QDialog):
             'args': []
         }
         isValid = True
-
         for key, inputWid in self.inputWidgets.items():
             validParam = False
             hasParam = True
             value = inputWid["widget"].text()
-            try:
-                hasParam = len(value) > 0
-            except Exception:
-                print("")
+            hasParam = bool(value) and value != 'None'
             if hasParam:
-                if isinstance(value, str):
-                    try:
-                        value = ast.literal_eval(value)
-                    except Exception:
-                        print("Eval error - ", value)
+                hasParam = len(value) > 0
+            if hasParam:
+                value = evaluateValue(value)
                 try:
                     validParam = typesentry.Config().is_type(value, inputWid['type'])
                 except Exception:
                     print(value, type(value), inputWid['type'])
                 if validParam:
-                    if key != 'args':
-                       inputValues['kwargs'][key] = value
+                    if inputWid["kind"] == "VAR_POSITIONAL":
+                        inputValues["args"].extend(value)
+                    elif inputWid["kind"] == "POSITIONAL_ONLY":
+                        inputValues["args"].append(value)
                     else:
-                        inputValues[key] = value
+                        inputValues["kwargs"][key] = value
                 else:
                     inputWid["widget"].setStyleSheet("border: 1px solid #ff0000;")
                     isValid = False
@@ -82,8 +78,7 @@ class SophysForm(QDialog):
             'user_group': self.model._user_group
         }
         if self.item_type == "plan":
-            metadata['args'] = plan_parameters['args']
-            metadata['kwargs'] = plan_parameters['kwargs']
+            metadata = metadata | plan_parameters
         if "edit" in self.modalMode:
             metadata['item_uid'] = self.selectedItemMetadata()["item_uid"]
         return metadata
@@ -109,8 +104,8 @@ class SophysForm(QDialog):
     def handleModalMode(self, inputWid, paramMeta, isStr):
         if "add" not in self.modalMode:
             paramName = paramMeta["name"]
-            itemParams = self.selectedItemMetadata()["kwargs"]
-            if paramName in itemParams:
+            itemParams = self.selectedItemMetadata()
+            if paramName in itemParams["kwargs"]:
                 item = itemParams[paramName]
                 if isStr:
                     inputWid.setText(str(item))
@@ -126,7 +121,7 @@ class SophysForm(QDialog):
     def getInputWidget(self, paramMeta, paramType):
         isInt = 'int' in paramType
         isFloat = 'float' in paramType
-        isIterable = 'Iterable' in paramType or 'List' in paramType
+        isIterable = 'Iterable' in paramType or 'List' in paramType or 'object' in paramType
         isDict  = 'dict' in paramType
         if isDict:
             inputWid = SophysInputDict()
@@ -174,14 +169,14 @@ class SophysForm(QDialog):
         self.inputWidgets[title] = {
             "widget": inputWid,
             "required": isRequired,
-            "type": paramType
+            "type": paramType,
+            "kind": paramMeta["kind"]["name"]
         }
 
         return pos
 
     def changePlan(self, currentPlan):
         allowed_params = self.allowed_parameters(name=currentPlan)
-
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)

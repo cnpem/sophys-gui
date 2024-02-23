@@ -4,6 +4,7 @@ from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
     QLineEdit, QVBoxLayout, QHBoxLayout, QStackedWidget, \
     QSizePolicy, QCheckBox, QDoubleSpinBox, QSpinBox
+from sophys_gui.functions import evaluateValue
 
 
 class SophysInputList(QWidget):
@@ -21,7 +22,12 @@ class SophysInputList(QWidget):
     def text(self):
         if self.optionalList and len(self.selectedItems)==1:
             return self.selectedItems[0]
-        return self.selectedItems
+        evaluatedItems = []
+        for item in self.selectedItems:
+            if (item.strip('-')).isnumeric():
+                item = evaluateValue(item)
+            evaluatedItems.append(item)
+        return evaluatedItems
 
     def setValue(self, value):
         if not isinstance(value, list):
