@@ -2,12 +2,12 @@
 
 import sys
 import qtawesome
-from sophys_gui.server import QueueServerModel
+from sophys_gui.server import ServerModel
 from sophys_gui.components import SophysApplication
 from sophys_gui.operation import SophysOperationGUI
 
 
-__backend_model = QueueServerModel()
+__backend_model = ServerModel()
 
 app = SophysApplication(sys.argv)
 

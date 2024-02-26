@@ -1,1 +1,1 @@
-from .model import QueueServerModel
+from .model import ServerModel
