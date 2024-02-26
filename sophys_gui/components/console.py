@@ -25,7 +25,11 @@ class SophysConsoleMonitor(QScrollArea):
         self.run_engine.start_console_output_monitoring()
         while True:
             newOutput = self.run_engine.console_monitoring_thread()
-            self.updateConsoleLabel(newOutput[1].strip())
+            if newOutput:
+                self.updateConsoleLabel(newOutput[1].strip())
+            else:
+                break
+
 
     def _setupUi(self):
         self.console = QLabel("")
