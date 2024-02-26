@@ -1,8 +1,9 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout
+    QGridLayout, QTabWidget
 from sophys_gui.components import SophysQueueTable, \
-    SophysHistoryTable, SophysRunningItem, QueueController
+    SophysHistoryTable, SophysRunningItem, QueueController, \
+    SophysConsoleMonitor
 from kafka_bluesky_live.live_view import LiveView
 from suitscase import LoginCNPEM
 
@@ -38,9 +39,6 @@ class SophysOperationGUI(QMainWindow):
             re._client.logout()
             self.client_data = None
 
-    # def _process_new_console_output(self, res):
-    #     self.lbl.setText(res)
-
     def _setupUi(self):
         wid = QWidget()
         glay = QGridLayout()
@@ -70,13 +68,16 @@ class SophysOperationGUI(QMainWindow):
         hsplitter.setSizes([500, 100, 500])
         vsplitter.addWidget(hsplitter)
 
+        resultTabs = QTabWidget()
+        vsplitter.addWidget(resultTabs)
+
         live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
-        vsplitter.addWidget(live_view)
+        resultTabs.addTab(live_view, "Live View")
+
+        console = SophysConsoleMonitor(self.model)
+        resultTabs.addTab(console, "Console")
 
         vsplitter.setSizes([600, 200])
         glay.addWidget(vsplitter, 1, 0, 1, 3)
-        # self.model.run_engine.start_console_output_monitoring()
-        # self.lbl = QLabel()
-        # self.model.run_engine.console_monitoring_thread.returned.connect(self._process_new_console_output)
 
         self.setCentralWidget(wid)
