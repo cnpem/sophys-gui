@@ -83,6 +83,10 @@ class SophysQueueTable(QWidget):
             self.updateLoopState)
         self.loop = SophysSwitchButton(
             "Loop", enable_loop, self.getLoopStatus())
+        self.loop.setToolTip("Enable looping the queue item. In this mode "
+            "the itens inside the queue list won't be delete and will be placed in the "
+            "last position of the queue after its completion. The queue will run until "
+            "a process fail, the loop is disabled or the queue is stopped or paused.")
         hlay.addWidget(self.loop)
 
         return hlay
@@ -110,6 +114,7 @@ class SophysQueueTable(QWidget):
                 cmd, model, title, hasConf, idx))
         btn.setIcon(qta.icon(btn_dict["icon"]))
         btn.setEnabled(btn_dict["enabled"])
+        btn.setToolTip(btn_dict["tooltip"])
         return btn
 
     def createBtns(self, glay, btn_dict, model):
@@ -135,28 +140,32 @@ class SophysQueueTable(QWidget):
                 "icon": "ri.align-top",
                 "cmd": model.move_top,
                 "enabled": False,
-                "permission": 3
+                "permission": 3,
+                "tooltip": "Move the selected item to the first position of the queue."
             },
             {
                 "title": "Up",
                 "icon": "fa5s.arrow-up",
                 "cmd": model.move_up,
                 "enabled": False,
-                "permission": 3
+                "permission": 3,
+                "tooltip": "Move the selected item to one position ahead in the queue."
             },
             {
                 "title": "Down",
                 "icon": "fa5s.arrow-down",
                 "cmd": model.move_down,
                 "enabled": False,
-                "permission": 2
+                "permission": 2,
+                "tooltip": "Move the selected item to one position back in the queue."
             },
             {
                 "title": "Bottom",
                 "icon": "ri.align-bottom",
                 "cmd": model.move_bottom,
                 "enabled": False,
-                "permission": 2
+                "permission": 2,
+                "tooltip": "Move the selected item to the last position of the queue."
             },
             {
                 "title": "Delete",
@@ -164,28 +173,35 @@ class SophysQueueTable(QWidget):
                 "cmd": model.delete_item,
                 "enabled": False,
                 "confirm": True,
-                "permission": 1
+                "permission": 1,
+                "tooltip": "Delete the selected item from the queue."
             },
             {
                 "title": "Duplicate",
                 "icon": "fa5s.clone",
                 "cmd": model.duplicate_item,
                 "enabled": False,
-                "permission": 1
+                "permission": 1,
+                "tooltip": "Duplicate the selected item data into a new queue "\
+                    "item that will be placed after the selected item."
             },
             {
                 "title": "Copy",
                 "icon": "fa5s.copy",
                 "cmd": model.copy_queue_item,
                 "enabled": False,
-                "permission": 1
+                "permission": 1,
+                "tooltip": "Copy the selected item data into a form for creating a " \
+                    "new queue item that will be placed after the selected item."
             },
             {
                 "title": "Edit",
                 "icon": "fa5s.pencil-alt",
                 "cmd": model.edit_queue_item,
                 "enabled": False,
-                "permission": 1
+                "permission": 1,
+                "tooltip": "Copy the selected item data into a form that will " \
+                    "update selected item."
             },
             {
                 "title": "Clear All",
@@ -193,28 +209,35 @@ class SophysQueueTable(QWidget):
                 "cmd": model.clear_all,
                 "enabled": True,
                 "confirm": True,
-                "permission": 0
+                "permission": 0,
+                "tooltip": "Delete all the queue items."
             },
             {
                 "title": "Add Plan",
                 "icon": "fa5s.plus",
                 "cmd": model.add_plan_item,
                 "enabled": True,
-                "permission": 0
+                "permission": 0,
+                "tooltip": "Open a form that will create a new queue item " \
+                    "and placed it in the last position of the queue."
             },
             {
                 "title": "Add Instruction",
                 "icon": "mdi6.block-helper",
                 "cmd": model.add_instruction_item,
                 "enabled": True,
-                "permission": 0
+                "permission": 0,
+                "tooltip": "Add a customized instruction " \
+                    "and placed it in the last position of the queue."
             },
             {
                 "title": "Add Stop Item",
                 "icon": "mdi6.block-helper",
                 "cmd": model.add_stop_queue,
                 "enabled": True,
-                "permission": 0
+                "permission": 0,
+                "tooltip": "Add an instruction for stopping the queue " \
+                    "and placed it in the last position of the queue."
             }
         ]
         self.createBtns(glay, control_btns, model)
@@ -234,13 +257,15 @@ class SophysQueueTable(QWidget):
                 {
                     "icon": "fa5s.pencil-alt",
                     "cmd": self.queueModel.edit_queue_item,
-                    "enabled": True
+                    "enabled": True,
+                    "tooltip": ""
                 },
                 {
                     "icon": "fa5s.trash-alt",
                     "cmd": self.queueModel.delete_item,
                     "enabled": True,
-                    "confirm": True
+                    "confirm": True,
+                    "tooltip": ""
                 }
             ]
             for idy, btn_dict in enumerate(control_btns):
@@ -296,6 +321,7 @@ class SophysHistoryTable(QWidget):
                 cmd=btn_dict["cmd"], title=title: self.handleCommand(cmd, title, hasConf))
             btn.setIcon(qta.icon(btn_dict["icon"]))
             btn.setEnabled(btn_dict["enabled"])
+            btn.setToolTip(btn_dict["tooltip"])
             self.cmd_btns[title] = {
                 "btn": btn,
                 "permission": btn_dict["permission"]
@@ -311,14 +337,16 @@ class SophysHistoryTable(QWidget):
                 "cmd": model.clear_all,
                 "enabled": True,
                 "confirm": True,
-                "permission": 0
+                "permission": 0,
+                "tooltip": "Delete all the history items."
             },
             {
                 "title": "Copy to Queue",
                 "icon": "mdi6.content-copy",
                 "cmd": model.copy_to_queue,
                 "enabled": False,
-                "permission": 1
+                "permission": 1,
+                "tooltip": "Duplicate the selected item to the end of the queue list."
             }
         ]
         self.createBtns(glay, control_btns)

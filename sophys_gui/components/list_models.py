@@ -57,7 +57,8 @@ class ListModel(QAbstractTableModel):
         return "Exit status received after the item execution."
 
     def editTooltipRender(self, item: dict, item_type: str):
-        return f"Open a window for editting the {item_type} in this row."
+        return "Copy the selected item data into a form that will update " \
+            f"the {item_type} in this row."
 
     def deleteTooltipRender(self, item: dict, item_type: str):
         return f"Deletes the {item_type} in this row."

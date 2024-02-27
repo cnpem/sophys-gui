@@ -90,6 +90,7 @@ class QueueController(QWidget):
             btn.setIcon(qta.icon(btn_stack["icon"]))
             btn.setIconSize(QSize(20, 20))
             btn.clicked.connect(btn_stack["cmd"])
+            btn.setToolTip(btn_stack["tooltip"])
             if 'enabled' in btn_stack:
                 btn.setEnabled(False)
             stack.addWidget(btn)
@@ -101,12 +102,14 @@ class QueueController(QWidget):
             {
                 'icon': 'mdi6.progress-check',
                 'title': 'Open',
-                'cmd': self.run_engine.environment_open
+                'cmd': self.run_engine.environment_open,
+                "tooltip": "Open the Bluesky Environment."
             },
             {
                 'icon': 'mdi6.progress-close',
                 'title': 'Close',
-                'cmd': self.run_engine.environment_close
+                'cmd': self.run_engine.environment_close,
+                "tooltip": "Close the Bluesky Environment."
             }
         ]
         self.env_stack = self.addQueueController(cmd_env)
@@ -117,17 +120,20 @@ class QueueController(QWidget):
             {
                 'icon': 'fa5s.play',
                 'title': 'Start',
-                'cmd': self.run_engine.queue_start
+                'cmd': self.run_engine.queue_start,
+                "tooltip": "Start running the first queue item."
             },
             {
                 'icon': 'fa5s.pause',
                 'title': 'Pause',
-                'cmd': lambda _: self.run_engine.re_pause(option='deferred')
+                'cmd': lambda _: self.run_engine.re_pause(option='deferred'),
+                "tooltip": "Pause the running item."
             },
             {
                 'icon': 'fa5s.play',
                 'title': 'Resume',
-                'cmd': self.run_engine.re_resume
+                'cmd': self.run_engine.re_resume,
+                "tooltip": "Resume running the paused queue item."
             }
         ]
         self.play_stack = self.addQueueController(cmd_start)
@@ -139,17 +145,21 @@ class QueueController(QWidget):
                 'icon': 'fa5s.stop',
                 'title': 'Stop',
                 'cmd': print,
-                'enabled': False
+                'enabled': False,
+                "tooltip": "Stop running the queue list."
             },
             {
                 'icon': 'fa5s.stop',
                 'title': 'Stop',
-                'cmd': self.run_engine.queue_stop
+                'cmd': self.run_engine.queue_stop,
+                "tooltip": "Stop running the queue list."
             },
             {
                 'icon': 'fa5s.stop',
                 'title': 'Abort',
-                'cmd': self.run_engine.re_abort
+                'cmd': self.run_engine.re_abort,
+                "tooltip": "Cancel running the paused item. This will item will " \
+                    "show in the history with the aborted status."
             }
         ]
         self.stop_stack = self.addQueueController(cmd_start)

@@ -52,6 +52,9 @@ class SophysOperationGUI(QMainWindow):
         self.login.login_signal.connect(self.loginUser)
         self.login._email.setMinimumWidth(150)
         self.login._password.setMinimumWidth(150)
+        self.login.setToolTip("Login into the HTTP Server in order to be " \
+            "able to control and operate the Queue Server. Without the login "
+            "you will be on the observer mode.")
         glay.addWidget(self.login, 0, 2, 1, 1)
 
         vsplitter = QSplitter(Qt.Vertical)
