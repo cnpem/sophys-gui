@@ -27,18 +27,24 @@ class ListModel(QAbstractTableModel):
         """Renders the 'User' column items."""
         return str(user)
 
-    def argumentsRender(self, item: dict, kwargs: dict):
+    def argumentsRender(self, item: dict, argsList: dict):
         """Renders the 'Keyword Arguments' column items."""
-        if len(kwargs) == 0:
+        hasArgs = len(argsList[0]) != 0
+        hasKwargs = len(argsList[1]) != 0
+        if not (hasArgs or hasKwargs):
             return "None"
-
         desc = []
-
+        if not hasKwargs:
+            argsList[1] = {}
+        if hasArgs:
+            args = argsList[0].copy()
+            argsList[1]["detectors"] = args.pop(0)
+            argsList[1]["args"] = args
         if item["item_type"] == "plan":
-            for key, val in kwargs.items():
+            for key, val in argsList[1].items():
                 desc.append("{} = {}".format(key, val))
             return "\n".join(desc)
-        return str(kwargs)
+        return str(desc)
 
     def uidRender(self, item: dict, uid: str):
         return ''
@@ -90,7 +96,7 @@ class ListModel(QAbstractTableModel):
         ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
         ("User", ["user"], userRender, userTooltipRender),
-        ("Arguments", ["kwargs"], argumentsRender, argumentsTooltipRender)
+        ("Arguments", [["args", "kwargs"]], argumentsRender, argumentsTooltipRender)
     ]
 
     columns_history = [

@@ -4,13 +4,20 @@ import ast
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QPushButton
 
+
 def getItemRecursively(original_obj: object, attrs: list):
     _prev = original_obj
     for attr in attrs:
-        if attr in _prev:
-            _prev = getattr(_prev, attr, _prev[attr])
+        if isinstance(attr, list):
+            concAttr = []
+            for item in attr:
+                concAttr.append(getItemRecursively(_prev, [item]))
+            _prev = concAttr
         else:
-            return ''
+            if attr in _prev:
+                _prev = getattr(_prev, attr, _prev[attr])
+            else:
+                return ''
     return _prev
 
 
