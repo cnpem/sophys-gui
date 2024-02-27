@@ -159,6 +159,15 @@ class SophysForm(QDialog):
                     optionsList.append(key)
         return SophysInputList(optionsList, isFloat, not isGrouped)
 
+    def getInputTooltip(self, param):
+        description = param["description"]
+        try:
+            extraIdx = description.index("-.-")
+            description = description[:extraIdx]
+        except Exception:
+            print("")
+        return description.capitalize()
+
     def getInputWidget(self, paramMeta, paramType):
         isInt = 'int' in paramType
         isFloat = 'float' in paramType
@@ -179,7 +188,7 @@ class SophysForm(QDialog):
             inputWid = QLineEdit()
         isStr = not (isInt or isFloat or isDict or isIterable)
         self.handleModalMode(inputWid, paramMeta, isStr)
-
+        inputWid.setToolTip(self.getInputTooltip(paramMeta))
         return inputWid
 
     def isRequired(self, paramMeta, varType):

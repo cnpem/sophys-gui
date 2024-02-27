@@ -103,7 +103,7 @@ class ListModel(QAbstractTableModel):
                 except Exception:
                     print("")
                 description = re.sub("\n+", ". ", description)
-                desc.append("{}: {}".format(key, description))
+                desc.append("{}: {}".format(key, description.capitalize()))
             return "\n".join(desc)
 
     # (Column title, Attribute value, Display value, ToolTip value)
