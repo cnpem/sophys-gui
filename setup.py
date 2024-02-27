@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='sophys-gui',
     version='0.1.0',
-    author='lnls-sirius',
+    author='SWC - LNLS',
     description='Control GUI for the Bluesky queue.',
     install_requires=[
         'QtPy==2.3.1',
