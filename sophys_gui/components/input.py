@@ -155,7 +155,6 @@ class SophysInputList(QWidget):
         self.showSelectedItems(self.selectedItems)
         if self.availableItems != None:
             for val in value:
-                print(val, self.availableItems, val in self.availableItems)
                 self.availableItems.remove(val)
             self.edit.clear()
             self.edit.addItems(self.availableItems)

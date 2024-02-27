@@ -25,7 +25,12 @@ class ListModel(QAbstractTableModel):
 
     def userRender(self, item: dict, user: str):
         """Renders the 'User' column items."""
-        return str(user)
+        return str(user[0])
+
+    def addArgsToKwargs(self, argsList):
+        args = argsList[0].copy()
+        argsList[1]["detectors"] = args.pop(0)
+        argsList[1]["args"] = args
 
     def argumentsRender(self, item: dict, argsList: dict):
         """Renders the 'Keyword Arguments' column items."""
@@ -37,9 +42,7 @@ class ListModel(QAbstractTableModel):
         if not hasKwargs:
             argsList[1] = {}
         if hasArgs:
-            args = argsList[0].copy()
-            argsList[1]["detectors"] = args.pop(0)
-            argsList[1]["args"] = args
+            self.addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             for key, val in argsList[1].items():
                 desc.append("{} = {}".format(key, val))
@@ -53,9 +56,15 @@ class ListModel(QAbstractTableModel):
         """Renders the 'Status' column item tooltips."""
         return "Exit status received after the item execution."
 
+    def editTooltipRender(self, item: dict, item_type: str):
+        return f"Open a window for editting the {item_type} in this row."
+
+    def deleteTooltipRender(self, item: dict, item_type: str):
+        return f"Deletes the {item_type} in this row."
+
     def typeTooltipRender(self, item: dict, type: str):
         """Renders the 'Type' column item tooltips."""
-        return str(type)
+        return str(type.capitalize())
 
     def nameTooltipRender(self, item: dict, name: str):
         """Renders the 'Name' column item tooltips."""
@@ -71,21 +80,28 @@ class ListModel(QAbstractTableModel):
 
     def userTooltipRender(self, item: dict, user: str):
         """Renders the 'User' column item tooltips."""
-        return str(user)
+        return f"Last user that modified the {user[1]} in this row."
 
-    def argumentsTooltipRender(self, item: dict, kwargs: dict):
+    def argumentsTooltipRender(self, item: dict, argsList: dict):
         """Renders the 'Keyword Arguments' column item tooltips."""
-        if len(kwargs) == 0:
-            return
-
+        hasArgs = len(argsList[0]) != 0
+        hasKwargs = len(argsList[1]) != 0
+        if not (hasArgs or hasKwargs):
+            return "None"
         desc = []
-
+        if hasArgs:
+            self.addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
-            for key in kwargs:
+            for key in argsList[1]:
                 param = next(filter(lambda x: x["name"] == key, params))
-                description = re.sub("\n+", ". ", param["description"])
-
+                description = param["description"]
+                try:
+                    extraIdx = description.index("-.-")
+                    description = description[:extraIdx]
+                except Exception:
+                    print("")
+                description = re.sub("\n+", ". ", description)
                 desc.append("{}: {}".format(key, description))
             return "\n".join(desc)
 
@@ -95,7 +111,7 @@ class ListModel(QAbstractTableModel):
     columns = [
         ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
-        ("User", ["user"], userRender, userTooltipRender),
+        ("User", [["user", "item_type"]], userRender, userTooltipRender),
         ("Arguments", [["args", "kwargs"]], argumentsRender, argumentsTooltipRender)
     ]
 
@@ -104,8 +120,8 @@ class ListModel(QAbstractTableModel):
     ] + columns
 
     columns_queue = columns + [
-        ("  Edit  ", ["item_uid"], uidRender, statusTooltipRender),
-        (" Delete ", ["item_uid"], uidRender, statusTooltipRender)
+        ("  Edit  ", ["item_type"], uidRender, editTooltipRender),
+        (" Delete ", ["item_type"], uidRender, deleteTooltipRender)
     ]
 
     def __init__(self, re_model, plan_changed, plan_items, row_count, listId, parent=None):
