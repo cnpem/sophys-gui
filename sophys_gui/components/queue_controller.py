@@ -73,6 +73,10 @@ class QueueController(QWidget):
                         stateVar=="creating_environment" or stateVar=="closing_environment"
                 }
             },
+            'Running': {
+                'key': 'manager_state',
+                'comp': lambda stateVar: stateVar == "executing_queue"
+            },
             'Stop Pending': {
                 'key': 'queue_stop_pending',
                 'comp': lambda boolVar: boolVar
@@ -180,10 +184,11 @@ class QueueController(QWidget):
     def _setupUi(self):
         hlay = QHBoxLayout(self)
 
+        self.addStatusLeds(hlay)
+
         group = self.addControllerGroup()
         group.setMinimumWidth(300)
         hlay.addWidget(group)
 
-        self.addStatusLeds(hlay)
 
         self.updateEvent.connect(self.statusChanged)
