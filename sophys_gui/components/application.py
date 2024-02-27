@@ -11,13 +11,17 @@ class SophysApplication(QApplication):
 
     def __init__(self, argv):
         super().__init__(argv)
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.popup = []
+        self.codeErrors = {
+            "001": "Invalid Input type!!",
+            "002": "Missing required fields!!",
+            "401": "Not enough permissions!!"
+        }
         self._setupUi()
 
     def setStyle(self):
         """
-            Generate a generic style for the applications.
+            Generate a generic style for the GUI application.
         """
         style_file = getFilePath("_assets/css-style.css")
         with open(style_file, 'r') as f:
@@ -25,6 +29,9 @@ class SophysApplication(QApplication):
         self.setStyleSheet(style)
 
     def showBugError(self, exctype, excvalue, tracebackobj):
+        """
+            Show a new window for unknown errors.
+        """
         timestring = time.strftime("%Y-%m-%d, %H:%M:%S") + '\n'
         notice = timestring + \
             'An unhandled exception occurred. Please report the problem '\
@@ -40,6 +47,9 @@ class SophysApplication(QApplication):
         errorbox.exec_()
 
     def showExpectedError(self, message):
+        """
+            Show a popup for user known errors.
+        """
         for popup in self.popup:
             if popup:
                 popup.set_text(message)
@@ -47,24 +57,29 @@ class SophysApplication(QApplication):
             else:
                 self.popup.pop(popup)
 
-    def verifyKnownExceptions(self, excvalue):
-        exception = str(excvalue)
-
+    def getErrorCode(self, exception):
         digitList = [x.isdigit() for x in exception]
         try:
             firstDigit = digitList.index(True)
-            messageCode = exception[firstDigit:firstDigit+3]
-            if "001"==messageCode:
-                return "Invalid Input type!!"
-            if "002"==messageCode:
-                return "Missing required fields!!"
-            if "401"==messageCode:
-                return "Not enough permissions!!"
+            return exception[firstDigit:firstDigit+3]
         except Exception:
             return ""
+
+    def verifyKnownExceptions(self, excvalue):
+        """
+            Verify known error dictionary.
+        """
+        exception = str(excvalue)
+        messageCode = self.getErrorCode(exception)
+        for code, errorMsg in self.codeErrors.items():
+            if code == messageCode:
+                return errorMsg
         return ""
 
     def excepthook(self, exctype, excvalue, tracebackobj):
+        """
+            Catch thrown exceptions.
+        """
         message = self.verifyKnownExceptions(excvalue)
         if self.popup and len(message)>0:
             self.showExpectedError(message)
@@ -79,3 +94,4 @@ class SophysApplication(QApplication):
     def _setupUi(self):
         self.setStyle()
         sys.excepthook = self.excepthook
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
