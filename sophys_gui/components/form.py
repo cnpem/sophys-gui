@@ -51,7 +51,7 @@ class SophysForm(QDialog):
             validParam = False
             hasParam = True
             value = inputWid["widget"].text()
-            if inputWid["kind"] == "POSITIONAL_ONLY":
+            if inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors":
                 if isinstance(value, str):
                     value = [value]
             hasParam = bool(value) and value != 'None'
