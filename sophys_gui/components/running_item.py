@@ -91,7 +91,6 @@ class SophysRunningItem(QWidget):
     @DeferredFunction
     def getItemAttributes(self, running_item):
         args_list = ['kwargs', 'item_type', 'args', 'name']
-        isArgsNull = False
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
@@ -99,19 +98,11 @@ class SophysRunningItem(QWidget):
         idy = 0
         for key, item in running_item.items():
             if key in args_list:
-                isArgs = key == 'args'
                 item_group = QGroupBox()
                 lay = QHBoxLayout()
                 item_group.setLayout(lay)
                 item_group.setTitle(key)
-                col_stretch = 1
-                if isArgs:
-                    isArgsNull = len(item)==0
-                    idy -=1
-                if isArgsNull:
-                    col_stretch = 2
-                if key != 'args' or not isArgsNull:
-                    glay.addWidget(item_group, idx, idy, 1, col_stretch)
+                glay.addWidget(item_group, idx, idy, 1, 1)
 
                 if isinstance(item, str):
                     value = QLabel(item)
