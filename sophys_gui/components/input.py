@@ -7,26 +7,144 @@ from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
 from sophys_gui.functions import evaluateValue
 
 
+class SophysInputMotor(QWidget):
+
+    def __init__(self, motorParameters, iterableInput):
+        super().__init__()
+        self.motorParameters = motorParameters
+        self.iterableInput = iterableInput
+        self.widList = []
+        self._setupUi()
+
+    def setValue(self, newValues):
+        widQuant = len(self.widList)
+        remId = 0
+        valueList = []
+        for idx, val in enumerate(newValues):
+            if idx>0 and idx%widQuant==0:
+                remId += widQuant
+            if remId == 0:
+                valueList.append([])
+            itemId = idx-remId
+            valueList[itemId].append(val)
+        removeRow = []
+        for idx, value in enumerate(valueList):
+            currWid = self.widList[idx]
+            currWid.setValue(value)
+            for idy, val in enumerate(value):
+                if idx == 0:
+                    removeRow.append([])
+                removeRow[idy].append(currWid.removeFunction[idy])
+        for idy, _ in enumerate(valueList[0]):
+            self.addDeleteRow(removeRow[idy])
+
+    def text(self):
+        listResults = []
+        for item in self.widList:
+            listResults.append(item.text())
+        orderedResults = []
+        max = len(listResults[0]) if isinstance(listResults[0], list) else 1
+        if max > 1:
+            for resultId in range(0, max):
+                newResults = [resList[resultId] for resList in listResults]
+                orderedResults.extend(newResults)
+        else:
+            orderedResults = listResults
+        return orderedResults
+
+    def deleteRow(self, deleteList, deleteBtn):
+        for deleteItem in deleteList:
+            deleteItem(1)
+        if deleteBtn:
+            deleteBtn.deleteLater()
+
+    def addDeleteRow(self, removeRow):
+        deleteBtn = QPushButton("")
+        deleteBtn.setFixedSize(40, 25)
+        deleteBtn.setIcon(qta.icon("fa5s.trash-alt"))
+        deleteBtn.clicked.connect(lambda _, delList=removeRow: self.deleteRow(delList, deleteBtn))
+        self.btnsList.addWidget(deleteBtn)
+
+    def selectValues(self):
+        removeRow = []
+        for item in self.widList:
+            returnedStatus = item.selectItem()
+            if returnedStatus:
+                removeRow.append(item.removeFunction[-1])
+            else:
+                self.deleteRow(removeRow, None)
+                removeRow = []
+                break
+        if len(removeRow) > 0:
+            self.addDeleteRow(removeRow)
+
+    def getMotorInput(self):
+        separator = "-.-"
+        motorDescription = self.motorParameters["description"]
+        motorTypeIndex = motorDescription.index(separator)
+        if motorTypeIndex:
+            motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
+            return motorTyping
+        return None
+
+    def _setupUi(self):
+        glay = QGridLayout(self)
+        glay.setSpacing(2)
+        glay.setContentsMargins(2, 2, 2, 2)
+        motorTyping = self.getMotorInput()
+        if motorTyping:
+            motorArray = motorTyping.split(";")
+            motorTitles = motorArray[0].split(",")
+
+            for idy, title in enumerate(motorTitles):
+                titleWid = QLabel(title)
+                titleWid.setAlignment(Qt.AlignCenter)
+                glay.addWidget(titleWid, 0, idy)
+
+                wid = self.iterableInput({"name":title}, False, True)
+                self.widList.append(wid)
+                glay.addWidget(wid, 1, idy, 1, 1)
+
+            self.btnsList = QVBoxLayout()
+            self.btnsList.setContentsMargins(0, 0, 0, 0)
+            self.btnsList.setSpacing(5)
+
+            addBtn = QPushButton()
+            addBtn.setFixedSize(40, 25)
+            addBtn.setIcon(qta.icon("fa5s.plus"))
+            addBtn.clicked.connect(self.selectValues)
+            self.btnsList.addWidget(addBtn)
+
+            glay.addLayout(self.btnsList, 1, len(motorTitles)+1, 1, 1)
+        else:
+            glay.addWidget(SophysInputList(None, False))
+
+
 class SophysInputList(QWidget):
 
-    def __init__(self, itemList, isNumber, optionalList=False):
+    def __init__(self, itemList, isNumber, hasAddBtn=True):
         super().__init__()
         self.selectedItems = []
         self.selectedWidgets = []
         self.availableItems = itemList
         self.isNumber = isNumber
-        self.optionalList = optionalList
+        self.hasAddBtn = hasAddBtn
+        self.removeFunction = []
         self.curr_index = [0, 0]
         self._setupUi()
 
+    def evaluateNumber(self, item):
+        if isinstance(item, str):
+            if (item.strip('-')).isnumeric():
+                item = evaluateValue(item)
+        return item
+
     def text(self):
-        if self.optionalList and len(self.selectedItems)==1:
-            return self.selectedItems[0]
+        if len(self.selectedItems)==1:
+            return self.evaluateNumber(self.selectedItems[0])
         evaluatedItems = []
         for item in self.selectedItems:
-            if isinstance(item, str):
-                if (item.strip('-')).isnumeric():
-                    item = evaluateValue(item)
+            item = self.evaluateNumber(item)
             evaluatedItems.append(item)
         return evaluatedItems
 
@@ -35,6 +153,12 @@ class SophysInputList(QWidget):
             value = [value]
         self.selectedItems = value
         self.showSelectedItems(self.selectedItems)
+        if self.availableItems != None:
+            for val in value:
+                print(val, self.availableItems, val in self.availableItems)
+                self.availableItems.remove(val)
+            self.edit.clear()
+            self.edit.addItems(self.availableItems)
 
     def getSelectedTag(self, title):
         group = QGroupBox()
@@ -46,22 +170,26 @@ class SophysInputList(QWidget):
         itemLbl.setAlignment(Qt.AlignCenter)
         hlay.addWidget(itemLbl)
 
-        removeItem = QPushButton()
-        removeItem.setIcon(qta.icon("fa.close"))
-        removeItem.setFixedSize(40, 25)
-        removeItem.clicked.connect(
-            lambda _, item=title: self.removeItem(item))
-        hlay.addWidget(removeItem)
+        if self.hasAddBtn:
+            removeItem = QPushButton()
+            removeItem.setIcon(qta.icon("fa.close"))
+            removeItem.setFixedSize(40, 25)
+            removeItem.clicked.connect(
+                lambda _, item=title: self.removeItem(item))
+            hlay.addWidget(removeItem)
+        else:
+            self.removeFunction.append(lambda _, item=title: self.removeItem(item))
 
         return group
 
     def showSelectedItems(self, selItems):
+        colLenght = 2 if self.hasAddBtn else 0
         for item in selItems:
             tag = self.getSelectedTag(item)
             self.selectedWidgets.append(tag)
             self.selectedItemList.addWidget(tag, *self.curr_index)
             self.curr_index[1] += 1
-            if self.curr_index[1] > 2:
+            if self.curr_index[1] > colLenght:
                 self.curr_index[1] = 0
                 self.curr_index[0] += 1
 
@@ -88,13 +216,17 @@ class SophysInputList(QWidget):
                 self.availableItems.remove(selectedItem)
                 self.edit.clear()
                 self.edit.addItems(self.availableItems)
-            return
+                return True
+            return False
         elif self.isNumber:
             value = self.edit.value()
         else:
             value = self.edit.text()
+            if len(value)==0:
+                return False
         self.selectedItems.append(value)
         self.showSelectedItems([value])
+        return True
 
     def _setupUi(self):
         glay = QGridLayout()
@@ -107,18 +239,22 @@ class SophysInputList(QWidget):
             wid.setMaximum(10000)
         else:
             wid = QLineEdit()
+        wid.setMinimumWidth(50)
         glay.addWidget(wid, 0, 0, 1, 2)
         self.edit = wid
 
-        addBtn = QPushButton()
-        addBtn.setFixedSize(40, 25)
-        addBtn.setIcon(qta.icon("fa5s.plus"))
-        addBtn.clicked.connect(self.selectItem)
-        glay.addWidget(addBtn, 0, 2, 1, 1)
+        if self.hasAddBtn:
+            addBtn = QPushButton()
+            addBtn.setFixedSize(40, 25)
+            addBtn.setIcon(qta.icon("fa5s.plus"))
+            addBtn.clicked.connect(self.selectItem)
+            glay.addWidget(addBtn, 0, 2, 1, 1)
 
         self.selectedItemList = QGridLayout()
         self.selectedItemList.setContentsMargins(0, 0, 0, 0)
-        glay.addLayout(self.selectedItemList, 1, 0, 2, 3)
+        self.selectedItemList.setSpacing(2)
+        stretch = 3 if self.hasAddBtn else 2
+        glay.addLayout(self.selectedItemList, 1, 0, 2, stretch)
 
         self.setLayout(glay)
 

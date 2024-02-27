@@ -5,7 +5,8 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication
 from sophys_gui.functions import evaluateValue
-from .input import SophysInputList, SophysInputDict, SophysSpinBox
+from .input import SophysInputList, SophysInputDict, SophysSpinBox, \
+    SophysInputMotor
 
 NoneType = type(None)
 
@@ -50,6 +51,9 @@ class SophysForm(QDialog):
             validParam = False
             hasParam = True
             value = inputWid["widget"].text()
+            if inputWid["kind"] == "POSITIONAL_ONLY":
+                if isinstance(value, str):
+                    value = [value]
             hasParam = bool(value) and value != 'None'
             if hasParam and isinstance(value, str):
                 hasParam = len(value) > 0
@@ -142,15 +146,31 @@ class SophysForm(QDialog):
                 default = paramMeta["default"]
             inputWid.setPlaceholderText(default)
 
+    def getIterableInput(self, paramMeta, isFloat, isGrouped=False):
+        optionsList = None
+        title = paramMeta["name"]
+        isDevice = "is_movable" if "motor" == title else \
+            "is_readable" if "detectors" in title else None
+        allowed_devices = self.model._allowed_devices
+        if isDevice:
+            optionsList = []
+            for key, device in allowed_devices.items():
+                if device[isDevice]:
+                    optionsList.append(key)
+        return SophysInputList(optionsList, isFloat, not isGrouped)
+
     def getInputWidget(self, paramMeta, paramType):
         isInt = 'int' in paramType
         isFloat = 'float' in paramType
         isIterable = 'Iterable' in paramType or 'List' in paramType or 'object' in paramType
+        isArgs = 'args' in paramMeta['name']
         isDict  = 'dict' in paramType
         if isDict:
             inputWid = SophysInputDict()
+        elif isArgs:
+            inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
         elif isIterable:
-            inputWid = SophysInputList(None, isFloat, isFloat)
+            inputWid = self.getIterableInput(paramMeta, isFloat)
         elif isInt or isFloat:
             numType = 'int' if isInt else 'float'
             inputWid = SophysSpinBox(numType)
@@ -162,12 +182,11 @@ class SophysForm(QDialog):
 
         return inputWid
 
-    def isRequired(self, paramMeta):
+    def isRequired(self, paramMeta, varType):
         hasDefaultValue = "default" in paramMeta
-        return not (hasDefaultValue)
+        return not (hasDefaultValue or "Optional" in varType)
 
     def addParameterInput(self, paramMeta, pos, glay):
-        isRequired = self.isRequired(paramMeta)
         varType = paramMeta['annotation']['type'] if 'annotation' in paramMeta else ''
         varType = varType.replace('typing.Sequence', 'typing.List')
         varType = varType.replace('__READABLE__', 'typing.Any')
@@ -176,6 +195,8 @@ class SophysForm(QDialog):
         varType = varType.replace('__MOVABLE__', 'typing.Any')
         varType = varType.replace('__FLYABLE__', 'typing.Any')
         paramType = eval(varType) if varType != '' else object
+
+        isRequired = self.isRequired(paramMeta, varType)
 
         title = paramMeta["name"]
         reqText = ' (required)' if isRequired else ''
