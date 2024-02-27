@@ -10,9 +10,10 @@ class SophysConsoleMonitor(QScrollArea):
         super().__init__()
         self.run_engine = model.run_engine
         self.consoleOutputs = ""
+        self.console = QLabel("")
 
         self._setupUi()
-        self.server_monitor()
+        self.serverMonitor()
 
     @DeferredFunction
     def updateConsoleLabel(self, output):
@@ -21,7 +22,10 @@ class SophysConsoleMonitor(QScrollArea):
             self.console.setText(self.consoleOutputs)
 
     @AsyncFunction
-    def server_monitor(self):
+    def serverMonitor(self):
+        """
+            Monitor and send new labels for the label widget.
+        """
         self.run_engine.start_console_output_monitoring()
         while True:
             newOutput = self.run_engine.console_monitoring_thread()
@@ -30,17 +34,19 @@ class SophysConsoleMonitor(QScrollArea):
             else:
                 break
 
-
-    def _setupUi(self):
-        self.console = QLabel("")
-        self.console.setWordWrap(True)
-        self.console.setAlignment(Qt.AlignTop)
-        self.console.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
-        self.setWidgetResizable(True)
-        self.setWidget(self.console)
-        self.scrollBar = self.verticalScrollBar()
-        self.scrollBar.rangeChanged.connect(self.scrollToBottom)
+    def getConsoleLabel(self):
+        consoleLbl = QLabel("")
+        consoleLbl.setWordWrap(True)
+        consoleLbl.setAlignment(Qt.AlignTop)
+        consoleLbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        return consoleLbl
 
     def scrollToBottom(self):
         self.scrollBar.setValue(self.scrollBar.maximum())
+
+    def _setupUi(self):
+        self.console = self.getConsoleLabel()
+        self.setWidget(self.console)
+        self.setWidgetResizable(True)
+        self.scrollBar = self.verticalScrollBar()
+        self.scrollBar.rangeChanged.connect(self.scrollToBottom)
