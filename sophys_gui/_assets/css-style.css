@@ -1,0 +1,78 @@
+QMainWindow, QDialog {
+    color: black;
+}
+
+QTableView:item {
+    padding: 10px;
+    text-align: center;
+}
+
+QTableView:item:hover {
+    background-color: lightgray;
+}
+
+QTableView:item:selected {
+    background-color:gray;
+    color: black;
+}
+
+QCheckBox::indicator {
+    background-color: lightgray;
+    border-radius: 5px;
+}
+
+QCheckBox::indicator:checked {
+    background-color: black;
+    border: 2px solid lightgray;
+}
+
+QHeaderView {
+    background-color: #c2c2c2;
+}
+
+QPushButton:hover {
+    background-color: lightgray;
+}
+
+QPushButton:disabled {
+    background-color: #d3d3d3;
+}
+
+QGroupBox {
+    background-color: #c4c4c4;
+    border: 1px solid #808080;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+QSlider{
+    background: #00000000;
+    border-radius: 5px;
+}
+
+QSlider::sub-page {
+    background: #00cc00;
+    border: 1px solid #808080;
+    border-radius: 5px;
+}
+
+QSlider::add-page {
+    background: #1c6f0d;
+    border: 1px solid #808080;
+    border-radius: 5px;
+}
+
+QSlider::handle, QLineEdit {
+    background: #ffffff;
+    border: 1px solid #808080;
+    width: 13px;
+    border-radius: 5px;
+}
+
+#popup QWidget {
+    margin: 1em;
+    background-color: #ffdb3b;
+    border: 1px solid #808080;
+    border-radius: 10px;
+}

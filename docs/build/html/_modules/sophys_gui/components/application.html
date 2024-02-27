@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sophys_gui.components.application &mdash; sophys-gui 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            sophys-gui
+          </a>
+              <div class="version">
+                0.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sophys-gui</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sophys_gui.components.application</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sophys_gui.components.application</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QMessageBox</span>
+<span class="kn">from</span> <span class="nn">sophys_gui.functions</span> <span class="kn">import</span> <span class="n">getFilePath</span>
+<span class="kn">from</span> <span class="nn">.popup</span> <span class="kn">import</span> <span class="n">PopupWidget</span>
+
+
+<div class="viewcode-block" id="SophysApplication">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication">[docs]</a>
+<span class="k">class</span> <span class="nc">SophysApplication</span><span class="p">(</span><span class="n">QApplication</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popup</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setupUi</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SophysApplication.setStyle">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.setStyle">[docs]</a>
+    <span class="k">def</span> <span class="nf">setStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generate a generic style for the applications.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">style_file</span> <span class="o">=</span> <span class="n">getFilePath</span><span class="p">(</span><span class="s2">&quot;_assets/css-style.css&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">style_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="n">style</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.showBugError">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.showBugError">[docs]</a>
+    <span class="k">def</span> <span class="nf">showBugError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exctype</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">,</span> <span class="n">tracebackobj</span><span class="p">):</span>
+        <span class="n">timestring</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">, %H:%M:%S&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">notice</span> <span class="o">=</span> <span class="n">timestring</span> <span class="o">+</span> \
+            <span class="s1">&#39;An unhandled exception occurred. Please report the problem &#39;</span>\
+            <span class="s1">&#39;via email to swc@lnls.br.&#39;</span>
+        <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exctype</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">+</span>\
+                <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tracebackobj</span><span class="p">))</span>
+        <span class="n">errorbox</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">notice</span><span class="p">)</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">setInformativeText</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Critical</span><span class="p">)</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;text-align: center;&quot;</span><span class="p">)</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s2">&quot;ControlApp&quot;</span><span class="p">)</span>
+        <span class="n">errorbox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.showExpectedError">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.showExpectedError">[docs]</a>
+    <span class="k">def</span> <span class="nf">showExpectedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">popup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">popup</span><span class="p">:</span>
+                <span class="n">popup</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+                <span class="n">popup</span><span class="o">.</span><span class="n">show_popup</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">popup</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.verifyKnownExceptions">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.verifyKnownExceptions">[docs]</a>
+    <span class="k">def</span> <span class="nf">verifyKnownExceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">):</span>
+        <span class="n">exception</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">excvalue</span><span class="p">)</span>
+
+        <span class="n">digitList</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exception</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">firstDigit</span> <span class="o">=</span> <span class="n">digitList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">messageCode</span> <span class="o">=</span> <span class="n">exception</span><span class="p">[</span><span class="n">firstDigit</span><span class="p">:</span><span class="n">firstDigit</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;001&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Invalid Input type!!&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;002&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Missing required fields!!&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;401&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Not enough permissions!!&quot;</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.excepthook">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.excepthook">[docs]</a>
+    <span class="k">def</span> <span class="nf">excepthook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exctype</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">,</span> <span class="n">tracebackobj</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifyKnownExceptions</span><span class="p">(</span><span class="n">excvalue</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">popup</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showExpectedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showBugError</span><span class="p">(</span><span class="n">exctype</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">,</span> <span class="n">tracebackobj</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.createPopup">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.createPopup">[docs]</a>
+    <span class="k">def</span> <span class="nf">createPopup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window</span><span class="p">):</span>
+        <span class="n">popup</span> <span class="o">=</span> <span class="n">PopupWidget</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+        <span class="n">popup</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">popup</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyle</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">excepthook</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, lnls-sirius.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

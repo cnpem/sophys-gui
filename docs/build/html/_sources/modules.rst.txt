@@ -1,0 +1,10 @@
+sophys_gui
+==========
+
+.. toctree::
+   :maxdepth: 4
+
+   sophys_gui.components
+   functions
+   operation
+   server
