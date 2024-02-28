@@ -2,7 +2,7 @@ import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
-from sophys_gui.functions import getItemRecursively
+from sophys_gui.functions import getItemRecursively, addArgsToKwargs
 from .form import SophysForm
 
 
@@ -27,11 +27,6 @@ class ListModel(QAbstractTableModel):
         """Renders the 'User' column items."""
         return str(user[0])
 
-    def addArgsToKwargs(self, argsList):
-        args = argsList[0].copy()
-        argsList[1]["detectors"] = args.pop(0)
-        argsList[1]["args"] = args
-
     def argumentsRender(self, item: dict, argsList: dict):
         """Renders the 'Keyword Arguments' column items."""
         hasArgs = len(argsList[0]) != 0
@@ -42,7 +37,7 @@ class ListModel(QAbstractTableModel):
         if not hasKwargs:
             argsList[1] = {}
         if hasArgs:
-            self.addArgsToKwargs(argsList)
+            addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             for key, val in argsList[1].items():
                 desc.append("{} = {}".format(key, val))
@@ -91,7 +86,7 @@ class ListModel(QAbstractTableModel):
             return "None"
         desc = []
         if hasArgs:
-            self.addArgsToKwargs(argsList)
+            addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:

@@ -1,7 +1,8 @@
+import qtawesome as qta
 import os as _os
 import ast
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel
+from qtpy.QtWidgets import QLabel, QPushButton
 
 
 def getItemRecursively(original_obj: object, attrs: list):
@@ -48,3 +49,16 @@ def evaluateValue(value):
         except Exception:
             print("Eval error - ", value)
     return value
+
+def createSingleBtn(btnDict, runEngine):
+    title = btnDict["title"]
+    btn = QPushButton(title)
+    btn.clicked.connect(
+        lambda _, cmd=btnDict["cmd"], re=runEngine: cmd(re))
+    btn.setIcon(qta.icon(btnDict["icon"]))
+    return btn
+
+def addArgsToKwargs(argsList):
+    args = argsList[0].copy()
+    argsList[1]["detectors"] = args.pop(0)
+    argsList[1]["args"] = args

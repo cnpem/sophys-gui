@@ -1,9 +1,10 @@
-import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QGridLayout, QPushButton, \
-    QLabel, QGroupBox, QHBoxLayout, QApplication, QSizePolicy
-from sophys_gui.functions import getHeader
-from .led import SophysLed
+from qtpy.QtWidgets import QWidget, QGridLayout, \
+    QLabel, QGroupBox, QHBoxLayout, QSizePolicy
+from sophys_gui.functions import getHeader, createSingleBtn, \
+    addArgsToKwargs
+from ..led import SophysLed
+from .util import CONTROL_BTNS
 
 from suitscase.utilities.threading import DeferredFunction
 
@@ -14,49 +15,20 @@ class SophysRunningItem(QWidget):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.group = QGroupBox()
-        self.model = model
-        self.currThread = QApplication.instance().thread()
-        self.model.run_engine.events.running_item_changed.connect(
-            self.runningItemChanged)
+        self.runEngine = model.run_engine
         self._setupUi()
 
-    def create_btns(self, glay, btn_dict):
-        for idy, btn_dict in enumerate(btn_dict):
-            title = btn_dict["title"]
-            btn = QPushButton(title)
-            btn.clicked.connect(btn_dict["cmd"])
-            btn.setIcon(qta.icon(btn_dict["icon"]))
+    def createBtns(self, glay):
+        """
+            Create all the buttons associated with the operation of the running item.
+        """
+        for idy, btnValue in enumerate(CONTROL_BTNS):
+            btn = createSingleBtn(btnValue, self.runEngine)
             glay.addWidget(btn, 6, idy, 1, 2)
 
-    def setCommandButtons(self, model, glay):
-        control_btns = [
-            {
-                "title": "Update Environment",
-                "icon": "mdi6.update",
-                "cmd": model.run_engine.environment_update
-            }
-        ]
-        self.create_btns(glay, control_btns)
-
     def runningItemChanged(self, evt):
-        running_item = self.model.run_engine._running_item
-        self.getItemAttributes(running_item)
-
-    def createListWidget(self, arg_list):
-        widget = QWidget()
-        lay = QGridLayout()
-        widget.setLayout(lay)
-        idpos = [0, 0]
-        for value in arg_list:
-            title = QLabel(str(value))
-            title.setStyleSheet("font-weight: 300;")
-            lay.addWidget(title, *idpos)
-            idpos[0] += 1
-            if idpos[0] > 2:
-                idpos[1] += 1
-                idpos[0] = 0
-
-        return widget
+        runningItem = self.runEngine._running_item
+        self.getItemAttributes(runningItem)
 
     def createDictionaryWidget(self, arg_dict):
         widget = QWidget()
@@ -82,28 +54,32 @@ class SophysRunningItem(QWidget):
         return widget
 
     @DeferredFunction
-    def getItemAttributes(self, running_item):
-        args_list = ['kwargs', 'item_type', 'args', 'name']
+    def getItemAttributes(self, runningItem):
+        args_list = ['kwargs', 'user', 'name']
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
         idx = 0
         idy = 0
-        for key, item in running_item.items():
+        for key, item in runningItem.items():
             if key in args_list:
                 item_group = QGroupBox()
                 lay = QHBoxLayout()
                 item_group.setLayout(lay)
                 item_group.setTitle(key)
-                glay.addWidget(item_group, idx, idy, 1, 1)
+                stretch = 2 if key == "kwargs" else 1
+                glay.addWidget(item_group, idx, idy, 1, stretch)
 
                 if isinstance(item, str):
                     value = QLabel(item)
                     value.setAlignment(Qt.AlignCenter)
-                elif isinstance(item, list):
-                    value = self.createListWidget(item)
                 else:
-                    value = self.createDictionaryWidget(item)
+                    argsList = [
+                        runningItem["args"], runningItem["kwargs"]
+                    ]
+                    if len(argsList[0]) > 0:
+                        addArgsToKwargs(argsList)
+                    value = self.createDictionaryWidget(argsList[1])
                 lay.addWidget(value)
 
                 idy += 1
@@ -119,7 +95,7 @@ class SophysRunningItem(QWidget):
         statusComp = lambda stateVar: stateVar == "executing_queue"
         statusKey = "manager_state"
         return SophysLed(
-            self.model.run_engine, statusKey, statusComp, isLoading=True)
+            self.runEngine, statusKey, statusComp, isLoading=True)
 
     def _setupUi(self):
         glay = QGridLayout(self)
@@ -134,4 +110,7 @@ class SophysRunningItem(QWidget):
         self.attributesDisplay.addWidget(self.group)
         glay.addLayout(self.attributesDisplay, 1, 0, 5, 2)
 
-        self.setCommandButtons(self.model, glay)
+        self.createBtns(glay)
+
+        self.runEngine.events.running_item_changed.connect(
+            self.runningItemChanged)
