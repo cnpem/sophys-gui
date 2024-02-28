@@ -44,12 +44,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">Operation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Server</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.cnpem.br/SOL/bluesky/sophys-gui">SOPHYS GUI gitlab</a></li>
 </ul>
 
         </div>
@@ -85,6 +89,14 @@
 <div class="viewcode-block" id="SophysSwitchButton">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.switch.SophysSwitchButton">[docs]</a>
 <span class="k">class</span> <span class="nc">SophysSwitchButton</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Switch Widget with feedback from the Queue Server.</span>
+
+<span class="sd">        .. image:: ./_static/switch.png</span>
+<span class="sd">            :width: 100</span>
+<span class="sd">            :alt: Switch Widget</span>
+<span class="sd">            :align: center</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>

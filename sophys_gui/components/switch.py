@@ -4,6 +4,14 @@ from qtpy.QtWidgets import QLabel, QGridLayout, \
 
 
 class SophysSwitchButton(QPushButton):
+    """
+        Switch Widget with feedback from the Queue Server.
+
+        .. image:: ./_static/switch.png
+            :width: 100
+            :alt: Switch Widget
+            :align: center
+    """
 
     def __init__(self: QPushButton, title: str, command: object, state: int) -> None:
         super().__init__()
