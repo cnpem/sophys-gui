@@ -30,19 +30,17 @@ class SophysConsoleMonitor(QScrollArea):
         self.serverMonitor()
 
     @DeferredFunction
-    def updateConsoleLabel(self, output):
+    def updateConsoleLabel(self):
         """
             Concatenate the last log to a variable and
             update the label widget.
         """
-        if output != "":
-            start = time.time()
-            self.consoleOutputs.append(output + "\n")
-            self.console.setText("".join(self.consoleOutputs))
-            end = time.time()
-            functDurationMs = end - start
-            if functDurationMs > 0.00003:
-                self.consoleOutputs = self.consoleOutputs[30:]
+        start = time.time()
+        self.console.setText("".join(self.consoleOutputs))
+        end = time.time()
+        functDurationMs = end - start
+        if functDurationMs > 0.00003:
+            self.consoleOutputs = self.consoleOutputs[30:]
 
     @AsyncFunction
     def serverMonitor(self):
@@ -53,7 +51,10 @@ class SophysConsoleMonitor(QScrollArea):
         while True:
             newOutput = self.run_engine.console_monitoring_thread()
             if newOutput:
-                self.updateConsoleLabel(newOutput[1].strip())
+                new_console_line = newOutput[1].strip()
+                if new_console_line != "":
+                    self.consoleOutputs.append(new_console_line + "\n")
+                    self.updateConsoleLabel()
             else:
                 break
 
