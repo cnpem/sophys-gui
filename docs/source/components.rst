@@ -73,7 +73,7 @@ Queue Controller
 Running Item
 ------------
 
-.. automodule:: sophys_gui.components.running_item
+.. automodule:: sophys_gui.components.running_item.main
    :members:
    :undoc-members:
    :show-inheritance:
