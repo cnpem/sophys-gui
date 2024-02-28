@@ -1,3 +1,4 @@
+import time
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QScrollArea
 from suitscase.utilities.threading import AsyncFunction, \
@@ -22,7 +23,7 @@ class SophysConsoleMonitor(QScrollArea):
     def __init__(self, model):
         super().__init__()
         self.run_engine = model.run_engine
-        self.consoleOutputs = ""
+        self.consoleOutputs = []
         self.console = QLabel("")
 
         self._setupUi()
@@ -35,8 +36,13 @@ class SophysConsoleMonitor(QScrollArea):
             update the label widget.
         """
         if output != "":
-            self.consoleOutputs += output + "\n"
-            self.console.setText(self.consoleOutputs)
+            start = time.time()
+            self.consoleOutputs.append(output + "\n")
+            self.console.setText("".join(self.consoleOutputs))
+            end = time.time()
+            functDurationMs = end - start
+            if functDurationMs > 0.00003:
+                self.consoleOutputs = self.consoleOutputs[30:]
 
     @AsyncFunction
     def serverMonitor(self):
