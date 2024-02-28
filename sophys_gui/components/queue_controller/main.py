@@ -7,6 +7,15 @@ from .util import CONFIG
 
 
 class QueueController(QWidget):
+    """
+        Widget for controlling and monitoring the Queue Server general parameters.
+
+        .. image:: ./_static/queue_controller.png
+            :width: 750
+            :alt: Queue Controller Widget
+            :align: center
+
+    """
 
     def __init__(self, model):
         super().__init__()
@@ -20,6 +29,9 @@ class QueueController(QWidget):
         return self.reStatus.get(key, None)
 
     def statusChanged(self, evt):
+        """
+            Update control buttons based on the Queue Server state.
+        """
         isConn = evt.is_connected
         if isConn:
             statusVal = self.getRunEngineStatus("manager_state")

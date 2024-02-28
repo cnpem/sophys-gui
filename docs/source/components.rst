@@ -25,7 +25,7 @@ Console
 Form
 ----
 
-.. automodule:: sophys_gui.components.form
+.. automodule:: sophys_gui.components.form.main
    :members:
    :undoc-members:
    :show-inheritance:
@@ -65,7 +65,7 @@ Popup
 Queue Controller
 ----------------
 
-.. automodule:: sophys_gui.components.queue_controller
+.. automodule:: sophys_gui.components.queue_controller.main
    :members:
    :undoc-members:
    :show-inheritance:

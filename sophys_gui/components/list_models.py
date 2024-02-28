@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
 from sophys_gui.functions import getItemRecursively
-from .form.main import SophysForm
+from .form import SophysForm
 
 
 class ListModel(QAbstractTableModel):

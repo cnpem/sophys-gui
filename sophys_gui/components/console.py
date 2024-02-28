@@ -14,7 +14,7 @@ class SophysConsoleMonitor(QScrollArea):
 
         .. image:: ./_static/console.png
             :width: 750
-            :alt: Main Auxiliary Box GUI
+            :alt: Console Widget
             :align: center
 
     """
