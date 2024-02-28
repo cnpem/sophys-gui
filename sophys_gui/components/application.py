@@ -8,6 +8,15 @@ from .popup import PopupWidget
 
 
 class SophysApplication(QApplication):
+    """
+        Application that enables generic utilities for the widgets.
+
+        Features enabled:
+            * Error Window
+            * Popup
+            * Styling
+
+    """
 
     def __init__(self, argv):
         super().__init__(argv)
@@ -58,6 +67,9 @@ class SophysApplication(QApplication):
                 self.popup.pop(popup)
 
     def getErrorCode(self, exception):
+        """
+            Get error code from the exception message.
+        """
         digitList = [x.isdigit() for x in exception]
         try:
             firstDigit = digitList.index(True)
@@ -87,6 +99,9 @@ class SophysApplication(QApplication):
             self.showBugError(exctype, excvalue, tracebackobj)
 
     def createPopup(self, window):
+        """
+            Create a hidden popup widget.
+        """
         popup = PopupWidget(window)
         popup.setVisible(False)
         self.popup.append(popup)

@@ -93,6 +93,15 @@
 <div class="viewcode-block" id="SophysApplication">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication">[docs]</a>
 <span class="k">class</span> <span class="nc">SophysApplication</span><span class="p">(</span><span class="n">QApplication</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Application that enables generic utilities for the widgets.</span>
+
+<span class="sd">        Features enabled:</span>
+<span class="sd">            * Error Window</span>
+<span class="sd">            * Popup</span>
+<span class="sd">            * Styling</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
@@ -154,6 +163,9 @@
 <div class="viewcode-block" id="SophysApplication.getErrorCode">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.getErrorCode">[docs]</a>
     <span class="k">def</span> <span class="nf">getErrorCode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get error code from the exception message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">digitList</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exception</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">firstDigit</span> <span class="o">=</span> <span class="n">digitList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -192,6 +204,9 @@
 <div class="viewcode-block" id="SophysApplication.createPopup">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.createPopup">[docs]</a>
     <span class="k">def</span> <span class="nf">createPopup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create a hidden popup widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">popup</span> <span class="o">=</span> <span class="n">PopupWidget</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
         <span class="n">popup</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">popup</span><span class="p">)</span></div>
