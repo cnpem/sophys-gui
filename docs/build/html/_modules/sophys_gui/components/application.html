@@ -44,12 +44,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">Operation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Server</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.cnpem.br/SOL/bluesky/sophys-gui">SOPHYS GUI gitlab</a></li>
 </ul>
 
         </div>
@@ -92,15 +96,19 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
-        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">popup</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">codeErrors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;001&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid Input type!!&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;002&quot;</span><span class="p">:</span> <span class="s2">&quot;Missing required fields!!&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;401&quot;</span><span class="p">:</span> <span class="s2">&quot;Not enough permissions!!&quot;</span>
+        <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setupUi</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SophysApplication.setStyle">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.setStyle">[docs]</a>
     <span class="k">def</span> <span class="nf">setStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Generate a generic style for the applications.</span>
+<span class="sd">            Generate a generic style for the GUI application.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">style_file</span> <span class="o">=</span> <span class="n">getFilePath</span><span class="p">(</span><span class="s2">&quot;_assets/css-style.css&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">style_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -111,6 +119,9 @@
 <div class="viewcode-block" id="SophysApplication.showBugError">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.showBugError">[docs]</a>
     <span class="k">def</span> <span class="nf">showBugError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exctype</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">,</span> <span class="n">tracebackobj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Show a new window for unknown errors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">timestring</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">, %H:%M:%S&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">notice</span> <span class="o">=</span> <span class="n">timestring</span> <span class="o">+</span> \
             <span class="s1">&#39;An unhandled exception occurred. Please report the problem &#39;</span>\
@@ -129,6 +140,9 @@
 <div class="viewcode-block" id="SophysApplication.showExpectedError">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.showExpectedError">[docs]</a>
     <span class="k">def</span> <span class="nf">showExpectedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Show a popup for user known errors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">popup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">popup</span><span class="p">:</span>
                 <span class="n">popup</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -137,29 +151,37 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">popup</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">popup</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SophysApplication.verifyKnownExceptions">
-<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.verifyKnownExceptions">[docs]</a>
-    <span class="k">def</span> <span class="nf">verifyKnownExceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">):</span>
-        <span class="n">exception</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">excvalue</span><span class="p">)</span>
-
+<div class="viewcode-block" id="SophysApplication.getErrorCode">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.getErrorCode">[docs]</a>
+    <span class="k">def</span> <span class="nf">getErrorCode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
         <span class="n">digitList</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exception</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">firstDigit</span> <span class="o">=</span> <span class="n">digitList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">messageCode</span> <span class="o">=</span> <span class="n">exception</span><span class="p">[</span><span class="n">firstDigit</span><span class="p">:</span><span class="n">firstDigit</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s2">&quot;001&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;Invalid Input type!!&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;002&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;Missing required fields!!&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;401&quot;</span><span class="o">==</span><span class="n">messageCode</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;Not enough permissions!!&quot;</span>
+            <span class="k">return</span> <span class="n">exception</span><span class="p">[</span><span class="n">firstDigit</span><span class="p">:</span><span class="n">firstDigit</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="SophysApplication.verifyKnownExceptions">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.verifyKnownExceptions">[docs]</a>
+    <span class="k">def</span> <span class="nf">verifyKnownExceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Verify known error dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exception</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">excvalue</span><span class="p">)</span>
+        <span class="n">messageCode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getErrorCode</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">errorMsg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codeErrors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="n">messageCode</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">errorMsg</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="SophysApplication.excepthook">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.application.SophysApplication.excepthook">[docs]</a>
     <span class="k">def</span> <span class="nf">excepthook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exctype</span><span class="p">,</span> <span class="n">excvalue</span><span class="p">,</span> <span class="n">tracebackobj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Catch thrown exceptions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verifyKnownExceptions</span><span class="p">(</span><span class="n">excvalue</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">popup</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">showExpectedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -177,7 +199,8 @@
 
     <span class="k">def</span> <span class="nf">_setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setStyle</span><span class="p">()</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">excepthook</span></div>
+        <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">excepthook</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -44,12 +44,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">Operation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Server</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.cnpem.br/SOL/bluesky/sophys-gui">SOPHYS GUI gitlab</a></li>
 </ul>
 
         </div>
@@ -86,28 +90,49 @@
 <div class="viewcode-block" id="SophysConsoleMonitor">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor">[docs]</a>
 <span class="k">class</span> <span class="nc">SophysConsoleMonitor</span><span class="p">(</span><span class="n">QScrollArea</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Widget for displaying the Queue Server console logs.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The console will scroll to the bottom after an update</span>
+<span class="sd">            in order to show the most recent log.</span>
+
+<span class="sd">        .. image:: ./_static/console.png</span>
+<span class="sd">            :width: 750</span>
+<span class="sd">            :alt: Main Auxiliary Box GUI</span>
+<span class="sd">            :align: center</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_engine</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run_engine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">consoleOutputs</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_setupUi</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">server_monitor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverMonitor</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SophysConsoleMonitor.updateConsoleLabel">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor.updateConsoleLabel">[docs]</a>
     <span class="nd">@DeferredFunction</span>
     <span class="k">def</span> <span class="nf">updateConsoleLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Concatenate the last log to a variable and</span>
+<span class="sd">            update the label widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">output</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">consoleOutputs</span> <span class="o">+=</span> <span class="n">output</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">consoleOutputs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SophysConsoleMonitor.server_monitor">
-<a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor.server_monitor">[docs]</a>
+<div class="viewcode-block" id="SophysConsoleMonitor.serverMonitor">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor.serverMonitor">[docs]</a>
     <span class="nd">@AsyncFunction</span>
-    <span class="k">def</span> <span class="nf">server_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">serverMonitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Monitor and send new labels for the label widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run_engine</span><span class="o">.</span><span class="n">start_console_output_monitoring</span><span class="p">()</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">newOutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_engine</span><span class="o">.</span><span class="n">console_monitoring_thread</span><span class="p">()</span>
@@ -117,23 +142,35 @@
                 <span class="k">break</span></div>
 
 
+<div class="viewcode-block" id="SophysConsoleMonitor.getConsoleLabel">
+<a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor.getConsoleLabel">[docs]</a>
+    <span class="k">def</span> <span class="nf">getConsoleLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create the label widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">consoleLbl</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">consoleLbl</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">consoleLbl</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
+        <span class="n">consoleLbl</span><span class="o">.</span><span class="n">setTextInteractionFlags</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">TextSelectableByMouse</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">consoleLbl</span></div>
 
-    <span class="k">def</span> <span class="nf">_setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">setTextInteractionFlags</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">TextSelectableByMouse</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span><span class="o">.</span><span class="n">rangeChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollToBottom</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SophysConsoleMonitor.scrollToBottom">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.console.SophysConsoleMonitor.scrollToBottom">[docs]</a>
     <span class="k">def</span> <span class="nf">scrollToBottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Scroll the scroll area to the bottom.</span>
+<span class="sd">            Used in order to show the latest logs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span><span class="o">.</span><span class="n">maximum</span><span class="p">())</span></div>
-</div>
+
+
+    <span class="k">def</span> <span class="nf">_setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getConsoleLabel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWidgetResizable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollBar</span><span class="o">.</span><span class="n">rangeChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollToBottom</span><span class="p">)</span></div>
 
 </pre></div>
 

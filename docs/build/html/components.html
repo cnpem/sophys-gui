@@ -55,6 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication"><code class="docutils literal notranslate"><span class="pre">SophysApplication</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.createPopup"><code class="docutils literal notranslate"><span class="pre">SophysApplication.createPopup()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.excepthook"><code class="docutils literal notranslate"><span class="pre">SophysApplication.excepthook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.getErrorCode"><code class="docutils literal notranslate"><span class="pre">SophysApplication.getErrorCode()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.setStyle"><code class="docutils literal notranslate"><span class="pre">SophysApplication.setStyle()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.showBugError"><code class="docutils literal notranslate"><span class="pre">SophysApplication.showBugError()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.application.SophysApplication.showExpectedError"><code class="docutils literal notranslate"><span class="pre">SophysApplication.showExpectedError()</span></code></a></li>
@@ -65,36 +66,15 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.console">Console</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor.getConsoleLabel"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor.getConsoleLabel()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor.scrollToBottom"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor.scrollToBottom()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor.server_monitor"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor.server_monitor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor.serverMonitor"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor.serverMonitor()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.console.SophysConsoleMonitor.updateConsoleLabel"><code class="docutils literal notranslate"><span class="pre">SophysConsoleMonitor.updateConsoleLabel()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.form">Form</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.form.SophysForm"><code class="docutils literal notranslate"><span class="pre">SophysForm</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.addParameterInput"><code class="docutils literal notranslate"><span class="pre">SophysForm.addParameterInput()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.addPlanToQueue"><code class="docutils literal notranslate"><span class="pre">SophysForm.addPlanToQueue()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.changeCurrentPlan"><code class="docutils literal notranslate"><span class="pre">SophysForm.changeCurrentPlan()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.changePlan"><code class="docutils literal notranslate"><span class="pre">SophysForm.changePlan()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getDialogBtns"><code class="docutils literal notranslate"><span class="pre">SophysForm.getDialogBtns()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getInputTooltip"><code class="docutils literal notranslate"><span class="pre">SophysForm.getInputTooltip()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getInputWidget"><code class="docutils literal notranslate"><span class="pre">SophysForm.getInputWidget()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getIterableInput"><code class="docutils literal notranslate"><span class="pre">SophysForm.getIterableInput()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getPlanMetadata"><code class="docutils literal notranslate"><span class="pre">SophysForm.getPlanMetadata()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.getPlanParameters"><code class="docutils literal notranslate"><span class="pre">SophysForm.getPlanParameters()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.handleModalMode"><code class="docutils literal notranslate"><span class="pre">SophysForm.handleModalMode()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.isRequired"><code class="docutils literal notranslate"><span class="pre">SophysForm.isRequired()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.keyPressEvent"><code class="docutils literal notranslate"><span class="pre">SophysForm.keyPressEvent()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.selectedItemMetadata"><code class="docutils literal notranslate"><span class="pre">SophysForm.selectedItemMetadata()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.setChosenItem"><code class="docutils literal notranslate"><span class="pre">SophysForm.setChosenItem()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.setWidgetValue"><code class="docutils literal notranslate"><span class="pre">SophysForm.setWidgetValue()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.form.SophysForm.setupUi"><code class="docutils literal notranslate"><span class="pre">SophysForm.setupUi()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.form">Form</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.input">Input</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.input.SophysInputDict"><code class="docutils literal notranslate"><span class="pre">SophysInputDict</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.input.SophysInputDict.addDictionaryItem"><code class="docutils literal notranslate"><span class="pre">SophysInputDict.addDictionaryItem()</span></code></a></li>
@@ -221,20 +201,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.queue_controller">Queue Controller</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController"><code class="docutils literal notranslate"><span class="pre">QueueController</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addControllerGroup"><code class="docutils literal notranslate"><span class="pre">QueueController.addControllerGroup()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addEnvironmentController"><code class="docutils literal notranslate"><span class="pre">QueueController.addEnvironmentController()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addPlayController"><code class="docutils literal notranslate"><span class="pre">QueueController.addPlayController()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addQueueController"><code class="docutils literal notranslate"><span class="pre">QueueController.addQueueController()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addStatusGroup"><code class="docutils literal notranslate"><span class="pre">QueueController.addStatusGroup()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addStatusLeds"><code class="docutils literal notranslate"><span class="pre">QueueController.addStatusLeds()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.addStopController"><code class="docutils literal notranslate"><span class="pre">QueueController.addStopController()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.queue_controller.QueueController.statusChanged"><code class="docutils literal notranslate"><span class="pre">QueueController.statusChanged()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.queue_controller">Queue Controller</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-sophys_gui.components.running_item">Running Item</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.createDictionaryWidget"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.createDictionaryWidget()</span></code></a></li>
@@ -342,28 +309,37 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.excepthook">
 <span class="sig-name descname"><span class="pre">excepthook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exctype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excvalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebackobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.excepthook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.excepthook" title="Link to this definition"></a></dt>
+<dd><p>Catch thrown exceptions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.getErrorCode">
+<span class="sig-name descname"><span class="pre">getErrorCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.getErrorCode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.getErrorCode" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.setStyle">
 <span class="sig-name descname"><span class="pre">setStyle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.setStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.setStyle" title="Link to this definition"></a></dt>
-<dd><p>Generate a generic style for the applications.</p>
+<dd><p>Generate a generic style for the GUI application.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.showBugError">
 <span class="sig-name descname"><span class="pre">showBugError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exctype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excvalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracebackobj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.showBugError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.showBugError" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Show a new window for unknown errors.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.showExpectedError">
 <span class="sig-name descname"><span class="pre">showExpectedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.showExpectedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.showExpectedError" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Show a popup for user known errors.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.application.SophysApplication.verifyKnownExceptions">
 <span class="sig-name descname"><span class="pre">verifyKnownExceptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excvalue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/application.html#SophysApplication.verifyKnownExceptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.application.SophysApplication.verifyKnownExceptions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Verify known error dictionary.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -374,118 +350,44 @@
 <dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sophys_gui.components.console.</span></span><span class="sig-name descname"><span class="pre">SophysConsoleMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QScrollArea</span></code></p>
+<p>Widget for displaying the Queue Server console logs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The console will scroll to the bottom after an update
+in order to show the most recent log.</p>
+</div>
+<a class="reference internal image-reference" href="_images/console.png"><img alt="Main Auxiliary Box GUI" class="align-center" src="_images/console.png" style="width: 750px;" /></a>
+<dl class="py method">
+<dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor.getConsoleLabel">
+<span class="sig-name descname"><span class="pre">getConsoleLabel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor.getConsoleLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor.getConsoleLabel" title="Link to this definition"></a></dt>
+<dd><p>Create the label widget.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor.scrollToBottom">
 <span class="sig-name descname"><span class="pre">scrollToBottom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor.scrollToBottom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor.scrollToBottom" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Scroll the scroll area to the bottom.
+Used in order to show the latest logs.</p>
+</dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor.server_monitor">
-<span class="sig-name descname"><span class="pre">server_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor.server_monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor.server_monitor" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor.serverMonitor">
+<span class="sig-name descname"><span class="pre">serverMonitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor.serverMonitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor.serverMonitor" title="Link to this definition"></a></dt>
+<dd><p>Monitor and send new labels for the label widget.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.console.SophysConsoleMonitor.updateConsoleLabel">
 <span class="sig-name descname"><span class="pre">updateConsoleLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/console.html#SophysConsoleMonitor.updateConsoleLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.console.SophysConsoleMonitor.updateConsoleLabel" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Concatenate the last log to a variable and
+update the label widget.</p>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-sophys_gui.components.form">
 <span id="form"></span><h2>Form<a class="headerlink" href="#module-sophys_gui.components.form" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sophys_gui.components.form.</span></span><span class="sig-name descname"><span class="pre">SophysForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modalMode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QDialog</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.addParameterInput">
-<span class="sig-name descname"><span class="pre">addParameterInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paramMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.addParameterInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.addParameterInput" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.addPlanToQueue">
-<span class="sig-name descname"><span class="pre">addPlanToQueue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.addPlanToQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.addPlanToQueue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.changeCurrentPlan">
-<span class="sig-name descname"><span class="pre">changeCurrentPlan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.changeCurrentPlan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.changeCurrentPlan" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.changePlan">
-<span class="sig-name descname"><span class="pre">changePlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">currentPlan</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.changePlan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.changePlan" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getDialogBtns">
-<span class="sig-name descname"><span class="pre">getDialogBtns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getDialogBtns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getDialogBtns" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getInputTooltip">
-<span class="sig-name descname"><span class="pre">getInputTooltip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getInputTooltip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getInputTooltip" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getInputWidget">
-<span class="sig-name descname"><span class="pre">getInputWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paramMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paramType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getInputWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getInputWidget" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getIterableInput">
-<span class="sig-name descname"><span class="pre">getIterableInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paramMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isFloat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isGrouped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getIterableInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getIterableInput" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getPlanMetadata">
-<span class="sig-name descname"><span class="pre">getPlanMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getPlanMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getPlanMetadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.getPlanParameters">
-<span class="sig-name descname"><span class="pre">getPlanParameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.getPlanParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.getPlanParameters" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.handleModalMode">
-<span class="sig-name descname"><span class="pre">handleModalMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputWid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paramMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isStr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.handleModalMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.handleModalMode" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.isRequired">
-<span class="sig-name descname"><span class="pre">isRequired</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paramMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.isRequired"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.isRequired" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.keyPressEvent">
-<span class="sig-name descname"><span class="pre">keyPressEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.keyPressEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.keyPressEvent" title="Link to this definition"></a></dt>
-<dd><p>Override close dialog on pressing the Enter key.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.selectedItemMetadata">
-<span class="sig-name descname"><span class="pre">selectedItemMetadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.selectedItemMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.selectedItemMetadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.setChosenItem">
-<span class="sig-name descname"><span class="pre">setChosenItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">itemName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.setChosenItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.setChosenItem" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.setWidgetValue">
-<span class="sig-name descname"><span class="pre">setWidgetValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputWid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isStr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.setWidgetValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.setWidgetValue" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.form.SophysForm.setupUi">
-<span class="sig-name descname"><span class="pre">setupUi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/form.html#SophysForm.setupUi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.form.SophysForm.setupUi" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 <section id="module-sophys_gui.components.input">
 <span id="input"></span><h2>Input<a class="headerlink" href="#module-sophys_gui.components.input" title="Link to this heading"></a></h2>
@@ -1007,52 +909,6 @@
 </section>
 <section id="module-sophys_gui.components.queue_controller">
 <span id="queue-controller"></span><h2>Queue Controller<a class="headerlink" href="#module-sophys_gui.components.queue_controller" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sophys_gui.components.queue_controller.</span></span><span class="sig-name descname"><span class="pre">QueueController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addControllerGroup">
-<span class="sig-name descname"><span class="pre">addControllerGroup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addControllerGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addControllerGroup" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addEnvironmentController">
-<span class="sig-name descname"><span class="pre">addEnvironmentController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hlay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addEnvironmentController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addEnvironmentController" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addPlayController">
-<span class="sig-name descname"><span class="pre">addPlayController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hlay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addPlayController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addPlayController" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addQueueController">
-<span class="sig-name descname"><span class="pre">addQueueController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd_btn_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addQueueController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addQueueController" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addStatusGroup">
-<span class="sig-name descname"><span class="pre">addStatusGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addStatusGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addStatusGroup" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addStatusLeds">
-<span class="sig-name descname"><span class="pre">addStatusLeds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hlay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addStatusLeds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addStatusLeds" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.addStopController">
-<span class="sig-name descname"><span class="pre">addStopController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hlay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.addStopController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.addStopController" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.queue_controller.QueueController.statusChanged">
-<span class="sig-name descname"><span class="pre">statusChanged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/queue_controller.html#QueueController.statusChanged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.queue_controller.QueueController.statusChanged" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 <section id="module-sophys_gui.components.running_item">
 <span id="running-item"></span><h2>Running Item<a class="headerlink" href="#module-sophys_gui.components.running_item" title="Link to this heading"></a></h2>

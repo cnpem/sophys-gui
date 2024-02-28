@@ -5,6 +5,19 @@ from suitscase.utilities.threading import AsyncFunction, \
 
 
 class SophysConsoleMonitor(QScrollArea):
+    """
+        Widget for displaying the Queue Server console logs.
+
+        .. note::
+            The console will scroll to the bottom after an update
+            in order to show the most recent log.
+
+        .. image:: ./_static/console.png
+            :width: 750
+            :alt: Main Auxiliary Box GUI
+            :align: center
+
+    """
 
     def __init__(self, model):
         super().__init__()
@@ -17,6 +30,10 @@ class SophysConsoleMonitor(QScrollArea):
 
     @DeferredFunction
     def updateConsoleLabel(self, output):
+        """
+            Concatenate the last log to a variable and
+            update the label widget.
+        """
         if output != "":
             self.consoleOutputs += output + "\n"
             self.console.setText(self.consoleOutputs)
@@ -35,6 +52,9 @@ class SophysConsoleMonitor(QScrollArea):
                 break
 
     def getConsoleLabel(self):
+        """
+            Create the label widget.
+        """
         consoleLbl = QLabel("")
         consoleLbl.setWordWrap(True)
         consoleLbl.setAlignment(Qt.AlignTop)
@@ -42,6 +62,10 @@ class SophysConsoleMonitor(QScrollArea):
         return consoleLbl
 
     def scrollToBottom(self):
+        """
+            Scroll the scroll area to the bottom.
+            Used in order to show the latest logs.
+        """
         self.scrollBar.setValue(self.scrollBar.maximum())
 
     def _setupUi(self):

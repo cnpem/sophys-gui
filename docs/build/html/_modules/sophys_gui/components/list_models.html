@@ -44,12 +44,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">Operation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Server</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.cnpem.br/SOL/bluesky/sophys-gui">SOPHYS GUI gitlab</a></li>
 </ul>
 
         </div>
@@ -82,7 +86,7 @@
     <span class="n">Signal</span>
 <span class="kn">from</span> <span class="nn">qtpy.QtGui</span> <span class="kn">import</span> <span class="n">QBrush</span><span class="p">,</span> <span class="n">QColor</span>
 <span class="kn">from</span> <span class="nn">sophys_gui.functions</span> <span class="kn">import</span> <span class="n">getItemRecursively</span>
-<span class="kn">from</span> <span class="nn">.form</span> <span class="kn">import</span> <span class="n">SophysForm</span>
+<span class="kn">from</span> <span class="nn">.form.main</span> <span class="kn">import</span> <span class="n">SophysForm</span>
 
 
 <div class="viewcode-block" id="ListModel">
@@ -223,7 +227,7 @@
                     <span class="n">extraIdx</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;-.-&quot;</span><span class="p">)</span>
                     <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="p">[:</span><span class="n">extraIdx</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No Motor Separator&quot;</span><span class="p">)</span>
                 <span class="n">description</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">+&quot;</span><span class="p">,</span> <span class="s2">&quot;. &quot;</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
                 <span class="n">desc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">description</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()))</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span></div>
@@ -555,7 +559,7 @@
     <span class="k">def</span> <span class="nf">add_stop_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">allowed_parameters</span><span class="p">,</span> <span class="n">allowed_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_name_param_variables</span><span class="p">(</span><span class="s1">&#39;instruction&#39;</span><span class="p">)</span>
         <span class="n">form</span> <span class="o">=</span> <span class="n">SophysForm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_re_model</span><span class="o">.</span><span class="n">run_engine</span><span class="p">,</span> <span class="s2">&quot;add_instruction&quot;</span><span class="p">,</span> <span class="n">allowed_parameters</span><span class="p">,</span> <span class="n">allowed_names</span><span class="p">)</span>
-        <span class="n">form</span><span class="o">.</span><span class="n">addPlanToQueue</span><span class="p">()</span></div>
+        <span class="n">form</span><span class="o">.</span><span class="n">addItemToQueue</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="QueueModel.copy_queue_item">
