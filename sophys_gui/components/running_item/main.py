@@ -108,25 +108,24 @@ class SophysRunningItem(QWidget):
         glay = QGridLayout()
         group.setLayout(glay)
         runningItem = self.runEngine._running_item
-        pos = [0, 0]
-        if len(runningItem) == 0:
-            return
+        hasRunningItem = len(runningItem) != 0
+        if hasRunningItem:
+            pos = [0, 0]
+            for key in args_list:
+                item_group = QGroupBox()
+                lay = QHBoxLayout()
+                item_group.setLayout(lay)
+                item_group.setTitle(key)
+                stretch = 2 if key == "kwargs" else 1
+                glay.addWidget(item_group, *pos, 1, stretch)
 
-        for key in args_list:
-            item_group = QGroupBox()
-            lay = QHBoxLayout()
-            item_group.setLayout(lay)
-            item_group.setTitle(key)
-            stretch = 2 if key == "kwargs" else 1
-            glay.addWidget(item_group, *pos, 1, stretch)
+                valueWid = self.getValueWidget(runningItem, key)
+                lay.addWidget(valueWid)
 
-            valueWid = self.getValueWidget(runningItem, key)
-            lay.addWidget(valueWid)
-
-            pos[1] += 1
-            if pos[1] >= 2:
-                pos[1] = 0
-                pos[0] += 2
+                pos[1] += 1
+                if pos[1] >= 2:
+                    pos[1] = 0
+                    pos[0] += 2
         self.updateRunningItem(group)
 
     def createLoading(self):
