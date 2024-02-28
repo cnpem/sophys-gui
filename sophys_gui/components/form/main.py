@@ -13,6 +13,25 @@ NoneType = type(None)
 
 
 class SophysForm(QDialog):
+    """
+        Window for adding, editting and copying plans or instructions.
+
+
+        Adding Item:
+
+        .. image:: ./_static/form_add.png
+            :width: 500
+            :alt: Add Item Widget
+            :align: center
+
+        Editting/Copying Item:
+
+        .. image:: ./_static/form_edit.png
+            :width: 400
+            :alt: Edit Item Widget
+            :align: center
+
+    """
 
     def __init__(self, model, modalMode, allowedParameters, allowedNames):
         super().__init__()
@@ -34,17 +53,26 @@ class SophysForm(QDialog):
             super(SophysForm, self).keyPressEvent(event)
 
     def selectedItemMetadata(self):
+        """
+            Get the item metadata if it already exists.
+        """
         selectedItem = self.model._selected_queue_item_uids
         itemPos = self.model.queue_item_uid_to_pos(selectedItem[0])
         return self.model._plan_queue_items[itemPos]
 
     def getHasParameters(self, value):
+        """
+            Detect if a value was inserted.
+        """
         hasParam = bool(value) and value != "None"
         if hasParam and isinstance(value, str):
             hasParam = len(value) > 0
         return hasParam
 
     def handleDetectorValue(self, inputWid, key):
+        """
+            Transform the detector value to a list if there is only one.
+        """
         value = inputWid["widget"].text()
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
         if isDetector and isinstance(value, str):
@@ -52,6 +80,9 @@ class SophysForm(QDialog):
         return value
 
     def verifyValueType(self, value, widType):
+        """
+            Verify if the inserted value is valid.
+        """
         try:
             return typesentry.Config().is_type(value, widType)
         except Exception:
@@ -59,6 +90,9 @@ class SophysForm(QDialog):
         return False
 
     def getItemParameters(self):
+        """
+            Validate and format the item parameters into dictionary items.
+        """
         inputValues = {
             "kwargs": {},
             "args": []
@@ -92,6 +126,9 @@ class SophysForm(QDialog):
         return inputValues
 
     def getItemMetadata(self, itemParameters):
+        """
+            Format item metadata dictionary.
+        """
         metadata = {
             "item_type": self.itemType,
             "name": self.chosenItem,
@@ -105,6 +142,9 @@ class SophysForm(QDialog):
         return metadata
 
     def addItemToQueue(self):
+        """
+            Add or update the queue item.
+        """
         itemParameters = self.getItemParameters()
         item = self.getItemMetadata(itemParameters)
         isItemUpdate = "edit" in self.modalMode
@@ -115,6 +155,9 @@ class SophysForm(QDialog):
         self.accept()
 
     def getDialogBtns(self):
+        """
+            Create the form dialog buttons.
+        """
         self.btns = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
@@ -124,12 +167,18 @@ class SophysForm(QDialog):
         return self.btns
 
     def setWidgetValue(self, inputWid, item, isStr):
+        """
+            Set the widget value if it already has one.
+        """
         if isStr:
             inputWid.setText(str(item))
         else:
             inputWid.setValue(item)
 
     def addDefaultValues(self, paramMeta, inputWid):
+        """
+            Set the widget default value if it has one.
+        """
         placeHolderType = any([isinstance(inputWid, widType) for widType in [QLineEdit, SophysSpinBox]])
         if placeHolderType:
             default = ""
@@ -138,6 +187,9 @@ class SophysForm(QDialog):
             inputWid.setPlaceholderText(default)
 
     def handleArgsParam(self, argsParams, paramName):
+        """
+            Format the Args list parameter into the "Detectors" and "Motors" input widgets.
+        """
         item = None
         isDetectors = paramName == "detectors"
         isMotors = paramName == "args"
@@ -150,6 +202,9 @@ class SophysForm(QDialog):
         return item
 
     def handleModalMode(self, inputWid, paramMeta, isStr):
+        """
+            Handle default or existing values on openning the form.
+        """
         isNotAdd = "add" not in self.modalMode
         if isNotAdd:
             paramName = paramMeta["name"]
@@ -169,6 +224,9 @@ class SophysForm(QDialog):
         self.addDefaultValues(paramMeta, inputWid)
 
     def getAvailableDevicesType(self, title):
+        """
+            Get the key for searching the devices options.
+        """
         optionsMode = {
             "motor": "is_movable",
             "detectors": "is_readable",
@@ -177,6 +235,9 @@ class SophysForm(QDialog):
         return optionsMode[title] if title in optionsMode else None
 
     def getDevicesOptions(self, availableDevices):
+        """
+            Get all the available devices based on one of its property.
+        """
         allowedDevices = self.model._allowed_devices
         optionsList = []
         for key, device in allowedDevices.items():
@@ -185,6 +246,9 @@ class SophysForm(QDialog):
         return optionsList
 
     def getIterableInput(self, paramMeta, isNumber, isGrouped=False):
+        """
+            Handle iterable inputs with pre existing options.
+        """
         optionsList = None
         availableDevices = self.getAvailableDevicesType(paramMeta["name"])
         if availableDevices:
@@ -192,6 +256,9 @@ class SophysForm(QDialog):
         return SophysInputList(optionsList, isNumber, not isGrouped)
 
     def getInputTooltip(self, param):
+        """
+            Get the parameter description for the input tooltip.
+        """
         hasDescription = "description" in param
         if hasDescription:
             description = param["description"]
@@ -204,6 +271,9 @@ class SophysForm(QDialog):
         return ""
 
     def getInputWidget(self, paramMeta, paramType):
+        """
+            Get the parameter widget based on its types.
+        """
         isNumber = any([item in paramType for item in ["int", "float"]])
         isIterable = any([item in paramType for item in ["Iterable", "List", "object"]])
         isArgs = "args" in paramMeta["name"]
@@ -226,21 +296,34 @@ class SophysForm(QDialog):
         return inputWid
 
     def getIsRequired(self, paramMeta, varType):
+        """
+            Get if input is required.
+        """
         hasDefaultValue = "default" in paramMeta
         return not (hasDefaultValue or "Optional" in varType)
 
     def replaceUnknownTypes(self, varType):
+        """
+            Replace bluesky types for python types in order for the
+            type check to work.
+        """
         for keyType, replaceType in UNKNOWN_TYPES.items():
             varType = varType.replace(keyType, replaceType)
         return varType
 
     def getParamPythonType(self, paramMeta):
+        """
+            Convert the type string to a pyton variable type.
+        """
         hasAnnotation = "annotation" in paramMeta
         varType = paramMeta["annotation"]["type"] if hasAnnotation else ""
         varType = self.replaceUnknownTypes(varType)
         return eval(varType) if varType != "" else object
 
     def getInputTitle(self, title, isRequired):
+        """
+            Create the input title widget.
+        """
         reqText = " (required)" if isRequired else ""
         lbl = QLabel(title + reqText)
         lbl.setMaximumHeight(50)
@@ -248,6 +331,9 @@ class SophysForm(QDialog):
         return lbl
 
     def addParameterInput(self, paramMeta, pos, glay):
+        """
+            Add one parameter input with its title.
+        """
         paramType = self.getParamPythonType(paramMeta)
         isRequired = self.getIsRequired(paramMeta, str(paramType))
 
@@ -271,11 +357,17 @@ class SophysForm(QDialog):
         return pos
 
     def getNoParametersLabel(self):
+        """
+            Message shown if there are no allowed parameters.
+        """
         noParamLbl = "There are no configurable parameters " \
             f"for the choosen {self.itemType}."
         return QLabel(noParamLbl)
 
     def updateParametersLayout(self, newGroup):
+        """
+            Update the parameters input layout.
+        """
         self.group.deleteLater()
         self.parametersLayout.addWidget(newGroup)
         self.group = newGroup
