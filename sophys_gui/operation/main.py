@@ -1,6 +1,6 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget
+    QGridLayout, QTabWidget, QApplication
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor
@@ -13,32 +13,54 @@ class SophysOperationGUI(QMainWindow):
     def __init__(self, model):
         super().__init__()
         self.model = model
+        self.runEngine = self.model.run_engine
+        self.app = QApplication.instance()
         self.client_data = None
         self._setupUi()
 
     def closeEvent(self, event):
         if self.client_data != None:
-            self.model.run_engine._client.logout()
-        self.model.run_engine.stop_console_output_monitoring()
+            self.logoutUser()
+        self.runEngine.stop_console_output_monitoring()
 
-    def loginUser(self, isLogged):
-        re = self.model.run_engine
+    def logoutUser(self):
+        re = self.runEngine
+        re._user_name = 'GUI Client'
+        re._user_group = 'primary'
+        re._client.logout()
+        self.app.saveRunEngineClient(None)
+        self.client_data = None
+
+    def loginUser(self):
+        re = self.runEngine
+        emailWid = self.login._email
+        passwordWid = self.login._password
+        username = emailWid.text()
+        password = passwordWid.text()
+        self.client_data = re._client.login(
+            username=username, password=password,
+            provider="ldap/token")
+        self.app.saveRunEngineClient(re._client)
+        re._user_name = username
+        re._user_group = self.login._allowed_group
+        emailWid.setText("")
+        passwordWid.setText("")
+
+    def handleToggleUser(self, isLogged):
         if isLogged:
-            username = self.login._email.text()
-            password = self.login._password.text()
-            self.client_data = re._client.login(
-                username=username, password=password,
-                provider='ldap/token')
-            re._client.apikey_new(expires_in=3600)
-            re._user_name = username
-            re._user_group = self.login._allowed_group
-            self.login._email.setText("")
-            self.login._password.setText("")
-        else:
-            re._user_name = 'GUI Client'
-            re._user_group = 'primary'
-            re._client.logout()
-            self.client_data = None
+            self.loginUser()
+            return
+        self.logoutUser()
+
+    def createLoginWidget(self):
+        login = LoginCNPEM(group="SWC")
+        login.login_signal.connect(self.handleToggleUser)
+        login._email.setMinimumWidth(150)
+        login._password.setMinimumWidth(150)
+        login.setToolTip("Login into the HTTP Server in order to be " \
+            "able to control and operate the Queue Server. Without the login "
+            "you will be on the observer mode.")
+        return login
 
     def _setupUi(self):
         wid = QWidget()
@@ -48,13 +70,7 @@ class SophysOperationGUI(QMainWindow):
         controller = QueueController(self.model)
         glay.addWidget(controller, 0, 0, 1, 2)
 
-        self.login = LoginCNPEM(group="SWC")
-        self.login.login_signal.connect(self.loginUser)
-        self.login._email.setMinimumWidth(150)
-        self.login._password.setMinimumWidth(150)
-        self.login.setToolTip("Login into the HTTP Server in order to be " \
-            "able to control and operate the Queue Server. Without the login "
-            "you will be on the observer mode.")
+        self.login = self.createLoginWidget()
         glay.addWidget(self.login, 0, 2, 1, 1)
 
         vsplitter = QSplitter(Qt.Vertical)

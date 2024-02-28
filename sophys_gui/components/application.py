@@ -21,6 +21,7 @@ class SophysApplication(QApplication):
     def __init__(self, argv):
         super().__init__(argv)
         self.popup = []
+        self.runEngineClient = None
         self.codeErrors = {
             "001": "Invalid Input type!!",
             "002": "Missing required fields!!",
@@ -83,6 +84,14 @@ class SophysApplication(QApplication):
         """
         exception = str(excvalue)
         messageCode = self.getErrorCode(exception)
+        if messageCode == "401" and self.runEngineClient:
+                authKeys = self.runEngineClient.auth_key
+                try:
+                    clientData = self.runEngineClient.session_refresh(refresh_token=authKeys[1])
+                    self.saveRunEngineClient(clientData["refresh_token"])
+                    return "User Session Refreshed!!"
+                except Exception:
+                    print("Could not refresh the user session!")
         for code, errorMsg in self.codeErrors.items():
             if code == messageCode:
                 return errorMsg
@@ -105,6 +114,9 @@ class SophysApplication(QApplication):
         popup = PopupWidget(window)
         popup.setVisible(False)
         self.popup.append(popup)
+
+    def saveRunEngineClient(self, client):
+        self.runEngineClient = client
 
     def _setupUi(self):
         self.setStyle()
