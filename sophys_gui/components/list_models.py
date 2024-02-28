@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
 from sophys_gui.functions import getItemRecursively
-from .form import SophysForm
+from .form.main import SophysForm
 
 
 class ListModel(QAbstractTableModel):
@@ -101,7 +101,7 @@ class ListModel(QAbstractTableModel):
                     extraIdx = description.index("-.-")
                     description = description[:extraIdx]
                 except Exception:
-                    print("")
+                    print("No Motor Separator")
                 description = re.sub("\n+", ". ", description)
                 desc.append("{}: {}".format(key, description.capitalize()))
             return "\n".join(desc)
@@ -343,7 +343,7 @@ class QueueModel(ListModel):
     def add_stop_queue(self):
         allowed_parameters, allowed_names = self.get_name_param_variables('instruction')
         form = SophysForm(self._re_model.run_engine, "add_instruction", allowed_parameters, allowed_names)
-        form.addPlanToQueue()
+        form.addItemToQueue()
 
     @Slot()
     def copy_queue_item(self):
