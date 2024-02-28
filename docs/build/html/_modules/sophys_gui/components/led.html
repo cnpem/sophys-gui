@@ -44,12 +44,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">GUIs:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">components package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">functions module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">operation package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">server package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation.html">Operation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Server</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.cnpem.br/SOL/bluesky/sophys-gui">SOPHYS GUI gitlab</a></li>
 </ul>
 
         </div>
@@ -77,18 +81,36 @@
            <div itemprop="articleBody">
              
   <h1>Source code for sophys_gui.components.led</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QStackedWidget</span><span class="p">,</span> <span class="n">QLabel</span>
-<span class="kn">from</span> <span class="nn">sophys_gui.functions</span> <span class="kn">import</span> <span class="n">getLoadingButton</span>
+<span></span><span class="kn">import</span> <span class="nn">qtawesome</span> <span class="k">as</span> <span class="nn">qta</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QStackedWidget</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span>
 
 
 <div class="viewcode-block" id="SophysLed">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.led.SophysLed">[docs]</a>
 <span class="k">class</span> <span class="nc">SophysLed</span><span class="p">(</span><span class="n">QStackedWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Led or loading widget that shows the status of the Queue Server.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">updateEvent</span><span class="p">,</span> <span class="n">statusVar</span><span class="p">,</span> <span class="n">statusKey</span><span class="p">,</span> <span class="n">statusComp</span><span class="p">,</span> <span class="n">isConn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">isLoading</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="sd">        Loading mode:</span>
+
+<span class="sd">        .. image:: ./_static/load.png</span>
+<span class="sd">            :width: 100</span>
+<span class="sd">            :alt: Loading Widget</span>
+<span class="sd">            :align: center</span>
+
+<span class="sd">        Led mode:</span>
+
+<span class="sd">        .. image:: ./_static/led.png</span>
+<span class="sd">            :width: 100</span>
+<span class="sd">            :alt: Led Widget</span>
+<span class="sd">            :align: center</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_engine</span><span class="p">,</span> <span class="n">statusKey</span><span class="p">,</span> <span class="n">statusComp</span><span class="p">,</span> <span class="n">isConn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">isLoading</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updateEvent</span> <span class="o">=</span> <span class="n">updateEvent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">statusVar</span> <span class="o">=</span> <span class="n">statusVar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateEvent</span> <span class="o">=</span> <span class="n">run_engine</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">status_changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusVar</span> <span class="o">=</span> <span class="n">run_engine</span><span class="o">.</span><span class="n">re_manager_status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statusKey</span> <span class="o">=</span> <span class="n">statusKey</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statusComp</span> <span class="o">=</span> <span class="n">statusComp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">isConn</span> <span class="o">=</span> <span class="n">isConn</span>
@@ -102,6 +124,9 @@
 <div class="viewcode-block" id="SophysLed.updateState">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.led.SophysLed.updateState">[docs]</a>
     <span class="k">def</span> <span class="nf">updateState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update the led/loading state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isConn</span><span class="p">:</span>
             <span class="n">ledStatus</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">is_connected</span>
         <span class="k">else</span><span class="p">:</span>
@@ -114,14 +139,23 @@
 <div class="viewcode-block" id="SophysLed.addLoading">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.led.SophysLed.addLoading">[docs]</a>
     <span class="k">def</span> <span class="nf">addLoading</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">loading</span> <span class="o">=</span> <span class="n">getLoadingButton</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create a loding widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loading</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">loading</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">qta</span><span class="o">.</span><span class="n">icon</span><span class="p">(</span>
+            <span class="s1">&#39;fa5s.spinner&#39;</span><span class="p">,</span> <span class="n">animation</span><span class="o">=</span><span class="n">qta</span><span class="o">.</span><span class="n">Spin</span><span class="p">(</span><span class="n">loading</span><span class="p">)))</span>
         <span class="n">loading</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">loading</span><span class="o">.</span><span class="n">setFlat</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">loading</span></div>
 
 
 <div class="viewcode-block" id="SophysLed.addLed">
 <a class="viewcode-back" href="../../../components.html#sophys_gui.components.led.SophysLed.addLed">[docs]</a>
     <span class="k">def</span> <span class="nf">addLed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create led widget and style it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">label</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            background: qradialgradient(</span>

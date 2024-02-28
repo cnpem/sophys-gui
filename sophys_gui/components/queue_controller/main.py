@@ -54,7 +54,7 @@ class QueueController(QWidget):
         statusKey = loadingParams["key"]
         statusComp = loadingParams["comp"]
         statusLed = SophysLed(
-            self.updateEvent, self.reStatus, statusKey,
+            self.run_engine, statusKey,
             statusComp, isConn, isLoading)
         lay.addWidget(statusLed)
 

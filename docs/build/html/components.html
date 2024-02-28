@@ -252,8 +252,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.createDictionaryWidget"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.createDictionaryWidget()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.createListWidget"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.createListWidget()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.createLoading"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.createLoading()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.create_btns"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.create_btns()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.detectLoading"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.detectLoading()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.getItemAttributes"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.getItemAttributes()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.runningItemChanged"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.runningItemChanged()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sophys_gui.components.running_item.SophysRunningItem.setCommandButtons"><code class="docutils literal notranslate"><span class="pre">SophysRunningItem.setCommandButtons()</span></code></a></li>
@@ -792,17 +792,24 @@ type check to work.</p>
 <span id="led"></span><h2>Led<a class="headerlink" href="#module-sophys_gui.components.led" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="sophys_gui.components.led.SophysLed">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sophys_gui.components.led.</span></span><span class="sig-name descname"><span class="pre">SophysLed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updateEvent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statusVar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statusKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statusComp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isConn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isLoading</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/led.html#SophysLed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.led.SophysLed" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sophys_gui.components.led.</span></span><span class="sig-name descname"><span class="pre">SophysLed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statusKey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statusComp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isConn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isLoading</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/led.html#SophysLed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.led.SophysLed" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QStackedWidget</span></code></p>
+<p>Led or loading widget that shows the status of the Queue Server.</p>
+<p>Loading mode:</p>
+<a class="reference internal image-reference" href="_images/load.png"><img alt="Loading Widget" class="align-center" src="_images/load.png" style="width: 100px;" /></a>
+<p>Led mode:</p>
+<a class="reference internal image-reference" href="_images/led.png"><img alt="Led Widget" class="align-center" src="_images/led.png" style="width: 100px;" /></a>
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.led.SophysLed.addLed">
 <span class="sig-name descname"><span class="pre">addLed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/led.html#SophysLed.addLed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.led.SophysLed.addLed" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create led widget and style it.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.led.SophysLed.addLoading">
 <span class="sig-name descname"><span class="pre">addLoading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/led.html#SophysLed.addLoading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.led.SophysLed.addLoading" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create a loding widget.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.led.SophysLed.setupUi">
@@ -812,7 +819,8 @@ type check to work.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sophys_gui.components.led.SophysLed.updateState">
 <span class="sig-name descname"><span class="pre">updateState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/led.html#SophysLed.updateState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.led.SophysLed.updateState" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Update the led/loading state.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1218,13 +1226,13 @@ of the Queue Server.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.running_item.SophysRunningItem.create_btns">
-<span class="sig-name descname"><span class="pre">create_btns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">glay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btn_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/running_item.html#SophysRunningItem.create_btns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.running_item.SophysRunningItem.create_btns" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="sophys_gui.components.running_item.SophysRunningItem.createLoading">
+<span class="sig-name descname"><span class="pre">createLoading</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/running_item.html#SophysRunningItem.createLoading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.running_item.SophysRunningItem.createLoading" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sophys_gui.components.running_item.SophysRunningItem.detectLoading">
-<span class="sig-name descname"><span class="pre">detectLoading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/running_item.html#SophysRunningItem.detectLoading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.running_item.SophysRunningItem.detectLoading" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="sophys_gui.components.running_item.SophysRunningItem.create_btns">
+<span class="sig-name descname"><span class="pre">create_btns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">glay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btn_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sophys_gui/components/running_item.html#SophysRunningItem.create_btns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sophys_gui.components.running_item.SophysRunningItem.create_btns" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

@@ -1,8 +1,7 @@
 import os as _os
-import qtawesome as qta
 import ast
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QPushButton
+from qtpy.QtWidgets import QLabel
 
 
 def getItemRecursively(original_obj: object, attrs: list):
@@ -41,14 +40,6 @@ def getFilePath(file_path):
     abspath = _os.path.abspath(_os.path.dirname(__file__))
     admin_file = _os.path.join(abspath, file_path)
     return admin_file
-
-def getLoadingButton():
-    loading = QPushButton('')
-    loading.setIcon(qta.icon(
-        'fa5s.spinner', animation=qta.Spin(loading)))
-    loading.setVisible(False)
-    loading.setFlat(True)
-    return loading
 
 def evaluateValue(value):
     if isinstance(value, str):

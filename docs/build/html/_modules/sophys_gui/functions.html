@@ -82,10 +82,9 @@
              
   <h1>Source code for sophys_gui.functions</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span> <span class="k">as</span> <span class="nn">_os</span>
-<span class="kn">import</span> <span class="nn">qtawesome</span> <span class="k">as</span> <span class="nn">qta</span>
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">from</span> <span class="nn">qtpy.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
-<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span>
+<span class="kn">from</span> <span class="nn">qtpy.QtWidgets</span> <span class="kn">import</span> <span class="n">QLabel</span>
 
 
 <div class="viewcode-block" id="getItemRecursively">
@@ -132,17 +131,6 @@
     <span class="n">abspath</span> <span class="o">=</span> <span class="n">_os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">_os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
     <span class="n">admin_file</span> <span class="o">=</span> <span class="n">_os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">abspath</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">admin_file</span></div>
-
-
-<div class="viewcode-block" id="getLoadingButton">
-<a class="viewcode-back" href="../../functions.html#sophys_gui.functions.getLoadingButton">[docs]</a>
-<span class="k">def</span> <span class="nf">getLoadingButton</span><span class="p">():</span>
-    <span class="n">loading</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-    <span class="n">loading</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">qta</span><span class="o">.</span><span class="n">icon</span><span class="p">(</span>
-        <span class="s1">&#39;fa5s.spinner&#39;</span><span class="p">,</span> <span class="n">animation</span><span class="o">=</span><span class="n">qta</span><span class="o">.</span><span class="n">Spin</span><span class="p">(</span><span class="n">loading</span><span class="p">)))</span>
-    <span class="n">loading</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">loading</span><span class="o">.</span><span class="n">setFlat</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">loading</span></div>
 
 
 <div class="viewcode-block" id="evaluateValue">

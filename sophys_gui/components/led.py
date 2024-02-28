@@ -1,13 +1,31 @@
-from qtpy.QtWidgets import QStackedWidget, QLabel
-from sophys_gui.functions import getLoadingButton
+import qtawesome as qta
+from qtpy.QtWidgets import QStackedWidget, QLabel, QPushButton
 
 
 class SophysLed(QStackedWidget):
+    """
+        Led or loading widget that shows the status of the Queue Server.
 
-    def __init__(self, updateEvent, statusVar, statusKey, statusComp, isConn=False, isLoading=False):
+        Loading mode:
+
+        .. image:: ./_static/load.png
+            :width: 100
+            :alt: Loading Widget
+            :align: center
+
+        Led mode:
+
+        .. image:: ./_static/led.png
+            :width: 100
+            :alt: Led Widget
+            :align: center
+
+    """
+
+    def __init__(self, run_engine, statusKey, statusComp, isConn=False, isLoading=False):
         super().__init__()
-        self.updateEvent = updateEvent
-        self.statusVar = statusVar
+        self.updateEvent = run_engine.events.status_changed
+        self.statusVar = run_engine.re_manager_status
         self.statusKey = statusKey
         self.statusComp = statusComp
         self.isConn = isConn
@@ -19,6 +37,9 @@ class SophysLed(QStackedWidget):
         self.setupUi()
 
     def updateState(self, evt):
+        """
+            Update the led/loading state.
+        """
         if self.isConn:
             ledStatus = evt.is_connected
         else:
@@ -28,11 +49,20 @@ class SophysLed(QStackedWidget):
         self.setCurrentIndex(1 if ledStatus else 0)
 
     def addLoading(self):
-        loading = getLoadingButton()
+        """
+            Create a loding widget.
+        """
+        loading = QPushButton('')
+        loading.setIcon(qta.icon(
+            'fa5s.spinner', animation=qta.Spin(loading)))
         loading.setVisible(True)
+        loading.setFlat(True)
         return loading
 
     def addLed(self, color):
+        """
+            Create led widget and style it.
+        """
         label = QLabel('')
         label.setStyleSheet("""
             background: qradialgradient(

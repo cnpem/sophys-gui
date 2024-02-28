@@ -2,8 +2,8 @@ import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QGridLayout, QPushButton, \
     QLabel, QGroupBox, QHBoxLayout, QApplication, QSizePolicy
-
-from sophys_gui.functions import getHeader, getLoadingButton
+from sophys_gui.functions import getHeader
+from .led import SophysLed
 
 from suitscase.utilities.threading import DeferredFunction
 
@@ -38,15 +38,8 @@ class SophysRunningItem(QWidget):
         ]
         self.create_btns(glay, control_btns)
 
-    def detectLoading(self, item):
-        isVisible = False
-        if len(item) > 0:
-            isVisible = True
-        self.loading.setVisible(isVisible)
-
     def runningItemChanged(self, evt):
         running_item = self.model.run_engine._running_item
-        self.detectLoading(running_item)
         self.getItemAttributes(running_item)
 
     def createListWidget(self, arg_list):
@@ -122,14 +115,20 @@ class SophysRunningItem(QWidget):
         self.attributesDisplay.addWidget(group)
         self.group = group
 
+    def createLoading(self):
+        statusComp = lambda stateVar: stateVar == "executing_queue"
+        statusKey = "manager_state"
+        return SophysLed(
+            self.model.run_engine, statusKey, statusComp, isLoading=True)
+
     def _setupUi(self):
         glay = QGridLayout(self)
 
         header = getHeader("Running")
         glay.addWidget(header, 0, 0, 1, 1)
 
-        self.loading = getLoadingButton()
-        glay.addWidget(self.loading, 0, 1, 1, 1)
+        loading = self.createLoading()
+        glay.addWidget(loading, 0, 1, 1, 1)
 
         self.attributesDisplay = QHBoxLayout()
         self.attributesDisplay.addWidget(self.group)
