@@ -412,7 +412,7 @@ class SophysSpinBox(QWidget):
         if not value or value == '' or value == 'None':
             self.stack.setCurrentIndex(0)
         else:
-            self.spinbox.setValue(float(value))
+            self.spinbox.setValue(float(value) if isinstance(self.spinbox, QDoubleSpinBox) else int(value))
             self.stack.setCurrentIndex(1)
             self.cb.setChecked(True)
         self.value = value
