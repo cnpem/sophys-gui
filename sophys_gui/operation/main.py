@@ -4,7 +4,7 @@ from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor
-from kafka_bluesky_live.live_view import LiveView
+from kafka_bluesky_live.live_view import LiveView, VisualElements
 from suitscase import LoginCNPEM
 
 
@@ -91,7 +91,8 @@ class SophysOperationGUI(QMainWindow):
         resultTabs = QTabWidget()
         vsplitter.addWidget(resultTabs)
 
-        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
+        visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
+        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port', visual_elements)
         resultTabs.addTab(live_view, "Live View")
 
         console = SophysConsoleMonitor(self.model)
