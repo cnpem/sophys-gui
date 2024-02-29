@@ -1,8 +1,7 @@
-import time
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QScrollArea
-from suitscase.utilities.threading import AsyncFunction, \
-    DeferredFunction
+from qtpy.QtCore import Qt, Signal, Slot
+from qtpy.QtGui import QTextOption
+from qtpy.QtWidgets import QTextEdit, QScrollArea
+from suitscase.utilities.threading import AsyncFunction
 
 
 class SophysConsoleMonitor(QScrollArea):
@@ -20,27 +19,21 @@ class SophysConsoleMonitor(QScrollArea):
 
     """
 
+    appendLine = Signal(str)
+
     def __init__(self, model):
         super().__init__()
+
         self.run_engine = model.run_engine
-        self.consoleOutputs = []
-        self.console = QLabel("")
+        self.appendLine.connect(self.onAppendLine)
 
         self._setupUi()
         self.serverMonitor()
 
-    @DeferredFunction
-    def updateConsoleLabel(self):
-        """
-            Concatenate the last log to a variable and
-            update the label widget.
-        """
-        start = time.time()
-        self.console.setText("".join(self.consoleOutputs))
-        end = time.time()
-        functDurationMs = end - start
-        if functDurationMs > 0.00003:
-            self.consoleOutputs = self.consoleOutputs[30:]
+    @Slot(str)
+    def onAppendLine(self, line: str):
+        self.console.append(line)
+        self.scrollBar.setValue(self.scrollBar.maximum())
 
     @AsyncFunction
     def serverMonitor(self):
@@ -53,8 +46,7 @@ class SophysConsoleMonitor(QScrollArea):
             if newOutput:
                 new_console_line = newOutput[1].strip()
                 if new_console_line != "":
-                    self.consoleOutputs.append(new_console_line + "\n")
-                    self.updateConsoleLabel()
+                    self.appendLine.emit(new_console_line)
             else:
                 break
 
@@ -62,22 +54,15 @@ class SophysConsoleMonitor(QScrollArea):
         """
             Create the label widget.
         """
-        consoleLbl = QLabel("")
-        consoleLbl.setWordWrap(True)
+        consoleLbl = QTextEdit("", self)
+        consoleLbl.setReadOnly(True)
+        consoleLbl.setAcceptRichText(False)
+        consoleLbl.setWordWrapMode(QTextOption.WordWrap)
         consoleLbl.setAlignment(Qt.AlignTop)
-        consoleLbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
         return consoleLbl
-
-    def scrollToBottom(self):
-        """
-            Scroll the scroll area to the bottom.
-            Used in order to show the latest logs.
-        """
-        self.scrollBar.setValue(self.scrollBar.maximum())
 
     def _setupUi(self):
         self.console = self.getConsoleLabel()
         self.setWidget(self.console)
         self.setWidgetResizable(True)
         self.scrollBar = self.verticalScrollBar()
-        self.scrollBar.rangeChanged.connect(self.scrollToBottom)
