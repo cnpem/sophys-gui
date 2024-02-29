@@ -203,8 +203,10 @@ class SophysForm(QDialog):
 
     def handleModalMode(self, inputWid, paramMeta, isStr):
         """
-            Handle default or existing values on openning the form.
+        Handle default or existing values when opening the form.
         """
+        self.addDefaultValues(paramMeta, inputWid)
+
         isNotAdd = "add" not in self.modalMode
         if isNotAdd:
             paramName = paramMeta["name"]
@@ -220,8 +222,6 @@ class SophysForm(QDialog):
                 item = self.handleArgsParam(metadata["args"], paramName)
             if item:
                 self.setWidgetValue(inputWid, item, isStr)
-
-        self.addDefaultValues(paramMeta, inputWid)
 
     def getAvailableDevicesType(self, title):
         """
