@@ -157,7 +157,7 @@ class SophysInputList(QWidget):
             for val in value:
                 self.availableItems.remove(val)
             self.edit.clear()
-            self.edit.addItems(self.availableItems)
+            self.edit.addItems(sorted(self.availableItems))
 
     def getSelectedTag(self, title):
         group = QGroupBox()
@@ -203,7 +203,7 @@ class SophysInputList(QWidget):
         if self.availableItems != None:
             self.availableItems.append(item)
             self.edit.clear()
-            self.edit.addItems(self.availableItems)
+            self.edit.addItems(sorted(self.availableItems))
 
     def selectItem(self):
         if self.availableItems != None:
@@ -214,7 +214,7 @@ class SophysInputList(QWidget):
 
                 self.availableItems.remove(selectedItem)
                 self.edit.clear()
-                self.edit.addItems(self.availableItems)
+                self.edit.addItems(sorted(self.availableItems))
                 return True
             return False
         elif self.isNumber:
@@ -232,7 +232,7 @@ class SophysInputList(QWidget):
 
         if self.availableItems != None:
             wid = QComboBox()
-            wid.addItems(self.availableItems)
+            wid.addItems(sorted(self.availableItems))
         elif self.isNumber:
             wid = QDoubleSpinBox()
             wid.setMaximum(10000)
