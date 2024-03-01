@@ -71,6 +71,7 @@ class SophysOperationGUI(QMainWindow):
         glay.addWidget(controller, 0, 0, 1, 2)
 
         self.login = self.createLoginWidget()
+        self.login.setMaximumWidth(500)
         glay.addWidget(self.login, 0, 2, 1, 1)
 
         vsplitter = QSplitter(Qt.Vertical)
