@@ -17,14 +17,14 @@ class QueueController(QWidget):
 
     """
 
-    def __init__(self, model, loginSignal):
+    def __init__(self, model, loginChanged):
         super().__init__()
         self.run_engine = model.run_engine
         self.updateEvent = self.run_engine.events.status_changed
         self.reStatus = self.run_engine.re_manager_status
         self.cmdStacks = []
 
-        self._setupUi(loginSignal)
+        self._setupUi(loginChanged)
 
     def getRunEngineStatus(self, key):
         return self.reStatus.get(key, None)
@@ -127,12 +127,12 @@ class QueueController(QWidget):
 
         return group
 
-    def handleLogin(self, loginSignal):
+    def handleLogin(self, loginChanged):
         for stack in self.cmdStacks:
             stack.setEnabled(False)
-            loginSignal.connect(stack.setEnabled)
+            loginChanged.connect(stack.setEnabled)
 
-    def _setupUi(self, loginSignal):
+    def _setupUi(self, loginChanged):
         hlay = QHBoxLayout(self)
 
         self.addStatusLeds(hlay)
@@ -141,5 +141,5 @@ class QueueController(QWidget):
         hlay.addWidget(group)
 
         self.updateEvent.connect(self.statusChanged)
-        self.handleLogin(loginSignal)
+        self.handleLogin(loginChanged)
         self.setMaximumHeight(75)

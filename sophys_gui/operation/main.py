@@ -67,14 +67,12 @@ class SophysOperationGUI(QMainWindow):
         glay = QGridLayout()
         wid.setLayout(glay)
 
-        controller = QueueController(self.model)
-        glay.addWidget(controller, 0, 0, 1, 2)
-
         self.login = self.createLoginWidget()
         self.login.setMaximumWidth(500)
+        loginChanged = self.login.login_signal
         glay.addWidget(self.login, 0, 2, 1, 1)
 
-        controller = QueueController(self.model, self.login.login_signal)
+        controller = QueueController(self.model, loginChanged)
         glay.addWidget(controller, 0, 0, 1, 2)
 
 
