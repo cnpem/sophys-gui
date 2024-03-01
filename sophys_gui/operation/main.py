@@ -79,13 +79,13 @@ class SophysOperationGUI(QMainWindow):
         vsplitter = QSplitter(Qt.Vertical)
 
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model)
+        queue = SophysQueueTable(self.model, loginChanged)
         hsplitter.addWidget(queue)
 
         running = SophysRunningItem(self.model)
         hsplitter.addWidget(running)
 
-        history = SophysHistoryTable(self.model)
+        history = SophysHistoryTable(self.model, loginChanged)
         hsplitter.addWidget(history)
 
         hsplitter.setSizes([500, 100, 500])

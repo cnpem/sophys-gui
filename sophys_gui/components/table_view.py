@@ -9,56 +9,15 @@ from .switch import SophysSwitchButton
 from .list_models import QueueModel, HistoryModel
 
 
-def getLimitsPermissions(sel_row, condition):
-    status = True
-    for item in sel_row:
-        if condition(item):
-            status = False
-    return status
-
-def handleBtnEnabled(permission, model):
-    if permission == 0:
-        return True
-    if model.rowCount()==0:
-        return False
-    selected_rows = model.getSelectedRows()
-    if len(selected_rows) > 0:
-        if permission == 2:
-            rows = model.rowCount()
-            status = getLimitsPermissions(
-                selected_rows, lambda idx, rows=rows: (idx+1) >= rows)
-        elif permission == 3:
-            status = getLimitsPermissions(
-                selected_rows, lambda idx: idx <= 0)
-        else:
-            status = True
-    else:
-        status = False
-
-    return status
-
-def updateIndex(model, cmd_btns):
-    for key, value in cmd_btns.items():
-        status = handleBtnEnabled(value["permission"], model)
-        cmd_btns[key]["btn"].setEnabled(status)
-
-def confirmationDialog(parent, title):
-    resCode = QMessageBox.question(parent, title + " Action Confirmation",
-        "Are you sure you want to proceed?")
-    if resCode == QMessageBox.Yes:
-        return True
-    return False
-
-
 class SophysQueueTable(QWidget):
 
-    def __init__(self, model):
+    def __init__(self, model, loginChanged):
         super().__init__()
         self.queueModel = QueueModel(model)
         self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
-        self._setupUi()
+        self._setupUi(loginChanged)
 
     def getLoopStatus(self):
         status = self.serverModel.run_engine.re_manager_status
@@ -91,15 +50,15 @@ class SophysQueueTable(QWidget):
 
         return hlay
 
-    def handleCommand(self, cmd, model, title, hasConfirmation, row):
+    def handleCommand(self, cmd, title, hasConfirmation, row):
         confirmation = True
         if hasConfirmation:
-            confirmation = confirmationDialog(self, title)
+            confirmation = self.table.confirmationDialog(title)
         if row!=None:
             self.queueModel.select(row)
         if confirmation:
             cmd()
-            updateIndex(model, self.cmd_btns)
+            self.table.updateIndex(self.cmd_btns)
 
     def createSingleBtn(self, btn_dict, model, idx=None):
         title = ""
@@ -111,7 +70,7 @@ class SophysQueueTable(QWidget):
         btn.clicked.connect(
             lambda _, model=model, cmd=btn_dict["cmd"],
             title=title, hasConf=hasConfirmation, idx=idx: self.handleCommand(
-                cmd, model, title, hasConf, idx))
+                cmd, title, hasConf, idx))
         btn.setIcon(qta.icon(btn_dict["icon"]))
         btn.setEnabled(btn_dict["enabled"])
         btn.setToolTip(btn_dict["tooltip"])
@@ -258,59 +217,73 @@ class SophysQueueTable(QWidget):
                     "icon": "fa5s.pencil-alt",
                     "cmd": self.queueModel.edit_queue_item,
                     "enabled": True,
-                    "tooltip": ""
+                    "tooltip": "",
+                    "permission": 0
                 },
                 {
                     "icon": "fa5s.trash-alt",
                     "cmd": self.queueModel.delete_item,
                     "enabled": True,
                     "confirm": True,
-                    "tooltip": ""
+                    "tooltip": "",
+                    "permission": 0
                 }
             ]
             for idy, btn_dict in enumerate(control_btns):
                 btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
                 table.setIndexWidget(self.queueModel.index(idx, colCount+idy), btn)
+                self.cmd_btns[f"{idx}__{idy}"] = {
+                    "btn": btn,
+                    "permission": 0
+                }
 
-    def _setupUi(self):
+    def handleLoginChanged(self, loginChanged, table):
+        loginChanged.connect(
+            lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
+
+        self.loop.setEnabled(False)
+        loginChanged.connect(self.loop.setEnabled)
+
+    def _setupUi(self, loginChanged):
         vlay = QVBoxLayout(self)
 
         header = self.getHeader()
         vlay.addLayout(header)
 
         table = SophysTable(self.queueModel)
-        self.queueModel.updateTable.connect(
-            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
+        self.table = table
         vlay.addWidget(table)
 
-        controls = self.getTableControls(table.model())
-        vlay.addLayout(controls)
-
-        table.pressed.connect(
-            lambda _, model=table.model(),
-            cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
         self.setTableOperationButtons(table)
         self.queueModel.updateTable.connect(
             lambda _, table=table: self.setTableOperationButtons(table))
 
-        self.setLayout(vlay)
+        controls = self.getTableControls(table.model())
+        vlay.addLayout(controls)
+
+        self.queueModel.updateTable.connect(
+            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
+        table.pressed.connect(
+            lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
+
+        self.handleLoginChanged(loginChanged, table)
 
 
 class SophysHistoryTable(QWidget):
 
-    def __init__(self, model):
+    def __init__(self, model, loginChanged):
         super().__init__()
         self.queueModel = HistoryModel(model)
         self.cmd_btns = {}
-        self._setupUi()
+        self._setupUi(loginChanged)
 
     def handleCommand(self, cmd, title, hasConfirmation):
         confirmation = True
         if hasConfirmation:
-            confirmation = confirmationDialog(self, title)
+            confirmation = self.table.confirmationDialog(title)
         if confirmation:
             cmd()
-            updateIndex(self.queueModel, self.cmd_btns)
+            self.table.updateIndex(self.cmd_btns)
 
     def createBtns(self, glay, btn_dict):
         for idy, btn_dict in enumerate(btn_dict):
@@ -352,13 +325,18 @@ class SophysHistoryTable(QWidget):
         self.createBtns(glay, control_btns)
         return glay
 
-    def _setupUi(self):
+    def handleLoginChanged(self, loginChanged, table):
+        loginChanged.connect(
+            lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
+
+    def _setupUi(self, loginChanged):
         vlay = QVBoxLayout(self)
 
         header = getHeader("History")
         vlay.addWidget(header)
 
         table = SophysTable(self.queueModel)
+        self.table = table
         self.queueModel.updateTable.connect(
             lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
         vlay.addWidget(table)
@@ -367,10 +345,9 @@ class SophysHistoryTable(QWidget):
         vlay.addLayout(controls)
 
         table.pressed.connect(
-            lambda _, model=table.model(),
-            cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
+            lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
 
-        self.setLayout(vlay)
+        self.handleLoginChanged(loginChanged, table)
 
 
 class SophysTable(QTableView):
@@ -381,6 +358,7 @@ class SophysTable(QTableView):
         self.setModel(model)
         self.setResizable()
         self.timer=QTimer()
+        self.loginStatus = False
         self.timer.timeout.connect(self.resetBorder)
         self.pressed.connect(self.selectItem)
 
@@ -388,8 +366,54 @@ class SophysTable(QTableView):
         self.setStyleSheet("QTableView{ border: 1px solid #ddd;}")
         self.timer.stop()
 
+    def getLimitsPermissions(self, sel_row, condition):
+        status = True
+        for item in sel_row:
+            if condition(item):
+                status = False
+        return status
+
+    def handleBtnEnabled(self, permission, model):
+        if not self.loginStatus:
+            return False
+        if permission == 0:
+            return True
+        if model.rowCount()==0:
+            return False
+        selected_rows = model.getSelectedRows()
+        if len(selected_rows) > 0:
+            if permission == 2:
+                rows = model.rowCount()
+                status = self.getLimitsPermissions(
+                    selected_rows, lambda idx, rows=rows: (idx+1) >= rows)
+            elif permission == 3:
+                status = self.getLimitsPermissions(
+                    selected_rows, lambda idx: idx <= 0)
+            else:
+                status = True
+        else:
+            status = False
+
+        return status
+
+    def updateIndex(self, cmd_btns):
+        for key, value in cmd_btns.items():
+            status = self.handleBtnEnabled(value["permission"], self.model())
+            cmd_btns[key]["btn"].setEnabled(status)
+
+    def setLogin(self, loginStatus, cmd_btns):
+        self.loginStatus = loginStatus
+        self.updateIndex(cmd_btns)
+
+    def confirmationDialog(self, title):
+        resCode = QMessageBox.question(self, title + " Action Confirmation",
+            "Are you sure you want to proceed?")
+        if resCode == QMessageBox.Yes:
+            return True
+        return False
+
     def detectChange(self, rowCount, cmd_btns):
-        updateIndex(self.model(), cmd_btns)
+        self.updateIndex(cmd_btns)
         if rowCount < self.currRows:
             self.setStyleSheet("QTableView{ border: 1px solid #ff0000;}")
         elif rowCount > self.currRows:

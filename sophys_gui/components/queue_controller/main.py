@@ -127,7 +127,7 @@ class QueueController(QWidget):
 
         return group
 
-    def handleLogin(self, loginChanged):
+    def handleLoginChanged(self, loginChanged):
         for stack in self.cmdStacks:
             stack.setEnabled(False)
             loginChanged.connect(stack.setEnabled)
@@ -141,5 +141,5 @@ class QueueController(QWidget):
         hlay.addWidget(group)
 
         self.updateEvent.connect(self.statusChanged)
-        self.handleLogin(loginChanged)
+        self.handleLoginChanged(loginChanged)
         self.setMaximumHeight(75)
