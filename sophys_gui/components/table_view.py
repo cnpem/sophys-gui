@@ -211,6 +211,7 @@ class SophysQueueTable(QWidget):
     def setTableOperationButtons(self, table):
         rows = self.queueModel.rowCount()
         colCount = self.queueModel.columnCount()-2
+        self.cmd_btns["table"] = {}
         for idx in range(0, rows):
             control_btns = [
                 {
@@ -232,7 +233,7 @@ class SophysQueueTable(QWidget):
             for idy, btn_dict in enumerate(control_btns):
                 btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
                 table.setIndexWidget(self.queueModel.index(idx, colCount+idy), btn)
-                self.cmd_btns[f"{idx}__{idy}"] = {
+                self.cmd_btns["table"][f"{idx}__{idy}"] = {
                     "btn": btn,
                     "permission": 0
                 }
@@ -398,8 +399,11 @@ class SophysTable(QTableView):
 
     def updateIndex(self, cmd_btns):
         for key, value in cmd_btns.items():
-            status = self.handleBtnEnabled(value["permission"], self.model())
-            cmd_btns[key]["btn"].setEnabled(status)
+            if key == "table":
+                self.updateIndex(value)
+            else:
+                status = self.handleBtnEnabled(value["permission"], self.model())
+                cmd_btns[key]["btn"].setEnabled(status)
 
     def setLogin(self, loginStatus, cmd_btns):
         self.loginStatus = loginStatus
