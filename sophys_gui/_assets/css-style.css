@@ -77,16 +77,10 @@ QSlider::handle, QLineEdit {
     border-radius: 10px;
 }
 
-QSplitter::handle:horizontal {
-    background: qlineargradient(
-        spread: pad, x1:0, y1:0, x2:0, y2:1,
-        stop:0.3 transparent,  stop:0.4 gray,
-        stop:0.6 grey, stop:0.7 transparent);
-}
-
-QSplitter::handle:vertical {
-    background: qlineargradient(
-        spread: pad, x1:0, y1:0, x2:1, y2:0,
-        stop:0.3 transparent,  stop:0.4 gray,
-        stop:0.6 grey, stop:0.7 transparent);
+QSplitter::handle {
+    background: qradialgradient(
+        cx: 0.5, cy: 0.5, radius: 0.3,
+        fx: 0.5, fy: 0.5,
+        stop: 0.45 grey,
+        stop: 0.55 transparent);
 }
