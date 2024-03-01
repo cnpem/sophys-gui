@@ -17,13 +17,14 @@ class QueueController(QWidget):
 
     """
 
-    def __init__(self, model):
+    def __init__(self, model, loginSignal):
         super().__init__()
         self.run_engine = model.run_engine
         self.updateEvent = self.run_engine.events.status_changed
         self.reStatus = self.run_engine.re_manager_status
         self.cmdStacks = []
-        self._setupUi()
+
+        self._setupUi(loginSignal)
 
     def getRunEngineStatus(self, key):
         return self.reStatus.get(key, None)
@@ -39,7 +40,6 @@ class QueueController(QWidget):
             runIndex = 0 if statusVal == "idle" else 1 if statusVal == "executing_queue" else 2
             for stack in self.cmdStacks[1:]:
                 stack.setCurrentIndex(runIndex)
-                stack.setEnabled(envVal)
 
             envIndex = 1 if envVal else 0
             self.cmdStacks[0].setCurrentIndex(envIndex)
@@ -127,7 +127,12 @@ class QueueController(QWidget):
 
         return group
 
-    def _setupUi(self):
+    def handleLogin(self, loginSignal):
+        for stack in self.cmdStacks:
+            stack.setEnabled(False)
+            loginSignal.connect(stack.setEnabled)
+
+    def _setupUi(self, loginSignal):
         hlay = QHBoxLayout(self)
 
         self.addStatusLeds(hlay)
@@ -136,4 +141,5 @@ class QueueController(QWidget):
         hlay.addWidget(group)
 
         self.updateEvent.connect(self.statusChanged)
+        self.handleLogin(loginSignal)
         self.setMaximumHeight(75)
