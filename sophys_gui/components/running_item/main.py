@@ -23,19 +23,21 @@ class SophysRunningItem(QWidget):
 
     """
 
-    def __init__(self, model):
+    def __init__(self, model, loginChanged):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.group = QGroupBox()
         self.runEngine = model.run_engine
-        self._setupUi()
+        self._setupUi(loginChanged)
 
-    def createBtns(self, glay):
+    def createBtns(self, glay, loginChanged):
         """
             Create all the buttons associated with the operation of the running item.
         """
         for idy, btnValue in enumerate(CONTROL_BTNS):
             btn = createSingleBtn(btnValue, self.runEngine)
+            btn.setEnabled(False)
+            loginChanged.connect(btn.setEnabled)
             glay.addWidget(btn, 6, idy, 1, 2)
 
     def createDictionaryWidget(self, arg_dict):
@@ -137,7 +139,7 @@ class SophysRunningItem(QWidget):
         return SophysLed(
             self.runEngine, statusKey, statusComp, isLoading=True)
 
-    def _setupUi(self):
+    def _setupUi(self, loginChanged):
         glay = QGridLayout(self)
 
         header = getHeader("Running")
@@ -150,7 +152,7 @@ class SophysRunningItem(QWidget):
         self.attributesDisplay.addWidget(self.group)
         glay.addLayout(self.attributesDisplay, 1, 0, 5, 2)
 
-        self.createBtns(glay)
+        self.createBtns(glay, loginChanged)
 
         self.runEngine.events.running_item_changed.connect(
             self.updateRunningItemWidget)

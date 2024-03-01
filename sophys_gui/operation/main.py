@@ -82,7 +82,7 @@ class SophysOperationGUI(QMainWindow):
         queue = SophysQueueTable(self.model, loginChanged)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model)
+        running = SophysRunningItem(self.model, loginChanged)
         hsplitter.addWidget(running)
 
         history = SophysHistoryTable(self.model, loginChanged)
