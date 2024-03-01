@@ -279,7 +279,8 @@ class SophysQueueTable(QWidget):
         vlay.addLayout(header)
 
         table = SophysTable(self.queueModel)
-        self.queueModel.updateTable.connect(table.detectChange)
+        self.queueModel.updateTable.connect(
+            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
@@ -288,7 +289,6 @@ class SophysQueueTable(QWidget):
         table.pressed.connect(
             lambda _, model=table.model(),
             cmd_btns=self.cmd_btns: updateIndex(model, cmd_btns))
-
         self.setTableOperationButtons(table)
         self.queueModel.updateTable.connect(
             lambda _, table=table: self.setTableOperationButtons(table))
@@ -359,7 +359,8 @@ class SophysHistoryTable(QWidget):
         vlay.addWidget(header)
 
         table = SophysTable(self.queueModel)
-        self.queueModel.updateTable.connect(table.detectChange)
+        self.queueModel.updateTable.connect(
+            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
         vlay.addWidget(table)
 
         controls = self.getTableControls(table.model())
@@ -387,7 +388,8 @@ class SophysTable(QTableView):
         self.setStyleSheet("QTableView{ border: 1px solid #ddd;}")
         self.timer.stop()
 
-    def detectChange(self, rowCount):
+    def detectChange(self, rowCount, cmd_btns):
+        updateIndex(self.model(), cmd_btns)
         if rowCount < self.currRows:
             self.setStyleSheet("QTableView{ border: 1px solid #ff0000;}")
         elif rowCount > self.currRows:
