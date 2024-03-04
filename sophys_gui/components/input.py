@@ -95,6 +95,8 @@ class SophysInputMotor(QWidget):
         if motorTyping:
             motorArray = motorTyping.split(";")
             motorTitles = motorArray[0].split(",")
+            motorTooltip = motorArray[1].split(",")
+            motorTypes = motorArray[2].split(",")
 
             for idy, title in enumerate(motorTitles):
                 titleWid = QLabel(title)
@@ -103,6 +105,7 @@ class SophysInputMotor(QWidget):
 
                 wid = self.iterableInput({"name":title}, False, True)
                 self.widList.append(wid)
+                wid.setTooltip(motorTooltip[idy])
                 glay.addWidget(wid, 1, idy, 1, 1)
 
             self.btnsList = QVBoxLayout()
@@ -227,11 +230,15 @@ class SophysInputList(QWidget):
         self.showSelectedItems([value])
         return True
 
+    def setTooltip(self, args):
+        return super().setToolTip(args)
+
     def _setupUi(self):
         glay = QGridLayout()
-
+        minWid = 50
         if self.availableItems != None:
             wid = QComboBox()
+            minWid = 100
             wid.setEditable(True)
             wid.completer().setCompletionMode(QCompleter.PopupCompletion)
             wid.setInsertPolicy(QComboBox.NoInsert)
@@ -241,7 +248,7 @@ class SophysInputList(QWidget):
             wid.setMaximum(10000)
         else:
             wid = QLineEdit()
-        wid.setMinimumWidth(50)
+        wid.setMinimumWidth(minWid)
         glay.addWidget(wid, 0, 0, 1, 2)
         self.edit = wid
 
@@ -367,6 +374,7 @@ class SophysInputDict(QWidget):
         glay.addWidget(lbl, 0, 0)
 
         self.keyInput = QLineEdit()
+        self.keyInput.setMinimumWidth(100)
         glay.addWidget(self.keyInput, 1, 0)
 
         lbl = QLabel("Value")
@@ -374,6 +382,7 @@ class SophysInputDict(QWidget):
         glay.addWidget(lbl, 0, 1)
 
         self.valueInput = QLineEdit()
+        self.valueInput.setMinimumWidth(100)
         glay.addWidget(self.valueInput, 1, 1)
 
         addBtn = QPushButton()

@@ -292,7 +292,8 @@ class SophysForm(QDialog):
         else:
             inputWid = QLineEdit()
         self.handleModalMode(inputWid, paramMeta, isStr)
-        inputWid.setToolTip(self.getInputTooltip(paramMeta))
+        if not isArgs:
+            inputWid.setToolTip(self.getInputTooltip(paramMeta))
         return inputWid
 
     def getIsRequired(self, paramMeta, varType):
@@ -418,7 +419,7 @@ class SophysForm(QDialog):
         combobox.addItems(sorted(allowedNames))
         combobox.activated.connect(
             lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
-        currItem = combobox.itemText(2)
+        currItem = combobox.currentText()
         hlay.addWidget(combobox)
 
         return group, currItem
