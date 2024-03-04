@@ -4,7 +4,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter
-from sophys_gui.functions import evaluateValue
+from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .util import UNKNOWN_TYPES
@@ -79,14 +79,22 @@ class SophysForm(QDialog):
             value = [value]
         return value
 
-    def verifyValueType(self, value, widType):
+    def verifyValueType(self, valueList, widType):
         """
             Verify if the inserted value is valid.
         """
+        if not isinstance(widType, list):
+            try:
+                len(widType) > 1
+            except Exception:
+                widType = [widType]
+                valueList = [valueList]
         try:
-            return typesentry.Config().is_type(value, widType)
+            return any([
+                typesentry.Config().is_type(value, widType[idx]) for idx, value in enumerate(valueList)
+            ])
         except Exception:
-            print(value, type(value), widType)
+            print(valueList, type(valueList), widType)
         return False
 
     def getItemParameters(self):
@@ -266,7 +274,7 @@ class SophysForm(QDialog):
                 extraIdx = description.index("-.-")
                 description = description[:extraIdx]
             except Exception:
-                print("No Motor Separator")
+                pass
             return description.capitalize()
         return ""
 
@@ -311,14 +319,26 @@ class SophysForm(QDialog):
             varType = varType.replace(keyType, replaceType)
         return varType
 
-    def getParamPythonType(self, paramMeta):
-        """
-            Convert the type string to a pyton variable type.
-        """
-        hasAnnotation = "annotation" in paramMeta
-        varType = paramMeta["annotation"]["type"] if hasAnnotation else ""
+    def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
         return eval(varType) if varType != "" else object
+
+    def getParamPythonType(self, paramMeta):
+        """
+            Convert a string or an array to a python variable type.
+        """
+        isArgs = paramMeta["name"] == "args"
+        if isArgs:
+            motorTyping = getMotorInput(paramMeta)
+            motorArray = motorTyping.split(";")
+            motorTypes = motorArray[2].split(",")
+            arrayType = []
+            for strType in motorTypes:
+                arrayType.append(self.convertTypeToPythonType(strType))
+            return arrayType
+        hasAnnotation = "annotation" in paramMeta
+        varType = paramMeta["annotation"]["type"] if hasAnnotation else ""
+        return self.convertTypeToPythonType(varType)
 
     def getInputTitle(self, title, isRequired):
         """

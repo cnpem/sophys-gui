@@ -4,7 +4,7 @@ from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
     QLineEdit, QVBoxLayout, QHBoxLayout, QStackedWidget, \
     QSizePolicy, QCheckBox, QDoubleSpinBox, QSpinBox, QCompleter
-from sophys_gui.functions import evaluateValue
+from sophys_gui.functions import evaluateValue, getMotorInput
 
 
 class SophysInputMotor(QWidget):
@@ -78,20 +78,11 @@ class SophysInputMotor(QWidget):
         if len(removeRow) > 0:
             self.addDeleteRow(removeRow)
 
-    def getMotorInput(self):
-        separator = "-.-"
-        motorDescription = self.motorParameters["description"]
-        motorTypeIndex = motorDescription.index(separator)
-        if motorTypeIndex:
-            motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
-            return motorTyping
-        return None
-
     def _setupUi(self):
         glay = QGridLayout(self)
         glay.setSpacing(2)
         glay.setContentsMargins(2, 2, 2, 2)
-        motorTyping = self.getMotorInput()
+        motorTyping = getMotorInput(self.motorParameters)
         if motorTyping:
             motorArray = motorTyping.split(";")
             motorTitles = motorArray[0].split(",")

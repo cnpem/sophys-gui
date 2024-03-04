@@ -62,3 +62,13 @@ def addArgsToKwargs(argsList):
     args = argsList[0].copy()
     argsList[1]["detectors"] = args.pop(0)
     argsList[1]["args"] = args
+
+
+def getMotorInput(paramMeta):
+    separator = "-.-"
+    motorDescription = paramMeta["description"]
+    motorTypeIndex = motorDescription.index(separator)
+    if motorTypeIndex:
+        motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
+        return motorTyping
+    return None
