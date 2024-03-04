@@ -3,7 +3,7 @@ import typesentry
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
-    QApplication
+    QApplication, QCompleter
 from sophys_gui.functions import evaluateValue
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
@@ -411,11 +411,14 @@ class SophysForm(QDialog):
         group.setTitle(self.itemType.capitalize())
 
         combobox = QComboBox()
+        combobox.setEditable(True)
+        combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
+        combobox.setInsertPolicy(QComboBox.NoInsert)
         allowedNames = self.allowedNames()
         combobox.addItems(sorted(allowedNames))
         combobox.activated.connect(
             lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
-        currItem = combobox.itemText(0)
+        currItem = combobox.itemText(2)
         hlay.addWidget(combobox)
 
         return group, currItem

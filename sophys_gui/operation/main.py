@@ -75,7 +75,6 @@ class SophysOperationGUI(QMainWindow):
         controller = QueueController(self.model, loginChanged)
         glay.addWidget(controller, 0, 0, 1, 2)
 
-
         vsplitter = QSplitter(Qt.Vertical)
 
         hsplitter = QSplitter(Qt.Horizontal)

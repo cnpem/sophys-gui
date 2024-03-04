@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
     QLineEdit, QVBoxLayout, QHBoxLayout, QStackedWidget, \
-    QSizePolicy, QCheckBox, QDoubleSpinBox, QSpinBox
+    QSizePolicy, QCheckBox, QDoubleSpinBox, QSpinBox, QCompleter
 from sophys_gui.functions import evaluateValue
 
 
@@ -232,6 +232,9 @@ class SophysInputList(QWidget):
 
         if self.availableItems != None:
             wid = QComboBox()
+            wid.setEditable(True)
+            wid.completer().setCompletionMode(QCompleter.PopupCompletion)
+            wid.setInsertPolicy(QComboBox.NoInsert)
             wid.addItems(sorted(self.availableItems))
         elif self.isNumber:
             wid = QDoubleSpinBox()
