@@ -103,7 +103,10 @@ class SophysInputMotor(QWidget):
                 titleWid.setAlignment(Qt.AlignCenter)
                 glay.addWidget(titleWid, 0, idy)
 
-                wid = self.iterableInput({"name":title}, False, True)
+                isNumber = any([item in motorTypes[idy] for item in ["int", "float"]])
+                if isNumber:
+                    isNumber = motorTypes[idy]
+                wid = self.iterableInput({"name":title}, isNumber, True)
                 self.widList.append(wid)
                 wid.setTooltip(motorTooltip[idy])
                 glay.addWidget(wid, 1, idy, 1, 1)
@@ -244,8 +247,12 @@ class SophysInputList(QWidget):
             wid.setInsertPolicy(QComboBox.NoInsert)
             wid.addItems(sorted(self.availableItems))
         elif self.isNumber:
-            wid = QDoubleSpinBox()
-            wid.setMaximum(10000)
+            if "int" in self.isNumber:
+                wid = QSpinBox()
+                wid.setMaximum(10000)
+            elif "float" in self.isNumber:
+                wid = QDoubleSpinBox()
+                wid.setMaximum(10000)
         else:
             wid = QLineEdit()
         wid.setMinimumWidth(minWid)

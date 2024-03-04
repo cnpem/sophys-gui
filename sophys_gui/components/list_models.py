@@ -96,7 +96,7 @@ class ListModel(QAbstractTableModel):
                     extraIdx = description.index("-.-")
                     description = description[:extraIdx]
                 except Exception:
-                    print("No Motor Separator")
+                    pass
                 description = re.sub("\n+", ". ", description)
                 desc.append("{}: {}".format(key, description.capitalize()))
             return "\n".join(desc)

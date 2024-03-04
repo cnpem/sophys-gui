@@ -274,7 +274,7 @@ class SophysForm(QDialog):
         """
             Get the parameter widget based on its types.
         """
-        isNumber = any([item in paramType for item in ["int", "float"]])
+        isNumber = "int" if "int" in paramType else "float"
         isIterable = any([item in paramType for item in ["Iterable", "List", "object"]])
         isArgs = "args" in paramMeta["name"]
         isDict  = "dict" in paramType
@@ -286,8 +286,7 @@ class SophysForm(QDialog):
         elif isIterable:
             inputWid = self.getIterableInput(paramMeta, isNumber)
         elif isNumber:
-            numType = "int" if "int" in paramType else "float"
-            inputWid = SophysSpinBox(numType)
+            inputWid = SophysSpinBox(isNumber)
             inputWid.setMaximumHeight(50)
         else:
             inputWid = QLineEdit()
