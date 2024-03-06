@@ -1,3 +1,4 @@
+import copy
 import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
@@ -158,7 +159,7 @@ class ListModel(QAbstractTableModel):
             return
         row = self.row_count(index.row()) - 1
         try:
-            item = self.plan_items[row]
+            item = copy.deepcopy(self.plan_items[row])
         except IndexError:
             return
 
