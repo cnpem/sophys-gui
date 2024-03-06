@@ -1,5 +1,6 @@
 import typing
 import typesentry
+from math import floor
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
@@ -79,9 +80,9 @@ class SophysForm(QDialog):
             value = [value]
         return value
 
-    def verifyValueType(self, valueList, widType):
+    def handleNonMotorTypes(self, valueList, widType):
         """
-            Verify if the inserted value is valid.
+            Create a list for type with only one value.
         """
         if not isinstance(widType, list):
             try:
@@ -89,9 +90,17 @@ class SophysForm(QDialog):
             except Exception:
                 widType = [widType]
                 valueList = [valueList]
+        return valueList, widType
+
+    def verifyValueType(self, valueList, widType):
+        """
+            Verify if the inserted value is valid.
+        """
+        valueList, widType = self.handleNonMotorTypes(valueList, widType)
         try:
+            widTypeLen = len(widType)
             return any([
-                typesentry.Config().is_type(value, widType[idx]) for idx, value in enumerate(valueList)
+                typesentry.Config().is_type(value, widType[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(valueList)
             ])
         except Exception:
             print(valueList, type(valueList), widType)
