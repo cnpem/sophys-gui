@@ -131,6 +131,12 @@ class SophysInputList(QWidget):
         self._setupUi()
 
     def evaluateNumber(self, item):
+        item = evaluateValue(item)
+        if isinstance(item, list):
+            newItem = []
+            for value in item:
+                newItem.append(self.evaluateNumber(value))
+            item = newItem
         if isinstance(item, str):
             if (item.strip('-')).isnumeric():
                 item = evaluateValue(item)
