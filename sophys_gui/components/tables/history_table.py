@@ -1,10 +1,11 @@
-
+import qtawesome as qta
 from qtpy.QtWidgets import QVBoxLayout, QWidget, \
     QGridLayout, QPushButton
 
 from sophys_gui.functions import getHeader
 from ..list_models import HistoryModel
 from .table_view import SophysTable
+from .util import HISTORY_BTNS
 
 
 class SophysHistoryTable(QWidget):
@@ -20,45 +21,30 @@ class SophysHistoryTable(QWidget):
         if hasConfirmation:
             confirmation = self.table.confirmationDialog(title)
         if confirmation:
-            cmd()
+            cmd(self.queueModel)
             self.table.updateIndex(self.cmd_btns)
 
-    def createBtns(self, glay, btn_dict):
-        for idy, btn_dict in enumerate(btn_dict):
-            title = btn_dict["title"]
-            btn = QPushButton(title)
-            hasConfirmation = "confirm" in btn_dict
-            btn.clicked.connect(lambda _, hasConf=hasConfirmation,
-                cmd=btn_dict["cmd"], title=title: self.handleCommand(cmd, title, hasConf))
+    def createBtns(self, title, btn_dict):
+        btn = QPushButton(title)
+        hasConfirmation = "confirm" in btn_dict
+        btn.clicked.connect(lambda _, hasConf=hasConfirmation,
+            cmd=btn_dict["cmd"], title=title, : self.handleCommand(cmd, title, hasConf))
+        btn.setIcon(qta.icon(btn_dict["icon"]))
+        btn.setEnabled(btn_dict["enabled"])
+        btn.setToolTip(btn_dict["tooltip"])
+        return btn
 
-            self.cmd_btns[title] = {
+    def getTableControls(self):
+        glay = QGridLayout()
+        for idy, btn_dict in enumerate(HISTORY_BTNS):
+            key = btn_dict["title"]
+            btn = self.createBtns(key, btn_dict)
+            self.cmd_btns[key] = {
                 "btn": btn,
                 "permission": btn_dict["permission"]
             }
             glay.addWidget(btn, 1, idy, 1, 1)
 
-    def getTableControls(self, model):
-        glay = QGridLayout()
-        control_btns = [
-            {
-                "title": "Clear All",
-                "icon": "mdi.sort-variant-remove",
-                "cmd": model.clear_all,
-                "enabled": True,
-                "confirm": True,
-                "permission": 0,
-                "tooltip": "Delete all the history items."
-            },
-            {
-                "title": "Copy to Queue",
-                "icon": "mdi6.content-copy",
-                "cmd": model.copy_to_queue,
-                "enabled": False,
-                "permission": 1,
-                "tooltip": "Duplicate the selected item to the end of the queue list."
-            }
-        ]
-        self.createBtns(glay, control_btns)
         return glay
 
     def handleLoginChanged(self, loginChanged, table):
@@ -74,7 +60,7 @@ class SophysHistoryTable(QWidget):
         table = SophysTable(self.queueModel)
         vlay.addWidget(table)
 
-        controls = self.getTableControls(table.model())
+        controls = self.getTableControls()
         vlay.addLayout(controls)
 
         self.queueModel.updateTable.connect(
