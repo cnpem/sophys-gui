@@ -6,6 +6,7 @@ from sophys_gui.functions import getHeader
 from ..switch import SophysSwitchButton
 from ..list_models import QueueModel
 from .table_view import SophysTable
+from .util import QUEUE_BTNS, QUEUE_TABLE_BTNS
 
 
 class SophysQueueTable(QWidget):
@@ -30,21 +31,25 @@ class SophysQueueTable(QWidget):
                 self.loop.slider.setValue(1 if loopEnabled else 0)
                 self.loop.state = loopEnabled
 
+    def getLoopSwitch(self):
+        enable_loop = self.serverModel.run_engine.queue_mode_loop_enable
+        self.serverModel.run_engine.events.status_changed.connect(
+            self.updateLoopState)
+        loop = SophysSwitchButton(
+            "Loop", enable_loop, self.getLoopStatus())
+        loop.setToolTip("Enable looping the queue item. In this mode "
+            "the itens inside the queue list won't be delete and will be placed in the "
+            "last position of the queue after its completion. The queue will run until "
+            "a process fail, the loop is disabled or the queue is stopped or paused.")
+        return loop
+
     def getHeader(self):
         hlay = QHBoxLayout()
 
         title = getHeader("Queue")
         hlay.addWidget(title)
 
-        enable_loop = self.serverModel.run_engine.queue_mode_loop_enable
-        self.serverModel.run_engine.events.status_changed.connect(
-            self.updateLoopState)
-        self.loop = SophysSwitchButton(
-            "Loop", enable_loop, self.getLoopStatus())
-        self.loop.setToolTip("Enable looping the queue item. In this mode "
-            "the itens inside the queue list won't be delete and will be placed in the "
-            "last position of the queue after its completion. The queue will run until "
-            "a process fail, the loop is disabled or the queue is stopped or paused.")
+        self.loop = self.getLoopSwitch()
         hlay.addWidget(self.loop)
 
         return hlay
@@ -56,10 +61,10 @@ class SophysQueueTable(QWidget):
         if row!=None:
             self.queueModel.select(row)
         if confirmation:
-            cmd()
+            cmd(self.queueModel)
             self.table.updateIndex(self.cmd_btns)
 
-    def createSingleBtn(self, btn_dict, model, idx=None):
+    def createSingleBtn(self, btn_dict, idx=None):
         title = ""
         if "title" in btn_dict:
             title = btn_dict["title"]
@@ -67,7 +72,7 @@ class SophysQueueTable(QWidget):
         btn.setMaximumHeight(50)
         hasConfirmation = "confirm" in btn_dict
         btn.clicked.connect(
-            lambda _, model=model, cmd=btn_dict["cmd"],
+            lambda _, cmd=btn_dict["cmd"],
             title=title, hasConf=hasConfirmation, idx=idx: self.handleCommand(
                 cmd, title, hasConf, idx))
         btn.setIcon(qta.icon(btn_dict["icon"]))
@@ -75,12 +80,13 @@ class SophysQueueTable(QWidget):
         btn.setToolTip(btn_dict["tooltip"])
         return btn
 
-    def createBtns(self, glay, btn_dict, model):
+    def getTableControls(self):
+        glay = QGridLayout()
         idx = 0
         idy = 0
-        for btn_dict in btn_dict:
+        for btn_dict in QUEUE_BTNS:
             permission = btn_dict["permission"]
-            btn = self.createSingleBtn(btn_dict, model)
+            btn = self.createSingleBtn(btn_dict)
             self.cmd_btns[btn_dict["title"]] = {
                 "btn": btn,
                 "permission": permission
@@ -91,156 +97,27 @@ class SophysQueueTable(QWidget):
                 idx += 1
                 idy = 0
 
-    def setCommandButtons(self, model, glay):
-        control_btns = [
-            {
-                "title": "Top",
-                "icon": "ri.align-top",
-                "cmd": model.move_top,
-                "enabled": False,
-                "permission": 3,
-                "tooltip": "Move the selected item to the first position of the queue."
-            },
-            {
-                "title": "Up",
-                "icon": "fa5s.arrow-up",
-                "cmd": model.move_up,
-                "enabled": False,
-                "permission": 3,
-                "tooltip": "Move the selected item to one position ahead in the queue."
-            },
-            {
-                "title": "Down",
-                "icon": "fa5s.arrow-down",
-                "cmd": model.move_down,
-                "enabled": False,
-                "permission": 2,
-                "tooltip": "Move the selected item to one position back in the queue."
-            },
-            {
-                "title": "Bottom",
-                "icon": "ri.align-bottom",
-                "cmd": model.move_bottom,
-                "enabled": False,
-                "permission": 2,
-                "tooltip": "Move the selected item to the last position of the queue."
-            },
-            {
-                "title": "Delete",
-                "icon": "fa5s.trash-alt",
-                "cmd": model.delete_item,
-                "enabled": False,
-                "confirm": True,
-                "permission": 1,
-                "tooltip": "Delete the selected item from the queue."
-            },
-            {
-                "title": "Duplicate",
-                "icon": "fa5s.clone",
-                "cmd": model.duplicate_item,
-                "enabled": False,
-                "permission": 1,
-                "tooltip": "Duplicate the selected item data into a new queue "\
-                    "item that will be placed after the selected item."
-            },
-            {
-                "title": "Copy",
-                "icon": "fa5s.copy",
-                "cmd": model.copy_queue_item,
-                "enabled": False,
-                "permission": 1,
-                "tooltip": "Copy the selected item data into a form for creating a " \
-                    "new queue item that will be placed after the selected item."
-            },
-            {
-                "title": "Edit",
-                "icon": "fa5s.pencil-alt",
-                "cmd": model.edit_queue_item,
-                "enabled": False,
-                "permission": 1,
-                "tooltip": "Copy the selected item data into a form that will " \
-                    "update selected item."
-            },
-            {
-                "title": "Clear All",
-                "icon": "mdi.sort-variant-remove",
-                "cmd": model.clear_all,
-                "enabled": True,
-                "confirm": True,
-                "permission": 0,
-                "tooltip": "Delete all the queue items."
-            },
-            {
-                "title": "Add Plan",
-                "icon": "fa5s.plus",
-                "cmd": model.add_plan_item,
-                "enabled": True,
-                "permission": 0,
-                "tooltip": "Open a form that will create a new queue item " \
-                    "and placed it in the last position of the queue."
-            },
-            {
-                "title": "Add Instruction",
-                "icon": "mdi6.block-helper",
-                "cmd": model.add_instruction_item,
-                "enabled": True,
-                "permission": 0,
-                "tooltip": "Add a customized instruction " \
-                    "and placed it in the last position of the queue."
-            },
-            {
-                "title": "Add Stop Item",
-                "icon": "mdi6.block-helper",
-                "cmd": model.add_stop_queue,
-                "enabled": True,
-                "permission": 0,
-                "tooltip": "Add an instruction for stopping the queue " \
-                    "and placed it in the last position of the queue."
-            }
-        ]
-        self.createBtns(glay, control_btns, model)
-
-    def getTableControls(self, model):
-        glay = QGridLayout()
-
-        self.setCommandButtons(model, glay)
-
         return glay
 
-    def setTableOperationButtons(self, table):
+    def setTableOperationButtons(self, table, rowCount=None):
         rows = self.queueModel.rowCount()
         colCount = self.queueModel.columnCount()-2
         self.cmd_btns["table"] = {}
         for idx in range(0, rows):
-            control_btns = [
-                {
-                    "icon": "fa5s.pencil-alt",
-                    "cmd": self.queueModel.edit_queue_item,
-                    "enabled": True,
-                    "tooltip": "",
-                    "permission": 0
-                },
-                {
-                    "icon": "fa5s.trash-alt",
-                    "cmd": self.queueModel.delete_item,
-                    "enabled": True,
-                    "confirm": True,
-                    "tooltip": "",
-                    "permission": 0
-                }
-            ]
-            for idy, btn_dict in enumerate(control_btns):
-                btn = self.createSingleBtn(btn_dict, self.queueModel, idx)
+            for idy, btn_dict in enumerate(QUEUE_TABLE_BTNS):
+                btn = self.createSingleBtn(btn_dict, idx)
                 table.setIndexWidget(self.queueModel.index(idx, colCount+idy), btn)
                 self.cmd_btns["table"][f"{idx}__{idy}"] = {
                     "btn": btn,
                     "permission": 0
                 }
 
+        if rowCount:
+            table.detectChange(rowCount, self.cmd_btns)
+
     def handleLoginChanged(self, loginChanged, table):
         loginChanged.connect(
             lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
-
         self.loop.setEnabled(False)
         loginChanged.connect(self.loop.setEnabled)
 
@@ -255,14 +132,12 @@ class SophysQueueTable(QWidget):
         vlay.addWidget(table)
 
         self.setTableOperationButtons(table)
-        self.queueModel.updateTable.connect(
-            lambda _, table=table: self.setTableOperationButtons(table))
 
-        controls = self.getTableControls(table.model())
+        controls = self.getTableControls()
         vlay.addLayout(controls)
 
         self.queueModel.updateTable.connect(
-            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
+            lambda rowCount, table=table: self.setTableOperationButtons(table, rowCount))
         table.pressed.connect(
             lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
 
