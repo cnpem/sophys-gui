@@ -35,7 +35,7 @@ class ListModel(QAbstractTableModel):
         if not (hasArgs or hasKwargs):
             return "None"
         desc = []
-        if not hasKwargs:
+        if not hasKwargs or argsList[1] == '':
             argsList[1] = {}
         if hasArgs:
             addArgsToKwargs(argsList)
