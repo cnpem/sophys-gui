@@ -15,32 +15,67 @@ class SophysInputMotor(QWidget):
         self.widList = []
         self._setupUi()
 
-    def setValue(self, newValues):
+    def orderMotorValuesByRow(self, newValues):
+        """
+            Order args list value into attribute lists.
+        """
         widQuant = len(self.widList)
         remId = 0
         valueList = []
         for idx, val in enumerate(newValues):
-            if idx>0 and idx%widQuant==0:
+            isNewRow = idx>0 and idx%widQuant==0
+            if isNewRow:
                 remId += widQuant
-            if remId == 0:
+
+            isNewColumn = remId == 0
+            if isNewColumn:
                 valueList.append([])
-            itemId = idx-remId
-            valueList[itemId].append(val)
+
+            itemCol = idx-remId
+            valueList[itemCol].append(val)
+
+        return valueList
+
+    def addValueListToWidgets(self, valueList):
+        """
+            Set attribute value lists to the widgets.
+        """
         removeRow = []
+        rowLen = len(valueList[0])
+        rowRange = range(0, rowLen)
         for idx, value in enumerate(valueList):
             currWid = self.widList[idx]
             currWid.setValue(value)
-            for idy, val in enumerate(value):
-                if idx == 0:
+            newRow = idx == 0
+            for idy in rowRange:
+                if newRow:
                     removeRow.append([])
-                removeRow[idy].append(currWid.removeFunction[idy])
-        for idy, _ in enumerate(valueList[0]):
+                removeRowFunct = currWid.removeFunction[idy]
+                removeRow[idy].append(removeRowFunct)
+        for idy in rowRange:
             self.addDeleteRow(removeRow[idy])
 
-    def text(self):
+    def setValue(self, newValues):
+        """
+            Order the args values and set them to the list widgets.
+        """
+        valueList = self.orderMotorValuesByRow(newValues)
+        self.addValueListToWidgets(valueList)
+
+    def getWidgetValues(self):
+        """
+            Get values from the list widgets.
+        """
         listResults = []
         for item in self.widList:
             listResults.append(item.text())
+        return listResults
+
+    def text(self):
+        """
+            Return motor list as a list.
+        """
+        listResults = self.getWidgetValues()
         orderedResults = []
         max = len(listResults[0]) if isinstance(listResults[0], list) else 1
         if max > 1:
@@ -52,12 +87,18 @@ class SophysInputMotor(QWidget):
         return orderedResults
 
     def deleteRow(self, deleteList, deleteBtn):
+        """
+            Delete a motor item in the GUI.
+        """
         for deleteItem in deleteList:
             deleteItem(1)
         if deleteBtn:
             deleteBtn.deleteLater()
 
     def addDeleteRow(self, removeRow):
+        """
+            Add button for deleting an added motor.
+        """
         deleteBtn = QPushButton("")
         deleteBtn.setFixedSize(40, 25)
         deleteBtn.setIcon(qta.icon("fa5s.trash-alt"))
@@ -65,6 +106,9 @@ class SophysInputMotor(QWidget):
         self.btnsList.addWidget(deleteBtn)
 
     def selectValues(self):
+        """
+            Add motor inputs to the motor list.
+        """
         removeRow = []
         for item in self.widList:
             returnedStatus = item.selectItem()
@@ -77,40 +121,58 @@ class SophysInputMotor(QWidget):
         if len(removeRow) > 0:
             self.addDeleteRow(removeRow)
 
+    def addMotorBtn(self):
+        """
+            Add button to add one motor.
+        """
+        vlay = QVBoxLayout()
+        vlay.setContentsMargins(0, 0, 0, 0)
+        vlay.setSpacing(5)
+
+        addBtn = QPushButton()
+        addBtn.setFixedSize(40, 25)
+        addBtn.setIcon(qta.icon("fa5s.plus"))
+        addBtn.clicked.connect(self.selectValues)
+        vlay.addWidget(addBtn)
+        return vlay
+
+    def addMotorColumns(self, motorTyping, glay):
+        """
+            Dynamically add motor input widgets.
+        """
+        motorArray = motorTyping.split(";")
+        motorTitles = motorArray[0].split(",")
+        motorTooltip = motorArray[1].split(",")
+        motorTypes = motorArray[2].split(",")
+
+        col = 0
+        for title, tooltip, argType in zip(motorTitles, motorTooltip, motorTypes):
+            titleWid = QLabel(title)
+            titleWid.setAlignment(Qt.AlignCenter)
+            glay.addWidget(titleWid, 0, col)
+
+            isNumber = any([item in argType for item in ["int", "float"]])
+            if isNumber:
+                isNumber = argType
+            wid = self.iterableInput({"name":title}, isNumber, True)
+            self.widList.append(wid)
+            wid.setTooltip(tooltip)
+            glay.addWidget(wid, 1, col, 1, 1)
+            col += 1
+
+
     def _setupUi(self):
         glay = QGridLayout(self)
         glay.setSpacing(2)
         glay.setContentsMargins(2, 2, 2, 2)
+
         motorTyping = getMotorInput(self.motorParameters)
         if motorTyping:
-            motorArray = motorTyping.split(";")
-            motorTitles = motorArray[0].split(",")
-            motorTooltip = motorArray[1].split(",")
-            motorTypes = motorArray[2].split(",")
+            self.addMotorColumns(motorTyping, glay)
 
-            for idy, title in enumerate(motorTitles):
-                titleWid = QLabel(title)
-                titleWid.setAlignment(Qt.AlignCenter)
-                glay.addWidget(titleWid, 0, idy)
-
-                isNumber = any([item in motorTypes[idy] for item in ["int", "float"]])
-                if isNumber:
-                    isNumber = motorTypes[idy]
-                wid = self.iterableInput({"name":title}, isNumber, True)
-                self.widList.append(wid)
-                wid.setTooltip(motorTooltip[idy])
-                glay.addWidget(wid, 1, idy, 1, 1)
-
-            self.btnsList = QVBoxLayout()
-            self.btnsList.setContentsMargins(0, 0, 0, 0)
-            self.btnsList.setSpacing(5)
-
-            addBtn = QPushButton()
-            addBtn.setFixedSize(40, 25)
-            addBtn.setIcon(qta.icon("fa5s.plus"))
-            addBtn.clicked.connect(self.selectValues)
-            self.btnsList.addWidget(addBtn)
-
-            glay.addLayout(self.btnsList, 1, len(motorTitles)+1, 1, 1)
+            self.btnsList = self.addMotorBtn()
+            argsQuant = glay.columnCount() + 1
+            glay.addLayout(self.btnsList, 1, argsQuant, 1, 1)
         else:
-            glay.addWidget(SophysInputList(None, False))
+            listInput = SophysInputList(None, False)
+            glay.addWidget(listInput)
