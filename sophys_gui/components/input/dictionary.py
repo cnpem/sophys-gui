@@ -6,6 +6,9 @@ from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
 
 
 class SophysInputDict(QWidget):
+    """
+        Create a widget for inserting dictionary items.
+    """
 
     def __init__(self):
         super().__init__()
