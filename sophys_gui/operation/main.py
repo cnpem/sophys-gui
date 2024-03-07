@@ -113,3 +113,7 @@ class SophysOperationGUI(QMainWindow):
         glay.addWidget(vsplitter, 1, 0, 1, 3)
 
         self.setCentralWidget(wid)
+
+        self.login._email.setText("password")
+        self.login._password.setText("password")
+        self.login.login_signal.emit(True)
