@@ -1,6 +1,6 @@
 from qtpy.QtWidgets import QWidget, QLabel, QHBoxLayout, \
-    QHBoxLayout, QStackedWidget, QCheckBox, QDoubleSpinBox, \
-    QSpinBox
+    QHBoxLayout, QStackedWidget, QCheckBox, QDoubleSpinBox
+from sophys_gui.functions import handleSpinboxWidget
 
 
 class SophysSpinBox(QWidget):
@@ -47,19 +47,6 @@ class SophysSpinBox(QWidget):
         if isNone:
             self.value = ''
 
-    def handleSpinboxWidget(self, valueType):
-        """
-            Handle int and float spinbox widgets.
-        """
-        isFloat = valueType == 'float'
-        if isFloat:
-            spinbox = QDoubleSpinBox()
-        else:
-            spinbox = QSpinBox()
-        spinbox.setMaximumHeight(50)
-        spinbox.setMaximum(10000)
-        return spinbox
-
     def _setupUi(self, valueType):
         hlay = QHBoxLayout(self)
 
@@ -72,7 +59,7 @@ class SophysSpinBox(QWidget):
         noneLbl = QLabel("None")
         self.stack.addWidget(noneLbl)
 
-        self.spinbox = self.handleSpinboxWidget(valueType)
+        self.spinbox = handleSpinboxWidget(valueType)
         self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)
 

@@ -2,7 +2,8 @@ import qtawesome as qta
 import os as _os
 import ast
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QPushButton
+from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
+    QSpinBox
 
 
 def getItemRecursively(original_obj: object, attrs: list):
@@ -72,3 +73,18 @@ def getMotorInput(paramMeta):
         motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
         return motorTyping
     return None
+
+
+def handleSpinboxWidget(valueType):
+    """
+        Handle int and float spinbox widgets.
+    """
+    isFloat = valueType == 'float'
+    if isFloat:
+        spinbox = QDoubleSpinBox()
+        spinbox.setSingleStep(0.1)
+    else:
+        spinbox = QSpinBox()
+    spinbox.setMaximumHeight(50)
+    spinbox.setMaximum(10000)
+    return spinbox
