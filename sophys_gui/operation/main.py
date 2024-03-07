@@ -62,6 +62,32 @@ class SophysOperationGUI(QMainWindow):
             "you will be on the observer mode.")
         return login
 
+    def queueControls(self, loginChanged):
+        hsplitter = QSplitter(Qt.Horizontal)
+        queue = SophysQueueTable(self.model, loginChanged)
+        hsplitter.addWidget(queue)
+
+        running = SophysRunningItem(self.model, loginChanged)
+        hsplitter.addWidget(running)
+
+        history = SophysHistoryTable(self.model, loginChanged)
+        hsplitter.addWidget(history)
+
+        hsplitter.setSizes([500, 100, 500])
+        return hsplitter
+
+    def monitorWidgets(self):
+        monitorTabs = QTabWidget()
+
+        visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
+        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port', visual_elements)
+        monitorTabs.addTab(live_view, "Live View")
+
+        console = SophysConsoleMonitor(self.model)
+        monitorTabs.addTab(console, "Console")
+
+        return monitorTabs
+
     def _setupUi(self):
         wid = QWidget()
         glay = QGridLayout()
@@ -77,30 +103,13 @@ class SophysOperationGUI(QMainWindow):
 
         vsplitter = QSplitter(Qt.Vertical)
 
-        hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, loginChanged)
-        hsplitter.addWidget(queue)
-
-        running = SophysRunningItem(self.model, loginChanged)
-        hsplitter.addWidget(running)
-
-        history = SophysHistoryTable(self.model, loginChanged)
-        hsplitter.addWidget(history)
-
-        hsplitter.setSizes([500, 100, 500])
+        hsplitter = self.queueControls(loginChanged)
         vsplitter.addWidget(hsplitter)
 
-        resultTabs = QTabWidget()
-        vsplitter.addWidget(resultTabs)
-
-        visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
-        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port', visual_elements)
-        resultTabs.addTab(live_view, "Live View")
-
-        console = SophysConsoleMonitor(self.model)
-        resultTabs.addTab(console, "Console")
-
+        monitorTabs = self.monitorWidgets()
         vsplitter.setSizes([600, 200])
+        vsplitter.addWidget(monitorTabs)
+
         glay.addWidget(vsplitter, 1, 0, 1, 3)
 
         self.setCentralWidget(wid)
