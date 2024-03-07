@@ -29,7 +29,7 @@ class ListModel(QAbstractTableModel):
         return str(user[0])
 
     def argumentsRender(self, item: dict, argsList: dict):
-        """Renders the 'Keyword Arguments' column items."""
+        """Renders the 'Arguments' column items."""
         hasArgs = len(argsList[0]) != 0
         hasKwargs = len(argsList[1]) != 0
         if not (hasArgs or hasKwargs):
@@ -80,7 +80,7 @@ class ListModel(QAbstractTableModel):
         return f"Last user that modified the {user[1]} in this row."
 
     def argumentsTooltipRender(self, item: dict, argsList: dict):
-        """Renders the 'Keyword Arguments' column item tooltips."""
+        """Renders the 'Arguments' column item tooltips."""
         hasArgs = len(argsList[0]) != 0
         hasKwargs = len(argsList[1]) != 0
         if not (hasArgs or hasKwargs):
@@ -129,7 +129,8 @@ class ListModel(QAbstractTableModel):
         self.row_count = row_count
         plan_changed.connect(self.onPlanListChanged)
         self.selected_rows = []
-        if listId == "History":
+        isHistory = listId == "History"
+        if isHistory:
             self.columns = self.columns_history
         else:
             self.columns = self.columns_queue
