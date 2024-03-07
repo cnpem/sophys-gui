@@ -16,31 +16,46 @@ class SophysInputDict(QWidget):
         self._setupUi()
 
     def text(self):
+        """
+            Return dictionary value.
+        """
         return self.inputDict
 
     def setValue(self, item):
+        """
+            Set pre-existing dictionary value.
+        """
         self.inputDict = item
         self.createAllInputDict()
 
     def saveEditRow(self, key, row):
+        """
+            Save a new value for a dictionary item.
+        """
         newValue = self.valueEdit[key].text()
         self.inputDict[key] = newValue
+        self.toggleEditRow(row, 0)
         self.inputWid[row][1].currentWidget().setText(newValue)
-        self.inputWid[row][1].setCurrentIndex(0)
         self.inputWid[row][1].currentWidget().setText(newValue)
-        self.inputWid[row][2].setCurrentIndex(0)
 
-    def editRow(self, row):
-        self.inputWid[row][1].setCurrentIndex(1)
-        self.inputWid[row][2].setCurrentIndex(1)
+    def toggleEditRow(self, row, value):
+        for col in range(1, 3):
+            self.inputWid[row][col].setCurrentIndex(value)
 
     def createAllInputDict(self):
+        """
+            Create the list with all the existing keys and values of
+            the dictionary.
+        """
         self.rowIndex = 0
         self.inputWid = []
         for key, value in self.inputDict.items():
             self.createKeyValueWidget(key, value)
 
     def deleteRow(self, key):
+        """
+            Delete a dictionary item and its row on the GUI.
+        """
         del self.inputDict[key]
         for widgetList in self.inputWid:
             for widget in widgetList:
@@ -48,7 +63,11 @@ class SophysInputDict(QWidget):
         self.createAllInputDict()
 
     def createValueStack(self, key, value):
+        """
+            Create a stack for editing or showing a value of a dictionary item.
+        """
         valueStack = QStackedWidget()
+        valueStack.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 
         valueLbl = QLabel(value)
         valueLbl.setAlignment(Qt.AlignCenter)
@@ -69,7 +88,7 @@ class SophysInputDict(QWidget):
 
         editBtn = QPushButton("")
         editBtn.setIcon(qta.icon("fa5s.pencil-alt"))
-        editBtn.clicked.connect(lambda _, row=self.rowIndex: self.editRow(row))
+        editBtn.clicked.connect(lambda _, row=self.rowIndex: self.toggleEditRow(row, 1))
         editStack.addWidget(editBtn)
 
         saveBtn = QPushButton("")
@@ -86,7 +105,6 @@ class SophysInputDict(QWidget):
         self.inputDictList.addWidget(keyLbl, self.rowIndex, 0)
 
         valueStack = self.createValueStack(key, value)
-        valueStack.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         self.inputDictList.addWidget(valueStack, self.rowIndex, 1)
 
         editStack = self.editSaveStack(key)
