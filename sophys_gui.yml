@@ -8,5 +8,6 @@ dependencies:
     - bluesky-widgets
     - typesentry==0.2.7
     - pip:
+        - git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
         - git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
         - git+https://gitlab.cnpem.br/SOL/bluesky/sophys-gui.git
