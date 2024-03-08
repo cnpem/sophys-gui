@@ -1,4 +1,4 @@
-sophys_gui.*
+sophys_gui.egg-info*
 **__pycache__
 docs/build
 build
