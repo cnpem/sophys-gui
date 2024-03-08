@@ -5,6 +5,15 @@ from qtpy.QtWidgets import QWidget, QHBoxLayout, \
 
 
 class PopupWidget(QWidget):
+    """
+        Temporary floating feedback widget that appears
+        on the top left of the GUI.
+
+        .. image:: ./_static/popup.png
+            :width: 500
+            :alt: Popup Widget
+            :align: center
+    """
 
     def __init__(self: QWidget, parent: object) -> None:
         super().__init__()

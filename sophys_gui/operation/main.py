@@ -1,10 +1,10 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget
+    QGridLayout, QTabWidget, QApplication
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor
-from kafka_bluesky_live.live_view import LiveView
+from kafka_bluesky_live.live_view import LiveView, VisualElements
 from suitscase import LoginCNPEM
 
 
@@ -13,75 +13,103 @@ class SophysOperationGUI(QMainWindow):
     def __init__(self, model):
         super().__init__()
         self.model = model
+        self.runEngine = self.model.run_engine
+        self.app = QApplication.instance()
         self.client_data = None
         self._setupUi()
 
     def closeEvent(self, event):
         if self.client_data != None:
-            self.model.run_engine._client.logout()
-        self.model.run_engine.stop_console_output_monitoring()
+            self.logoutUser()
+        self.runEngine.stop_console_output_monitoring()
 
-    def loginUser(self, isLogged):
-        re = self.model.run_engine
+    def logoutUser(self):
+        re = self.runEngine
+        re._user_name = 'GUI Client'
+        re._user_group = 'primary'
+        re._client.logout()
+        self.app.saveRunEngineClient(None)
+        self.client_data = None
+
+    def loginUser(self):
+        re = self.runEngine
+        emailWid = self.login._email
+        passwordWid = self.login._password
+        username = emailWid.text()
+        password = passwordWid.text()
+        self.client_data = re._client.login(
+            username=username, password=password,
+            provider="ldap/token")
+        self.app.saveRunEngineClient(re._client)
+        re._user_name = username
+        re._user_group = self.login._allowed_group
+        emailWid.setText("")
+        passwordWid.setText("")
+
+    def handleToggleUser(self, isLogged):
         if isLogged:
-            username = self.login._email.text()
-            password = self.login._password.text()
-            self.client_data = re._client.login(
-                username=username, password=password,
-                provider='ldap/token')
-            re._client.apikey_new(expires_in=3600)
-            re._user_name = username
-            re._user_group = self.login._allowed_group
-            self.login._email.setText("")
-            self.login._password.setText("")
-        else:
-            re._user_name = 'GUI Client'
-            re._user_group = 'primary'
-            re._client.logout()
-            self.client_data = None
+            self.loginUser()
+            return
+        self.logoutUser()
+
+    def createLoginWidget(self):
+        login = LoginCNPEM(group="SWC")
+        login.login_signal.connect(self.handleToggleUser)
+        login._email.setMinimumWidth(150)
+        login._password.setMinimumWidth(150)
+        login.setToolTip("Login into the HTTP Server in order to be " \
+            "able to control and operate the Queue Server. Without the login "
+            "you will be on the observer mode.")
+        return login
+
+    def queueControls(self, loginChanged):
+        hsplitter = QSplitter(Qt.Horizontal)
+        queue = SophysQueueTable(self.model, loginChanged)
+        hsplitter.addWidget(queue)
+
+        running = SophysRunningItem(self.model, loginChanged)
+        hsplitter.addWidget(running)
+
+        history = SophysHistoryTable(self.model, loginChanged)
+        hsplitter.addWidget(history)
+
+        hsplitter.setSizes([500, 100, 500])
+        return hsplitter
+
+    def monitorWidgets(self):
+        monitorTabs = QTabWidget()
+
+        visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
+        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port', visual_elements)
+        monitorTabs.addTab(live_view, "Live View")
+
+        console = SophysConsoleMonitor(self.model)
+        monitorTabs.addTab(console, "Console")
+
+        return monitorTabs
 
     def _setupUi(self):
         wid = QWidget()
         glay = QGridLayout()
         wid.setLayout(glay)
 
-        controller = QueueController(self.model)
-        glay.addWidget(controller, 0, 0, 1, 2)
-
-        self.login = LoginCNPEM(group="SWC")
-        self.login.login_signal.connect(self.loginUser)
-        self.login._email.setMinimumWidth(150)
-        self.login._password.setMinimumWidth(150)
-        self.login.setToolTip("Login into the HTTP Server in order to be " \
-            "able to control and operate the Queue Server. Without the login "
-            "you will be on the observer mode.")
+        self.login = self.createLoginWidget()
+        self.login.setMaximumWidth(500)
+        loginChanged = self.login.login_signal
         glay.addWidget(self.login, 0, 2, 1, 1)
+
+        controller = QueueController(self.model, loginChanged)
+        glay.addWidget(controller, 0, 0, 1, 2)
 
         vsplitter = QSplitter(Qt.Vertical)
 
-        hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model)
-        hsplitter.addWidget(queue)
-
-        running = SophysRunningItem(self.model)
-        hsplitter.addWidget(running)
-
-        history = SophysHistoryTable(self.model)
-        hsplitter.addWidget(history)
-
-        hsplitter.setSizes([500, 100, 500])
+        hsplitter = self.queueControls(loginChanged)
         vsplitter.addWidget(hsplitter)
 
-        resultTabs = QTabWidget()
-        vsplitter.addWidget(resultTabs)
-
-        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port')
-        resultTabs.addTab(live_view, "Live View")
-
-        console = SophysConsoleMonitor(self.model)
-        resultTabs.addTab(console, "Console")
-
+        monitorTabs = self.monitorWidgets()
         vsplitter.setSizes([600, 200])
+        vsplitter.addWidget(monitorTabs)
+
         glay.addWidget(vsplitter, 1, 0, 1, 3)
 
         self.setCentralWidget(wid)

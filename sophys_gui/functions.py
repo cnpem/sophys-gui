@@ -1,8 +1,9 @@
-import os as _os
 import qtawesome as qta
+import os as _os
 import ast
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QPushButton
+from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
+    QSpinBox
 
 
 def getItemRecursively(original_obj: object, attrs: list):
@@ -42,14 +43,6 @@ def getFilePath(file_path):
     admin_file = _os.path.join(abspath, file_path)
     return admin_file
 
-def getLoadingButton():
-    loading = QPushButton('')
-    loading.setIcon(qta.icon(
-        'fa5s.spinner', animation=qta.Spin(loading)))
-    loading.setVisible(False)
-    loading.setFlat(True)
-    return loading
-
 def evaluateValue(value):
     if isinstance(value, str):
         try:
@@ -57,3 +50,41 @@ def evaluateValue(value):
         except Exception:
             print("Eval error - ", value)
     return value
+
+def createSingleBtn(btnDict, runEngine):
+    title = btnDict["title"]
+    btn = QPushButton(title)
+    btn.clicked.connect(
+        lambda _, cmd=btnDict["cmd"], re=runEngine: cmd(re))
+    btn.setIcon(qta.icon(btnDict["icon"]))
+    return btn
+
+def addArgsToKwargs(argsList):
+    args = argsList[0].copy()
+    argsList[1]["detectors"] = args.pop(0)
+    argsList[1]["args"] = args
+
+
+def getMotorInput(paramMeta):
+    separator = "-.-"
+    motorDescription = paramMeta["description"]
+    motorTypeIndex = motorDescription.index(separator)
+    if motorTypeIndex:
+        motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
+        return motorTyping
+    return None
+
+
+def handleSpinboxWidget(valueType):
+    """
+        Handle int and float spinbox widgets.
+    """
+    isFloat = valueType == 'float'
+    if isFloat:
+        spinbox = QDoubleSpinBox()
+        spinbox.setSingleStep(0.1)
+    else:
+        spinbox = QSpinBox()
+    spinbox.setMaximumHeight(50)
+    spinbox.setMaximum(10000)
+    return spinbox

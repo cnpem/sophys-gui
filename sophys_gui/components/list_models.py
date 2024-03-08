@@ -1,8 +1,9 @@
+import copy
 import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
-from sophys_gui.functions import getItemRecursively
+from sophys_gui.functions import getItemRecursively, addArgsToKwargs
 from .form import SophysForm
 
 
@@ -27,22 +28,17 @@ class ListModel(QAbstractTableModel):
         """Renders the 'User' column items."""
         return str(user[0])
 
-    def addArgsToKwargs(self, argsList):
-        args = argsList[0].copy()
-        argsList[1]["detectors"] = args.pop(0)
-        argsList[1]["args"] = args
-
     def argumentsRender(self, item: dict, argsList: dict):
-        """Renders the 'Keyword Arguments' column items."""
+        """Renders the 'Arguments' column items."""
         hasArgs = len(argsList[0]) != 0
         hasKwargs = len(argsList[1]) != 0
         if not (hasArgs or hasKwargs):
             return "None"
         desc = []
-        if not hasKwargs:
+        if not hasKwargs or argsList[1] == '':
             argsList[1] = {}
         if hasArgs:
-            self.addArgsToKwargs(argsList)
+            addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             for key, val in argsList[1].items():
                 desc.append("{} = {}".format(key, val))
@@ -84,14 +80,14 @@ class ListModel(QAbstractTableModel):
         return f"Last user that modified the {user[1]} in this row."
 
     def argumentsTooltipRender(self, item: dict, argsList: dict):
-        """Renders the 'Keyword Arguments' column item tooltips."""
+        """Renders the 'Arguments' column item tooltips."""
         hasArgs = len(argsList[0]) != 0
         hasKwargs = len(argsList[1]) != 0
         if not (hasArgs or hasKwargs):
             return "None"
         desc = []
         if hasArgs:
-            self.addArgsToKwargs(argsList)
+            addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:
@@ -101,7 +97,7 @@ class ListModel(QAbstractTableModel):
                     extraIdx = description.index("-.-")
                     description = description[:extraIdx]
                 except Exception:
-                    print("")
+                    pass
                 description = re.sub("\n+", ". ", description)
                 desc.append("{}: {}".format(key, description.capitalize()))
             return "\n".join(desc)
@@ -133,7 +129,8 @@ class ListModel(QAbstractTableModel):
         self.row_count = row_count
         plan_changed.connect(self.onPlanListChanged)
         self.selected_rows = []
-        if listId == "History":
+        isHistory = listId == "History"
+        if isHistory:
             self.columns = self.columns_history
         else:
             self.columns = self.columns_queue
@@ -163,7 +160,7 @@ class ListModel(QAbstractTableModel):
             return
         row = self.row_count(index.row()) - 1
         try:
-            item = self.plan_items[row]
+            item = copy.deepcopy(self.plan_items[row])
         except IndexError:
             return
 
@@ -343,7 +340,7 @@ class QueueModel(ListModel):
     def add_stop_queue(self):
         allowed_parameters, allowed_names = self.get_name_param_variables('instruction')
         form = SophysForm(self._re_model.run_engine, "add_instruction", allowed_parameters, allowed_names)
-        form.addPlanToQueue()
+        form.addItemToQueue()
 
     @Slot()
     def copy_queue_item(self):
