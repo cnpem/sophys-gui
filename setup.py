@@ -17,7 +17,9 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     package_data={"": ["*.css", "*.yml", "*json"]},
-    scripts=[
-        'scripts/sophys-gui.py'
-    ]
+    entry_points={
+        'gui_scripts': [
+            'sophys-gui = scripts.sophys_gui:main',
+        ]
+    }
 )
