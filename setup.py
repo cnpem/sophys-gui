@@ -19,7 +19,7 @@ setup(
     package_data={"": ["*.css", "*.yml", "*json"]},
     entry_points={
         'gui_scripts': [
-            'sophys-gui = scripts.sophys_gui:main',
+            'sophys-gui = sophys_scripts.sophys_gui:main',
         ]
     }
 )
