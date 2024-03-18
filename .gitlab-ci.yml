@@ -1,0 +1,22 @@
+pages:
+  stage: docs
+  image: python:3.9-bullseye
+
+  tags:
+    - builder
+
+  script:
+    - pip install git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
+    - pip install git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
+    - pip install .
+    - cd docs
+    - pip install -r doc_requirements.txt
+    - make html
+    - cd source
+    - sphinx-build -b html . ../../public
+
+  artifacts:
+    paths:
+      - public
+  # only:
+  #   - main
