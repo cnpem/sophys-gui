@@ -3,7 +3,7 @@ import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
-from sophys_gui.functions import getItemRecursively, addArgsToKwargs
+from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps
 from .form import SophysForm
 
 
@@ -50,14 +50,14 @@ class ListModel(QAbstractTableModel):
 
     def statusTooltipRender(self, item: dict, status: str):
         """Renders the 'Status' column item tooltips."""
-        return "Exit status received after the item execution."
+        return addLineJumps("Exit status received after the item execution.")
 
     def editTooltipRender(self, item: dict, item_type: str):
-        return "Copy the selected item data into a form that will update " \
-            f"the {item_type} in this row."
+        return addLineJumps("Copy the selected item data into a form that will update " \
+            f"the {item_type} in this row.")
 
     def deleteTooltipRender(self, item: dict, item_type: str):
-        return f"Deletes the {item_type} in this row."
+        return addLineJumps(f"Deletes the {item_type} in this row.")
 
     def typeTooltipRender(self, item: dict, type: str):
         """Renders the 'Type' column item tooltips."""
@@ -77,7 +77,7 @@ class ListModel(QAbstractTableModel):
 
     def userTooltipRender(self, item: dict, user: str):
         """Renders the 'User' column item tooltips."""
-        return f"Last user that modified the {user[1]} in this row."
+        return addLineJumps(f"Last user that modified the {user[1]} in this row.")
 
     def argumentsTooltipRender(self, item: dict, argsList: dict):
         """Renders the 'Arguments' column item tooltips."""
@@ -99,7 +99,8 @@ class ListModel(QAbstractTableModel):
                 except Exception:
                     pass
                 description = re.sub("\n+", ". ", description)
-                desc.append("{}: {}".format(key, description.capitalize()))
+                tooltipRow = "{}: {}".format(key, description.capitalize())
+                desc.append(addLineJumps(tooltipRow))
             return "\n".join(desc)
 
     # (Column title, Attribute value, Display value, ToolTip value)

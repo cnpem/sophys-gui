@@ -88,3 +88,24 @@ def handleSpinboxWidget(valueType):
     spinbox.setMaximumHeight(50)
     spinbox.setMaximum(10000)
     return spinbox
+
+
+def addLineJumps(message):
+    """
+        Break lines in tooltips.
+    """
+    lineSize = 30
+    newMsg = ""
+    if "\n" in message:
+        return message
+    msgArray = message.split(" ")
+    while len(msgArray) > 0:
+        newLine = ""
+        for msgLine in msgArray:
+            newLine += msgArray.pop(0)
+            if len(newLine) > lineSize:
+                newLine += "\n"
+                break
+            newLine += " "
+        newMsg += newLine
+    return newMsg

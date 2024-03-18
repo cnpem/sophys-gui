@@ -2,7 +2,7 @@ import qtawesome as qta
 from qtpy.QtWidgets import QVBoxLayout, QWidget, \
     QGridLayout, QPushButton
 
-from sophys_gui.functions import getHeader
+from sophys_gui.functions import getHeader, addLineJumps
 from ..list_models import HistoryModel
 from .table_view import SophysTable
 from .util import HISTORY_BTNS
@@ -31,7 +31,8 @@ class SophysHistoryTable(QWidget):
             cmd=btn_dict["cmd"], title=title, : self.handleCommand(cmd, title, hasConf))
         btn.setIcon(qta.icon(btn_dict["icon"]))
         btn.setEnabled(btn_dict["enabled"])
-        btn.setToolTip(btn_dict["tooltip"])
+        tooltipMsg = addLineJumps(btn_dict["tooltip"])
+        btn.setToolTip(tooltipMsg)
         return btn
 
     def getTableControls(self):

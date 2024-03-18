@@ -2,7 +2,7 @@ import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
     QGridLayout, QVBoxLayout
-from sophys_gui.functions import getMotorInput
+from sophys_gui.functions import getMotorInput, addLineJumps
 from .list import SophysInputList
 
 
@@ -156,7 +156,8 @@ class SophysInputMotor(QWidget):
                 isNumber = argType
             wid = self.iterableInput({"name":title}, isNumber, True)
             self.widList.append(wid)
-            wid.setTooltip(tooltip)
+            tooltipMsg = addLineJumps(tooltip)
+            wid.setTooltip(tooltipMsg)
             glay.addWidget(wid, 1, col, 1, 1)
             col += 1
 

@@ -2,6 +2,7 @@ import qtawesome as qta
 from qtpy.QtCore import QSize
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QGroupBox, \
     QStackedWidget, QPushButton
+from sophys_gui.functions import addLineJumps
 from ..led import SophysLed
 from .util import CONFIG
 
@@ -104,7 +105,8 @@ class QueueController(QWidget):
             btn.setIconSize(QSize(20, 20))
             btn.clicked.connect(
                 lambda _, cmd=btnConfig["cmd"]: cmd(self.run_engine))
-            btn.setToolTip(btnConfig["tooltip"])
+            tooltipMsg = addLineJumps(btnConfig["tooltip"])
+            btn.setToolTip(tooltipMsg)
             if "enabled" in btnConfig:
                 btn.setEnabled(btnConfig["enabled"])
             stack.addWidget(btn)

@@ -5,7 +5,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter
-from sophys_gui.functions import evaluateValue, getMotorInput
+from sophys_gui.functions import evaluateValue, getMotorInput, addLineJumps
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .util import UNKNOWN_TYPES
@@ -309,7 +309,8 @@ class SophysForm(QDialog):
             inputWid = QLineEdit()
         self.handleModalMode(inputWid, paramMeta, isStr)
         if not isArgs:
-            inputWid.setToolTip(self.getInputTooltip(paramMeta))
+            tooltipMsg = self.getInputTooltip(paramMeta)
+            inputWid.setToolTip(tooltipMsg)
         return inputWid
 
     def getIsRequired(self, paramMeta, varType):

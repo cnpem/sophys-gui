@@ -2,7 +2,7 @@ import qtawesome as qta
 from qtpy.QtWidgets import QVBoxLayout, QHBoxLayout, \
     QWidget, QGridLayout, QPushButton
 
-from sophys_gui.functions import getHeader
+from sophys_gui.functions import getHeader, addLineJumps
 from ..switch import SophysSwitchButton
 from ..list_models import QueueModel
 from .table_view import SophysTable
@@ -37,10 +37,11 @@ class SophysQueueTable(QWidget):
             self.updateLoopState)
         loop = SophysSwitchButton(
             "Loop", enable_loop, self.getLoopStatus())
-        loop.setToolTip("Enable looping the queue item. In this mode "
-            "the itens inside the queue list won't be delete and will be placed in the "
-            "last position of the queue after its completion. The queue will run until "
+        loopTooltip = addLineJumps("Enable looping the queue item. In this mode " \
+            "the itens inside the queue list won't be delete and will be placed in the " \
+            "last position of the queue after its completion. The queue will run until " \
             "a process fail, the loop is disabled or the queue is stopped or paused.")
+        loop.setToolTip(loopTooltip)
         return loop
 
     def getHeader(self):
@@ -77,7 +78,8 @@ class SophysQueueTable(QWidget):
                 cmd, title, hasConf, idx))
         btn.setIcon(qta.icon(btn_dict["icon"]))
         btn.setEnabled(btn_dict["enabled"])
-        btn.setToolTip(btn_dict["tooltip"])
+        tooltipMsg = addLineJumps(btn_dict["tooltip"])
+        btn.setToolTip(tooltipMsg)
         return btn
 
     def getTableControls(self):

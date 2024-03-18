@@ -6,6 +6,7 @@ from sophys_gui.components import SophysQueueTable, \
     SophysConsoleMonitor
 from kafka_bluesky_live.live_view import LiveView, VisualElements
 from suitscase import LoginCNPEM
+from sophys_gui.functions import addLineJumps
 
 
 class SophysOperationGUI(QMainWindow):
@@ -57,9 +58,11 @@ class SophysOperationGUI(QMainWindow):
         login.login_signal.connect(self.handleToggleUser)
         login._email.setMinimumWidth(150)
         login._password.setMinimumWidth(150)
-        login.setToolTip("Login into the HTTP Server in order to be " \
-            "able to control and operate the Queue Server. Without the login "
-            "you will be on the observer mode.")
+        tooltip_msg = "Login into the HTTP Server in order to be " \
+            "able to control and operate the Queue Server. Without the login " \
+            "you will be on the observer mode."
+        tooltip_msg = addLineJumps(tooltip_msg)
+        login.setToolTip(tooltip_msg)
         return login
 
     def queueControls(self, loginChanged):
@@ -113,3 +116,7 @@ class SophysOperationGUI(QMainWindow):
         glay.addWidget(vsplitter, 1, 0, 1, 3)
 
         self.setCentralWidget(wid)
+
+        self.login._email.setText("password")
+        self.login._password.setText("password")
+        self.login.login_signal.emit(True)
