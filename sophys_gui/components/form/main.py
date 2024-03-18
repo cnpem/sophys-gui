@@ -191,10 +191,12 @@ class SophysForm(QDialog):
             Create the form dialog buttons.
         """
         self.btns = QDialogButtonBox(
-            QDialogButtonBox.Apply | QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
-        btn = self.btns.button(QDialogButtonBox.Apply)
-        btn.clicked.connect(self.immediateExecution)
+        if "add" in self.modalMode:
+            self.btns.addButton(QDialogButtonBox.Apply)
+            btn = self.btns.button(QDialogButtonBox.Apply)
+            btn.clicked.connect(self.immediateExecution)
         self.btns.accepted.connect(self.addItemToQueue)
         self.btns.rejected.connect(self.reject)
 
