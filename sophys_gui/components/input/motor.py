@@ -71,11 +71,23 @@ class SophysInputMotor(QWidget):
             listResults.append(item.text())
         return listResults
 
+    def hasEmptyValue(self, listResults):
+        """
+            Verify if motor has empty parameter.
+        """
+        hasEmpty = False
+        for result in listResults:
+            if isinstance(result, list) and len(result) == 0:
+                return True
+        return hasEmpty
+
     def text(self):
         """
             Return motor list as a list.
         """
         listResults = self.getWidgetValues()
+        if self.hasEmptyValue(listResults):
+            return None
         orderedResults = []
         max = len(listResults[0]) if isinstance(listResults[0], list) else 1
         if max > 1:
