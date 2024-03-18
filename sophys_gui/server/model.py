@@ -35,9 +35,6 @@ class ServerModel:
                 try:
                     self.run_engine._client.wait_for_condition(
                         param, timeout=sys.float_info.max, monitor=self.__server_monitor)
-                    if not self.run_engine._re_manager_connected:
-                        self.run_engine.clear_connection_status()
-                        self.run_engine.manager_connecting_ops()
                 except self.run_engine._client.WaitCancelError:
                     break
                 except self.run_engine._client.WaitTimeoutError:
