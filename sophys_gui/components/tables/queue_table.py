@@ -140,6 +140,8 @@ class SophysQueueTable(QWidget):
 
         self.queueModel.updateTable.connect(
             lambda rowCount, table=table: self.setTableOperationButtons(table, rowCount))
+        self.queueModel.updateTable.connect(
+            lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
         table.pressed.connect(
             lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
 
