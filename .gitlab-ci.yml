@@ -1,3 +1,6 @@
+stages:
+  - docs
+
 pages:
   stage: docs
   image: python:3.9-bullseye
