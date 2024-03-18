@@ -158,7 +158,7 @@ class SophysForm(QDialog):
             metadata["item_uid"] = self.selectedItemMetadata()["item_uid"]
         return metadata
 
-    def addItemToQueue(self):
+    def addItemToQueue(self, params=None):
         """
             Add or update the queue item.
         """
@@ -168,16 +168,33 @@ class SophysForm(QDialog):
         if isItemUpdate:
             self.model.queue_item_update(item=item)
         else:
-            self.model.queue_item_add(item=item)
+            self.model.queue_item_add(item=item, params=params)
         self.accept()
+
+    def addStopItem(self):
+        allowed_parameters = self.model.get_allowed_instruction_parameters
+        allowed_names = self.model.get_allowed_instruction_names
+        form = SophysForm(self.model, "add_instruction", allowed_parameters, allowed_names)
+        form.addItemToQueue({"pos": "front"})
+
+    def immediateExecution(self):
+        """
+            Execute only the created plan or instruction in this exact instant.
+        """
+        if self.chosenItem != "queue_stop":
+            self.addStopItem()
+        self.addItemToQueue({"pos": "front"})
+        self.model.queue_start()
 
     def getDialogBtns(self):
         """
             Create the form dialog buttons.
         """
         self.btns = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            QDialogButtonBox.Apply | QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
+        btn = self.btns.button(QDialogButtonBox.Apply)
+        btn.clicked.connect(self.immediateExecution)
         self.btns.accepted.connect(self.addItemToQueue)
         self.btns.rejected.connect(self.reject)
 
