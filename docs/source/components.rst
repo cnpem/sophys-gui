@@ -30,10 +30,33 @@ Form
    :undoc-members:
    :show-inheritance:
 
-Input
------
+Inputs
+------
 
-.. automodule:: sophys_gui.components.input
+Dictionary
+^^^^^^^^^^
+.. automodule:: sophys_gui.components.input.dictionary
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+List
+^^^^
+.. automodule:: sophys_gui.components.input.list
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Motor
+^^^^^
+.. automodule:: sophys_gui.components.input.motor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Spinbox
+^^^^^^^
+.. automodule:: sophys_gui.components.input.spinbox
    :members:
    :undoc-members:
    :show-inheritance:
@@ -86,10 +109,26 @@ Switch
    :undoc-members:
    :show-inheritance:
 
-Table View
-----------
+Tables
+------
 
-.. automodule:: sophys_gui.components.table_view
+History Table
+^^^^^^^^^^^^^
+.. automodule:: sophys_gui.components.tables.history_table
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Queue Table
+^^^^^^^^^^^
+.. automodule:: sophys_gui.components.tables.queue_table
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Table View
+^^^^^^^^^^
+.. automodule:: sophys_gui.components.tables.table_view
    :members:
    :undoc-members:
    :show-inheritance:
