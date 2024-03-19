@@ -11,7 +11,7 @@ pages:
   script:
     - pip install git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
     - pip install git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
-    - pip install .
+    - pip install -e .
     - cd docs
     - pip install -r doc_requirements.txt
     - make html
