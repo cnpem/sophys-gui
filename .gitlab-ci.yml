@@ -15,8 +15,7 @@ pages:
     - cd docs
     - pip install -r doc_requirements.txt
     - make html
-    - cd source
-    - sphinx-build -b html . ../../public
+    - sphinx-build -b html source ../../public
 
   artifacts:
     paths:
