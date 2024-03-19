@@ -8,26 +8,38 @@ from suitscase.utilities.threading import AsyncFunction
 
 
 class ServerModel:
+    """
+        Class for monitoring and communicating with the Bluesky Run Engine.
+    """
 
     def __init__(self):
+        """
+            Start the Run Engine client and monitor some aspects of it.
+        """
         self.run_engine = RunEngineClient(
             http_server_uri="http://127.0.0.1:http_server_port"
         )
 
         self.server_callback(
             lambda status: status["plan_queue_uid"] != self.run_engine._plan_queue_uid,
-            self.run_engine.load_plan_queue)
+            self.run_engine.manager_connecting_ops)
         self.server_callback(
             lambda status: status["plan_queue_mode"] != self.run_engine.events.status_changed,
             partial(self.run_engine.load_re_manager_status, unbuffered=True))
 
     def exit(self):
+        """
+            Stop monitoring the Run Engine.
+        """
         self.__server_monitor.cancel()
         while self.__monitoring_server:
             time.sleep(0.01)
 
     @AsyncFunction
     def server_callback(self, param, cmd):
+        """
+            Callback function that updates the local Run Engine.
+        """
         def monitor_server_changes():
             self.__monitoring_server = True
             self.__server_monitor = WaitMonitor()
