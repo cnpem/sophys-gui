@@ -38,10 +38,11 @@ class QueueController(QWidget):
         if isConn:
             statusVal = self.getRunEngineStatus("manager_state")
             envVal = self.getRunEngineStatus("worker_environment_exists")
-            runIndex = 0 if statusVal == "idle" else 1 if statusVal == "executing_queue" else 2
+            runIndex = 2 if statusVal == "paused" else 1 if statusVal == "executing_queue" else 0
             for stack in self.cmdStacks[1:]:
                 stack.setCurrentIndex(runIndex)
-
+            self.cmdStacks[1].setEnabled(envVal)
+            self.cmdStacks[0].setEnabled(runIndex==0)
             envIndex = 1 if envVal else 0
             self.cmdStacks[0].setCurrentIndex(envIndex)
 
