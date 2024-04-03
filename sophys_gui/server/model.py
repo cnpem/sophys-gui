@@ -12,12 +12,12 @@ class ServerModel:
         Class for monitoring and communicating with the Bluesky Run Engine.
     """
 
-    def __init__(self):
+    def __init__(self, http_server_uri):
         """
             Start the Run Engine client and monitor some aspects of it.
         """
         self.run_engine = RunEngineClient(
-            http_server_uri="http://127.0.0.1:http_server_port"
+            http_server_uri=http_server_uri
         )
 
         self.server_callback(

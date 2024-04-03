@@ -11,11 +11,17 @@ from sophys_gui.operation import SophysOperationGUI
 
 
 def main():
-    __backend_model = ServerModel()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--http", required=True, help="The httpserver address to connect to. (e.g. http://127.0.0.1:http_server_port)")
+    parser.add_argument("--kafka-bootstrap", required=True, help="The Kafka broker address to connect to. (e.g. 127.0.0.1:kafka_port)")
+    parser.add_argument("--kafka-topic", required=True, help="The Kafka topic to listen to. (e.g. test_bluesky_raw_docs)")
+    args = parser.parse_args()
+
+    __backend_model = ServerModel(args.http)
 
     app = SophysApplication(sys.argv)
 
-    window = SophysOperationGUI(__backend_model)
+    window = SophysOperationGUI(__backend_model, args.kafka_bootstrap, args.kafka_topic)
     window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
     window.setWindowTitle("SOPHYS GUI")
     window.show()

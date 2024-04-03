@@ -11,12 +11,17 @@ from sophys_gui.functions import addLineJumps
 
 class SophysOperationGUI(QMainWindow):
 
-    def __init__(self, model):
+    def __init__(self, model, kafka_ip, kafka_topic):
         super().__init__()
+
+        self._kafka_ip = kafka_ip
+        self._kafka_topic = kafka_topic
+
         self.model = model
         self.runEngine = self.model.run_engine
         self.app = QApplication.instance()
         self.client_data = None
+
         self._setupUi()
 
     def closeEvent(self, event):
@@ -95,7 +100,7 @@ class SophysOperationGUI(QMainWindow):
         monitorTabs = QTabWidget()
 
         visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
-        live_view = LiveView('TEST_BL_bluesky', '127.0.0.1:kakfa_port', visual_elements)
+        live_view = LiveView(self._kafka_topic, self._kafka_ip, visual_elements)
         monitorTabs.addTab(live_view, "Live View")
 
         console = SophysConsoleMonitor(self.model)
