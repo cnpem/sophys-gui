@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
+
 import qtawesome
+
 from sophys_gui.server import ServerModel
 from sophys_gui.components import SophysApplication
 from sophys_gui.operation import SophysOperationGUI
