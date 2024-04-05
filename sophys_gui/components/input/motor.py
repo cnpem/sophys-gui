@@ -7,6 +7,19 @@ from .list import SophysInputList
 
 
 class SophysInputMotor(QWidget):
+    """
+        Widget for managing plan motors.
+
+        .. image:: ./_static/motor.png
+            :width: 750
+            :alt: Motor Input Widget
+            :align: center
+
+        .. image:: ./_static/motor_list.png
+            :width: 750
+            :alt: Motor Input Widget with List
+            :align: center
+    """
 
     def __init__(self, motorParameters, iterableInput):
         super().__init__()
