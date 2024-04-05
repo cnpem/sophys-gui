@@ -9,6 +9,27 @@ from sophys_gui.functions import evaluateValue, handleSpinboxWidget
 class SophysInputList(QWidget):
     """
         Widget for inserting item in a list format.
+
+        Float List:
+
+        .. image:: ./_static/float_list.png
+            :width: 500
+            :alt: Float List Input Widget
+            :align: center
+
+        Combobox List:
+
+        .. image:: ./_static/cb_list.png
+            :width: 400
+            :alt: Combobox List Input Widget
+            :align: center
+
+        List with items:
+
+        .. image:: ./_static/item_list.png
+            :width: 400
+            :alt: Float List Input Widget with items
+            :align: center
     """
 
     def __init__(self, itemList, isNumber, isSingle=True):

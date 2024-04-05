@@ -11,12 +11,14 @@ class SophysInputMotor(QWidget):
         Widget for managing plan motors.
 
         .. image:: ./_static/motor.png
-            :width: 750
+            :width: 500
             :alt: Motor Input Widget
             :align: center
 
+        Motor widget with list:
+
         .. image:: ./_static/motor_list.png
-            :width: 750
+            :width: 500
             :alt: Motor Input Widget with List
             :align: center
     """

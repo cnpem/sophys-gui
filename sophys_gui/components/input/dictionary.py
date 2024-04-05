@@ -8,6 +8,12 @@ from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
 class SophysInputDict(QWidget):
     """
         Create a widget for inserting dictionary items.
+
+        .. image:: ./_static/dictionary.png
+            :width: 500
+            :alt: Dictionary Input Widget
+            :align: center
+
     """
 
     def __init__(self):
