@@ -9,6 +9,16 @@ from .util import HISTORY_BTNS
 
 
 class SophysHistoryTable(QWidget):
+    """
+        Table widget customized for interacting and monitoring
+        the Blueksy History.
+
+        .. image:: ./_static/history_table.png
+            :width: 750
+            :alt: History Table Widget
+            :align: center
+
+    """
 
     def __init__(self, model, loginChanged):
         super().__init__()
@@ -17,6 +27,9 @@ class SophysHistoryTable(QWidget):
         self._setupUi(loginChanged)
 
     def handleCommand(self, cmd, title, hasConfirmation):
+        """
+            Handle button click.
+        """
         confirmation = True
         if hasConfirmation:
             confirmation = self.table.confirmationDialog(title)
@@ -25,6 +38,9 @@ class SophysHistoryTable(QWidget):
             self.table.updateIndex(self.cmd_btns)
 
     def createBtns(self, title, btn_dict):
+        """
+            Create one button for interacting with the Bluesky History.
+        """
         btn = QPushButton(title)
         hasConfirmation = "confirm" in btn_dict
         btn.clicked.connect(lambda _, hasConf=hasConfirmation,
@@ -36,6 +52,9 @@ class SophysHistoryTable(QWidget):
         return btn
 
     def getTableControls(self):
+        """
+            Create all buttons for interacting with the Bluesky History.
+        """
         glay = QGridLayout()
         for idy, btn_dict in enumerate(HISTORY_BTNS):
             key = btn_dict["title"]
@@ -49,6 +68,9 @@ class SophysHistoryTable(QWidget):
         return glay
 
     def handleLoginChanged(self, loginChanged, table):
+        """
+            Handle login or logout permissions.
+        """
         loginChanged.connect(
             lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
 
