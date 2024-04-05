@@ -16,7 +16,7 @@
     .. code-block:: python
         :linenos:
 
-        sophys-gui
+        sophys-gui --http-server HTTP_SERVER_IP  --kafka-bootstrap KAFKA_IP --kafka-topic KAFKA_TOPIC
 
     .. attention::
         You need to login in order to control the Run Engine or the Queue.
