@@ -1,4 +1,5 @@
 import typing
+import qtawesome as qta
 import typesentry
 from math import floor
 from qtpy.QtCore import Qt
@@ -194,8 +195,8 @@ class SophysForm(QDialog):
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
         if "add" in self.modalMode:
-            self.btns.addButton(QDialogButtonBox.Apply)
-            btn = self.btns.button(QDialogButtonBox.Apply)
+            btn = self.btns.addButton("Execute", QDialogButtonBox.ActionRole)
+            btn.setIcon(qta.icon("fa5s.play"))
             btn.clicked.connect(self.immediateExecution)
         self.btns.accepted.connect(self.addItemToQueue)
         self.btns.rejected.connect(self.reject)
