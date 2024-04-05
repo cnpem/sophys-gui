@@ -11,11 +11,11 @@ pages:
   script:
     - pip install git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
     - pip install git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
-    - pip install -e .
+    - pip install .
     - cd docs
     - pip install -r doc_requirements.txt
     - make html
-    - sphinx-build -b html source ../../public
+    - sphinx-build -b html source ../public
 
   artifacts:
     paths:
