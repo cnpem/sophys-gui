@@ -10,6 +10,16 @@ from .util import QUEUE_BTNS, QUEUE_TABLE_BTNS
 
 
 class SophysQueueTable(QWidget):
+    """
+        Table widget customized for interacting and monitoring
+        the Blueksy Queue.
+
+        .. image:: ./_static/queue_table.png
+            :width: 750
+            :alt: Queue Table Widget
+            :align: center
+
+    """
 
     def __init__(self, model, loginChanged):
         super().__init__()
@@ -20,11 +30,17 @@ class SophysQueueTable(QWidget):
         self._setupUi(loginChanged)
 
     def getLoopStatus(self):
+        """
+            Return the if loop queue mode is enabled.
+        """
         status = self.serverModel.run_engine.re_manager_status
         queueMode = status.get("plan_queue_mode", None)
         return queueMode.get("loop", None) if queueMode else None
 
     def updateLoopState(self, evt):
+        """
+            Update the loop widget based on its state.
+        """
         if evt.is_connected:
             loopEnabled = self.getLoopStatus()
             if loopEnabled != self.loop.state:
@@ -32,6 +48,9 @@ class SophysQueueTable(QWidget):
                 self.loop.state = loopEnabled
 
     def getLoopSwitch(self):
+        """
+            Create Loop switch widget.
+        """
         enable_loop = self.serverModel.run_engine.queue_mode_loop_enable
         self.serverModel.run_engine.events.status_changed.connect(
             self.updateLoopState)
@@ -45,6 +64,9 @@ class SophysQueueTable(QWidget):
         return loop
 
     def getHeader(self):
+        """
+            Create the Queue Table header.
+        """
         hlay = QHBoxLayout()
 
         title = getHeader("Queue")
@@ -56,6 +78,9 @@ class SophysQueueTable(QWidget):
         return hlay
 
     def handleCommand(self, cmd, title, hasConfirmation, row):
+        """
+            Handle button click.
+        """
         confirmation = True
         if hasConfirmation:
             confirmation = self.table.confirmationDialog(title)
@@ -66,6 +91,9 @@ class SophysQueueTable(QWidget):
             self.table.updateIndex(self.cmd_btns)
 
     def createSingleBtn(self, btn_dict, idx=None):
+        """
+            Create a single button for interacting with the Bluesky Queue.
+        """
         title = ""
         if "title" in btn_dict:
             title = btn_dict["title"]
@@ -83,6 +111,9 @@ class SophysQueueTable(QWidget):
         return btn
 
     def getTableControls(self):
+        """
+            Create all buttons for interacting with the Bluesky Queue.
+        """
         glay = QGridLayout()
         idx = 0
         idy = 0
@@ -102,6 +133,10 @@ class SophysQueueTable(QWidget):
         return glay
 
     def setTableOperationButtons(self, table, rowCount=None):
+        """
+            Create buttons inside a table row for interacting with
+            that specific plan.
+        """
         rows = self.queueModel.rowCount()
         colCount = self.queueModel.columnCount()-2
         self.cmd_btns["table"] = {}
@@ -118,6 +153,9 @@ class SophysQueueTable(QWidget):
             table.detectChange(rowCount, self.cmd_btns)
 
     def handleLoginChanged(self, loginChanged, table):
+        """
+            Handle login or logout permissions.
+        """
         loginChanged.connect(
             lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
         self.loop.setEnabled(False)
