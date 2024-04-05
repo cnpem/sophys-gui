@@ -49,11 +49,15 @@ class SophysOperationGUI(QMainWindow):
         self.client_data = re._client.login(
             username=username, password=password,
             provider="ldap/token")
-        self.app.saveRunEngineClient(re._client)
-        re._user_name = username
-        re._user_group = self.login._allowed_group
-        emailWid.setText("")
-        passwordWid.setText("")
+        if self.client_data:
+            self.app.saveRunEngineClient(re._client)
+            re._user_name = username
+            re._user_group = self.login._allowed_group
+            emailWid.setText("")
+            passwordWid.setText("")
+        else:
+            self.login.toggle_login_status()
+            self.logoutUser()
 
     def handleToggleUser(self, isLogged):
         """
@@ -65,7 +69,7 @@ class SophysOperationGUI(QMainWindow):
         self.logoutUser()
 
     def createLoginWidget(self):
-        login = LoginCNPEM(group="SWC")
+        login = LoginCNPEM()
         login.login_signal.connect(self.handleToggleUser)
         login._email.setMinimumWidth(150)
         login._password.setMinimumWidth(150)
