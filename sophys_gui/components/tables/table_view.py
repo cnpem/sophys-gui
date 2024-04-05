@@ -17,10 +17,6 @@ class SophysTable(QTableView):
         self.timer.timeout.connect(self.resetBorder)
         self.pressed.connect(self.selectItem)
 
-    def resetBorder(self):
-        self.setStyleSheet("QTableView{ border: 1px solid #ddd;}")
-        self.timer.stop()
-
     def getLimitsPermissions(self, sel_row, condition):
         """
             Get if the button has the necessary upper or lower permissions.
@@ -90,6 +86,13 @@ class SophysTable(QTableView):
         if resCode == QMessageBox.Yes:
             return True
         return False
+
+    def resetBorder(self):
+        """
+            Reset Border style.
+        """
+        self.setStyleSheet("QTableView{ border: 1px solid #ddd;}")
+        self.timer.stop()
 
     def detectChange(self, rowCount, cmd_btns):
         """
