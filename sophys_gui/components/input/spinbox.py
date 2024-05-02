@@ -6,6 +6,20 @@ from sophys_gui.functions import handleSpinboxWidget
 class SophysSpinBox(QWidget):
     """
         Spinbox with handlers for 'None' value, int and floats.
+
+        Normal Spinbox:
+
+        .. image:: ./_static/spinbox_val.png
+            :width: 500
+            :alt: Spinbox Widget
+            :align: center
+
+        Spinbox with None value:
+
+        .. image:: ./_static/spinbox_none.png
+            :width: 150
+            :alt: Spinbox Widget with None value
+            :align: center
     """
 
     def __init__(self, valueType):

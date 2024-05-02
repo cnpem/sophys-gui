@@ -1,5 +1,5 @@
-Welcome to SOPHYS GUI documentation!
-=======================================
+SOPHYS GUI
+==========
 
 .. automodule:: sophys_gui
    :members:
@@ -8,7 +8,7 @@ Welcome to SOPHYS GUI documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Modules:
+   :caption: Package Modules:
 
    operation
    components

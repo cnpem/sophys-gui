@@ -29,8 +29,7 @@ exclude_patterns = []
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'm2r2'
+    'sphinx.ext.napoleon'
 ]
 
 # -- Options for HTML output -------------------------------------------------

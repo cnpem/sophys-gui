@@ -1,11 +1,12 @@
 import typing
+import qtawesome as qta
 import typesentry
 from math import floor
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter
-from sophys_gui.functions import evaluateValue, getMotorInput
+from sophys_gui.functions import evaluateValue, getMotorInput, addLineJumps
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .util import UNKNOWN_TYPES
@@ -158,7 +159,7 @@ class SophysForm(QDialog):
             metadata["item_uid"] = self.selectedItemMetadata()["item_uid"]
         return metadata
 
-    def addItemToQueue(self):
+    def addItemToQueue(self, params=None):
         """
             Add or update the queue item.
         """
@@ -168,8 +169,23 @@ class SophysForm(QDialog):
         if isItemUpdate:
             self.model.queue_item_update(item=item)
         else:
-            self.model.queue_item_add(item=item)
+            self.model.queue_item_add(item=item, params=params)
         self.accept()
+
+    def addStopItem(self):
+        allowed_parameters = self.model.get_allowed_instruction_parameters
+        allowed_names = self.model.get_allowed_instruction_names
+        form = SophysForm(self.model, "add_instruction", allowed_parameters, allowed_names)
+        form.addItemToQueue({"pos": "front"})
+
+    def immediateExecution(self):
+        """
+            Execute only the created plan or instruction in this exact instant.
+        """
+        if self.chosenItem != "queue_stop":
+            self.addStopItem()
+        self.addItemToQueue({"pos": "front"})
+        self.model.queue_start()
 
     def getDialogBtns(self):
         """
@@ -178,6 +194,10 @@ class SophysForm(QDialog):
         self.btns = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
         )
+        if "add" in self.modalMode:
+            btn = self.btns.addButton("Execute", QDialogButtonBox.ActionRole)
+            btn.setIcon(qta.icon("fa5s.play"))
+            btn.clicked.connect(self.immediateExecution)
         self.btns.accepted.connect(self.addItemToQueue)
         self.btns.rejected.connect(self.reject)
 
@@ -309,7 +329,8 @@ class SophysForm(QDialog):
             inputWid = QLineEdit()
         self.handleModalMode(inputWid, paramMeta, isStr)
         if not isArgs:
-            inputWid.setToolTip(self.getInputTooltip(paramMeta))
+            tooltipMsg = self.getInputTooltip(paramMeta)
+            inputWid.setToolTip(tooltipMsg)
         return inputWid
 
     def getIsRequired(self, paramMeta, varType):

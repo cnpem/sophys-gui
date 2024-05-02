@@ -7,6 +7,9 @@ from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
 
 
 def getItemRecursively(original_obj: object, attrs: list):
+    """
+        Get item in a dictionary using a list.
+    """
     _prev = original_obj
     for attr in attrs:
         if isinstance(attr, list):
@@ -23,6 +26,9 @@ def getItemRecursively(original_obj: object, attrs: list):
 
 
 def getHeader(text):
+    """
+        Get table header.
+    """
     title = QLabel(text)
     title.setAlignment(Qt.AlignCenter)
     title.setFixedHeight(60)
@@ -37,13 +43,16 @@ def getHeader(text):
 
 def getFilePath(file_path):
     """
-        Get the absolute path for files inside the sapoti package.
+        Get the absolute path for files inside the sophys gui package.
     """
     abspath = _os.path.abspath(_os.path.dirname(__file__))
     admin_file = _os.path.join(abspath, file_path)
     return admin_file
 
 def evaluateValue(value):
+    """
+        Evaluate a string value to a python type.
+    """
     if isinstance(value, str):
         try:
             value = ast.literal_eval(value)
@@ -52,6 +61,9 @@ def evaluateValue(value):
     return value
 
 def createSingleBtn(btnDict, runEngine):
+    """
+        Create simple button.
+    """
     title = btnDict["title"]
     btn = QPushButton(title)
     btn.clicked.connect(
@@ -60,10 +72,12 @@ def createSingleBtn(btnDict, runEngine):
     return btn
 
 def addArgsToKwargs(argsList):
+    """
+        Concatenate arguments and keyword arguments.
+    """
     args = argsList[0].copy()
     argsList[1]["detectors"] = args.pop(0)
     argsList[1]["args"] = args
-
 
 def getMotorInput(paramMeta):
     separator = "-.-"
@@ -88,3 +102,24 @@ def handleSpinboxWidget(valueType):
     spinbox.setMaximumHeight(50)
     spinbox.setMaximum(10000)
     return spinbox
+
+
+def addLineJumps(message):
+    """
+        Break lines in tooltips.
+    """
+    lineSize = 30
+    newMsg = ""
+    if "\n" in message:
+        return message
+    msgArray = message.split(" ")
+    while len(msgArray) > 0:
+        newLine = ""
+        for msgLine in msgArray:
+            newLine += msgArray.pop(0)
+            if len(newLine) > lineSize:
+                newLine += "\n"
+                break
+            newLine += " "
+        newMsg += newLine
+    return newMsg

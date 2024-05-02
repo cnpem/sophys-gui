@@ -2,6 +2,7 @@ import qtawesome as qta
 from qtpy.QtCore import QSize
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QGroupBox, \
     QStackedWidget, QPushButton
+from sophys_gui.functions import addLineJumps
 from ..led import SophysLed
 from .util import CONFIG
 
@@ -37,10 +38,11 @@ class QueueController(QWidget):
         if isConn:
             statusVal = self.getRunEngineStatus("manager_state")
             envVal = self.getRunEngineStatus("worker_environment_exists")
-            runIndex = 0 if statusVal == "idle" else 1 if statusVal == "executing_queue" else 2
+            runIndex = 2 if statusVal == "paused" else 1 if statusVal == "executing_queue" else 0
             for stack in self.cmdStacks[1:]:
                 stack.setCurrentIndex(runIndex)
-
+            self.cmdStacks[1].setEnabled(envVal)
+            self.cmdStacks[0].setEnabled(runIndex==0)
             envIndex = 1 if envVal else 0
             self.cmdStacks[0].setCurrentIndex(envIndex)
 
@@ -104,7 +106,8 @@ class QueueController(QWidget):
             btn.setIconSize(QSize(20, 20))
             btn.clicked.connect(
                 lambda _, cmd=btnConfig["cmd"]: cmd(self.run_engine))
-            btn.setToolTip(btnConfig["tooltip"])
+            tooltipMsg = addLineJumps(btnConfig["tooltip"])
+            btn.setToolTip(tooltipMsg)
             if "enabled" in btnConfig:
                 btn.setEnabled(btnConfig["enabled"])
             stack.addWidget(btn)

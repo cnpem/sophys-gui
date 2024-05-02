@@ -2,11 +2,26 @@ import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
     QGridLayout, QVBoxLayout
-from sophys_gui.functions import getMotorInput
+from sophys_gui.functions import getMotorInput, addLineJumps
 from .list import SophysInputList
 
 
 class SophysInputMotor(QWidget):
+    """
+        Widget for managing plan motors.
+
+        .. image:: ./_static/motor.png
+            :width: 500
+            :alt: Motor Input Widget
+            :align: center
+
+        Motor widget with list:
+
+        .. image:: ./_static/motor_list.png
+            :width: 500
+            :alt: Motor Input Widget with List
+            :align: center
+    """
 
     def __init__(self, motorParameters, iterableInput):
         super().__init__()
@@ -71,11 +86,23 @@ class SophysInputMotor(QWidget):
             listResults.append(item.text())
         return listResults
 
+    def hasEmptyValue(self, listResults):
+        """
+            Verify if motor has empty parameter.
+        """
+        hasEmpty = False
+        for result in listResults:
+            if isinstance(result, list) and len(result) == 0:
+                return True
+        return hasEmpty
+
     def text(self):
         """
             Return motor list as a list.
         """
         listResults = self.getWidgetValues()
+        if self.hasEmptyValue(listResults):
+            return None
         orderedResults = []
         max = len(listResults[0]) if isinstance(listResults[0], list) else 1
         if max > 1:
@@ -156,7 +183,8 @@ class SophysInputMotor(QWidget):
                 isNumber = argType
             wid = self.iterableInput({"name":title}, isNumber, True)
             self.widList.append(wid)
-            wid.setTooltip(tooltip)
+            tooltipMsg = addLineJumps(tooltip)
+            wid.setTooltip(tooltipMsg)
             glay.addWidget(wid, 1, col, 1, 1)
             col += 1
 

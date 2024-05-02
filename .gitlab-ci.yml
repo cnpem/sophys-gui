@@ -1,0 +1,32 @@
+stages:
+  - docs
+
+before_script:
+  - apt-get update && apt-get autoclean
+  - apt-get install -y xvfb libdbus-1-3 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0
+  - pip install --upgrade pip
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+pages:
+  stage: docs
+  image: python:3.9-bullseye
+
+  tags:
+    - builder
+
+  script:
+    - pip install git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
+    - pip install git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
+    - pip install .
+    - cd docs
+    - pip install -r doc_requirements.txt
+    - make html
+    - sphinx-build -b html source ../public
+
+  artifacts:
+    paths:
+      - public
+  # only:
+  #   - main
