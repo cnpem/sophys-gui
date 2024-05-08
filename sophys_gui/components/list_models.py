@@ -325,17 +325,21 @@ class QueueModel(ListModel):
             allowed_names = re.get_allowed_instruction_names
         return allowed_parameters, allowed_names
 
+    def has_open_environment(self):
+        status = self._re_model.run_engine.re_manager_status
+        return status.get("worker_environment_exists", None)
+
     @Slot()
     def add_plan_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
-            allowed_parameters, allowed_names).exec()
+            allowed_parameters, allowed_names, hasEnv=self.has_open_environment()).exec()
 
     @Slot()
     def add_instruction_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("instruction")
         SophysForm(self._re_model.run_engine, "add_instruction",
-            allowed_parameters, allowed_names).exec()
+            allowed_parameters, allowed_names, hasEnv=self.has_open_environment()).exec()
 
     @Slot()
     def add_stop_queue(self):
