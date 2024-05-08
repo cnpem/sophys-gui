@@ -6,7 +6,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter
-from sophys_gui.functions import evaluateValue, getMotorInput, addLineJumps
+from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .util import UNKNOWN_TYPES
@@ -35,13 +35,14 @@ class SophysForm(QDialog):
 
     """
 
-    def __init__(self, model, modalMode, allowedParameters, allowedNames):
+    def __init__(self, model, modalMode, allowedParameters, allowedNames, hasEnv=True):
         super().__init__()
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
         self.inputWidgets = {}
         self.model = model
         self.modalMode = modalMode
+        self.hasEnv = hasEnv
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
 
@@ -197,6 +198,7 @@ class SophysForm(QDialog):
         if "add" in self.modalMode:
             btn = self.btns.addButton("Execute", QDialogButtonBox.ActionRole)
             btn.setIcon(qta.icon("fa5s.play"))
+            btn.setEnabled(self.hasEnv)
             btn.clicked.connect(self.immediateExecution)
         self.btns.accepted.connect(self.addItemToQueue)
         self.btns.rejected.connect(self.reject)
