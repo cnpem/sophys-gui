@@ -23,6 +23,7 @@ class QueueController(QWidget):
         self.run_engine = model.run_engine
         self.updateEvent = self.run_engine.events.status_changed
         self.reStatus = self.run_engine.re_manager_status
+        self.isLogged = False
         self.cmdStacks = []
 
         self._setupUi(loginChanged)
@@ -41,8 +42,9 @@ class QueueController(QWidget):
             runIndex = 2 if statusVal == "paused" else 1 if statusVal == "executing_queue" else 0
             for stack in self.cmdStacks[1:]:
                 stack.setCurrentIndex(runIndex)
-            self.cmdStacks[1].setEnabled(envVal)
-            self.cmdStacks[0].setEnabled(runIndex==0)
+            if self.isLogged:
+                self.cmdStacks[1].setEnabled(envVal)
+                self.cmdStacks[0].setEnabled(runIndex==0)
             envIndex = 1 if envVal else 0
             self.cmdStacks[0].setCurrentIndex(envIndex)
 
@@ -130,10 +132,14 @@ class QueueController(QWidget):
 
         return group
 
+    def setLogged(self):
+        self.isLogged = True
+
     def handleLoginChanged(self, loginChanged):
         for stack in self.cmdStacks:
             stack.setEnabled(False)
             loginChanged.connect(stack.setEnabled)
+        loginChanged.connect(self.setLogged)
 
     def _setupUi(self, loginChanged):
         hlay = QHBoxLayout(self)
