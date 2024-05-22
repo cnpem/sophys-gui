@@ -67,13 +67,15 @@ class ListModel(QAbstractTableModel):
         """Renders the 'Name' column item tooltips."""
         if item["item_type"] == "plan":
             info = self._re_model.run_engine.get_allowed_plan_parameters(name=name)
-            description = info["description"]
+            if "description" in info:
+                description = info["description"]
 
-            source = "From user-defined plan list"
-            if "module" in info:
-                source = "From {}".format(info["module"])
+                source = "From user-defined plan list"
+                if "module" in info:
+                    source = "From {}".format(info["module"])
 
-            return "{}\n{}".format(description, source)
+                return "{}\n{}".format(description, source)
+            return ""
 
     def userTooltipRender(self, item: dict, user: str):
         """Renders the 'User' column item tooltips."""
@@ -92,14 +94,17 @@ class ListModel(QAbstractTableModel):
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:
                 param = next(filter(lambda x: x["name"] == key, params))
-                description = param["description"]
-                try:
-                    extraIdx = description.index("-.-")
-                    description = description[:extraIdx]
-                except Exception:
-                    pass
-                description = re.sub("\n+", ". ", description)
-                tooltipRow = "{}: {}".format(key, description.capitalize())
+                if "description" in param:
+                    description = param["description"]
+                    try:
+                        extraIdx = description.index("-.-")
+                        description = description[:extraIdx]
+                    except Exception:
+                        pass
+                    description = re.sub("\n+", ". ", description)
+                    tooltipRow = "{}: {}".format(key, description.capitalize())
+                else:
+                    tooltipRow = ""
                 desc.append(addLineJumps(tooltipRow))
             return "\n".join(desc)
 
