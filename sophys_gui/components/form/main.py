@@ -374,7 +374,7 @@ class SophysForm(QDialog):
     def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
         return eval(varType) if varType != "" else object
-
+    
     def getParamPythonType(self, paramMeta):
         """
             Convert a string or an array to a python variable type.
@@ -418,11 +418,14 @@ class SophysForm(QDialog):
         inputWid = self.getInputWidget(paramMeta, paramType)
         glay.addWidget(inputWid, *pos, rowStretch, 1)
         pos[0] += 1
-
+        
+        pythonType = self.getParamPythonType(paramMeta)
+        if isinstance(pythonType, str):
+            pythonType = self.convertTypeToPythonType(pythonType)
         self.inputWidgets[title] = {
             "widget": inputWid,
             "required": isRequired,
-            "type": paramType,
+            "type": pythonType,
             "kind": paramMeta["kind"]["name"]
         }
 
