@@ -76,7 +76,8 @@ class SophysForm(QDialog):
         """
             Transform the detector value to a list if there is only one.
         """
-        value = inputWid["widget"].text()
+        widget = inputWid["widget"]
+        value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
         if isDetector and isinstance(value, str):
             value = [value]
@@ -209,7 +210,9 @@ class SophysForm(QDialog):
         """
             Set the widget value if it already has one.
         """
-        if isStr:
+        if isinstance(inputWid, QComboBox):
+            inputWid.setCurrentText(str(item))
+        elif isStr:
             inputWid.setText(str(item))
         else:
             inputWid.setValue(item)
