@@ -322,6 +322,9 @@ class SophysForm(QDialog):
 
     def getComboboxInput(self, inputType):
         combobox = QComboBox()
+        combobox.setEditable(True)
+        combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
+        combobox.setInsertPolicy(QComboBox.NoInsert)
         availableDevices = self.getAvailableDevicesType(inputType)
         if availableDevices:
             optionsList = self.getDevicesOptions(availableDevices)
