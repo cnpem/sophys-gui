@@ -127,7 +127,7 @@ class QueueController(QWidget):
         group.setMinimumWidth(300)
         hlay.setContentsMargins(25, 2, 25, 2)
 
-        for cmdBtnKey in ["start", "stop"]:
+        for cmdBtnKey in ["start", "stop", "help"]:
             self.addControlButton(cmdBtnKey, hlay)
 
         return group
