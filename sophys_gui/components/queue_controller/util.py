@@ -41,6 +41,27 @@ CONFIG = {
                 "show in the history with the aborted status."
         }
     ],
+    "help": [
+        {
+            'icon': 'fa5s.pause-circle',
+            'title': 'Pause Now',
+            'cmd': lambda _: print(""),
+            'enabled': False,
+            "tooltip": "Pause the execution now. This may cause the plan to fail later."
+        },
+        {
+            'icon': 'fa5s.pause-circle',
+            'title': 'Pause Now',
+            'cmd': lambda re: re.re_pause(option="immediate"),
+            "tooltip": "Pause the execution now. This may cause the plan to fail later."
+        },
+        {
+            'icon': 'mdi6.restore',
+            'title': 'Halt',
+            'cmd': lambda re: re.re_halt(),
+            "tooltip": "Halt the running plan."
+        }
+    ],
     "env": [
         {
             'icon': 'mdi6.progress-check',
