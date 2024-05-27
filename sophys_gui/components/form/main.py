@@ -335,11 +335,12 @@ class SophysForm(QDialog):
         """
             Get the parameter widget based on its types.
         """
-        isDevice = any([item in paramType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
-        isNumber = any([item in paramType for item in ["int", "float"]])
-        isIterable = any([item in paramType for item in ["Sequence", "Iterable", "List", "object"]])
+        strType = str(paramType)
+        isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
+        isNumber = any([item in strType for item in ["int", "float"]])
+        isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
         isArgs = "args" in paramMeta["name"]
-        isDict  = "dict" in paramType
+        isDict  = "dict" in strType
         isStr = not (isNumber or isDict or isIterable)
         if isDict:
             inputWid = SophysInputDict()
