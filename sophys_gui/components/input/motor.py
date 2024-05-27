@@ -188,7 +188,6 @@ class SophysInputMotor(QWidget):
             glay.addWidget(wid, 1, col, 1, 1)
             col += 1
 
-
     def _setupUi(self):
         glay = QGridLayout(self)
         glay.setSpacing(2)
