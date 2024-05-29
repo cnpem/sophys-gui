@@ -340,7 +340,7 @@ class SophysForm(QDialog):
         isNumber = any([item in strType for item in ["int", "float"]])
         isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
         isArgs = "args" in paramMeta["name"]
-        isDict  = "dict" in strType
+        isDict  = "dict" in strType or "kwargs" in paramMeta["name"]
         isStr = not (isNumber or isDict or isIterable)
         if isDict:
             inputWid = SophysInputDict()
