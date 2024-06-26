@@ -302,7 +302,7 @@ class SophysForm(QDialog):
             if availableDevices:
                 optionsList = self.getDevicesOptions(availableDevices)
             else:
-                inputType = "int" if "int" in inputType else "float"
+                inputType = "int" if "int" in inputType else "float" if "float" in inputType else None
         return SophysInputList(optionsList, inputType, not isGrouped)
 
     def getInputTooltip(self, param):
