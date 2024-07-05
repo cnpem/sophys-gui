@@ -14,7 +14,7 @@ class ListModel(QAbstractTableModel):
 
     def statusRender(self, item: dict, status: str):
         """Renders the 'Status' column items."""
-        return str(status.capitalize())
+        return str(status)
 
     def typeRender(self, item: dict, type: str):
         """Renders the 'Type' column items."""
@@ -61,7 +61,7 @@ class ListModel(QAbstractTableModel):
 
     def typeTooltipRender(self, item: dict, type: str):
         """Renders the 'Type' column item tooltips."""
-        return str(type.capitalize())
+        return str(type)
 
     def nameTooltipRender(self, item: dict, name: str):
         """Renders the 'Name' column item tooltips."""
@@ -102,7 +102,7 @@ class ListModel(QAbstractTableModel):
                     except Exception:
                         pass
                     description = re.sub("\n+", ". ", description)
-                    tooltipRow = "{}: {}".format(key, description.capitalize())
+                    tooltipRow = "{}: {}".format(key, description)
                 else:
                     tooltipRow = ""
                 desc.append(addLineJumps(tooltipRow))

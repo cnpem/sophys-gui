@@ -317,7 +317,7 @@ class SophysForm(QDialog):
                 description = description[:extraIdx]
             except Exception:
                 pass
-            return description.capitalize()
+            return description
         return ""
 
     def getComboboxInput(self, inputType):
@@ -490,7 +490,7 @@ class SophysForm(QDialog):
         group.setMaximumHeight(75)
         hlay = QHBoxLayout()
         group.setLayout(hlay)
-        group.setTitle(self.itemType.capitalize())
+        group.setTitle(self.itemType)
 
         combobox = QComboBox()
         combobox.setEditable(True)
