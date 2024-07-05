@@ -96,7 +96,8 @@ def handleSpinboxWidget(valueType):
     isFloat = valueType == 'float'
     if isFloat:
         spinbox = QDoubleSpinBox()
-        spinbox.setSingleStep(0.1)
+        spinbox.setSingleStep(0.001)
+        spinbox.setDecimals(4)
     else:
         spinbox = QSpinBox()
     spinbox.setMaximumHeight(50)
