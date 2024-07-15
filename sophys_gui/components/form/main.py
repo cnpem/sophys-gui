@@ -328,7 +328,7 @@ class SophysForm(QDialog):
         availableDevices = self.getAvailableDevicesType(inputType)
         if availableDevices:
             optionsList = self.getDevicesOptions(availableDevices)
-            combobox.addItems(optionsList)
+            combobox.addItems(sorted(optionsList))
         return combobox
 
     def getInputWidget(self, paramMeta, paramType):
