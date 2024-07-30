@@ -1,4 +1,4 @@
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
     QGridLayout, QTabWidget, QApplication
 from sophys_gui.components import SophysQueueTable, \
@@ -10,6 +10,8 @@ from sophys_gui.functions import addLineJumps
 
 
 class SophysOperationGUI(QMainWindow):
+
+    loginChanged = Signal([bool])
 
     def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False):
         super().__init__()
@@ -47,12 +49,9 @@ class SophysOperationGUI(QMainWindow):
         passwordWid = self.login._password
         username = emailWid.text()
         password = passwordWid.text()
-        if not self.has_api_key:
-            self.client_data = re._client.login(
-                username=username, password=password,
-                provider="ldap/token")
-        else:
-            self.client_data = None
+        self.client_data = re._client.login(
+            username=username, password=password,
+            provider="ldap/token")
         if self.client_data:
             self.app.saveRunEngineClient(re._client)
             re._user_name = username
@@ -84,18 +83,18 @@ class SophysOperationGUI(QMainWindow):
         login.setToolTip(tooltip_msg)
         return login
 
-    def queueControls(self, loginChanged):
+    def queueControls(self):
         """
             Widgets for controlling the Queue Server.
         """
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, loginChanged)
+        queue = SophysQueueTable(self.model, self.loginChanged)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, loginChanged)
+        running = SophysRunningItem(self.model, self.loginChanged)
         hsplitter.addWidget(running)
 
-        history = SophysHistoryTable(self.model, loginChanged)
+        history = SophysHistoryTable(self.model, self.loginChanged)
         hsplitter.addWidget(history)
 
         hsplitter.setSizes([500, 100, 500])
@@ -121,17 +120,18 @@ class SophysOperationGUI(QMainWindow):
         glay = QGridLayout()
         wid.setLayout(glay)
 
-        self.login = self.createLoginWidget()
-        self.login.setMaximumWidth(500)
-        loginChanged = self.login.login_signal
-        glay.addWidget(self.login, 0, 2, 1, 1)
+        if not self.has_api_key:
+            self.login = self.createLoginWidget()
+            self.login.setMaximumWidth(500)
+            self.loginChanged = self.login.login_signal
+            glay.addWidget(self.login, 0, 2, 1, 1)
 
-        controller = QueueController(self.model, loginChanged)
-        glay.addWidget(controller, 0, 0, 1, 2)
+        controller = QueueController(self.model, self.loginChanged)
+        glay.addWidget(controller, 0, 0, 1, 3 if self.has_api_key else 2)
 
         vsplitter = QSplitter(Qt.Vertical)
 
-        hsplitter = self.queueControls(loginChanged)
+        hsplitter = self.queueControls()
         vsplitter.addWidget(hsplitter)
 
         monitorTabs = self.monitorWidgets()
@@ -139,5 +139,8 @@ class SophysOperationGUI(QMainWindow):
         vsplitter.addWidget(monitorTabs)
 
         glay.addWidget(vsplitter, 1, 0, 1, 3)
-
         self.setCentralWidget(wid)
+
+        if self.has_api_key:
+            self.loginChanged.emit(True)
+        else:

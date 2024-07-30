@@ -25,7 +25,7 @@ class ServerModel:
             self.run_engine = RunEngineClient(
                 http_server_uri=http_server_uri
             )
-
+            
         self.server_callback(
             lambda status: status["plan_queue_uid"] != self.run_engine._plan_queue_uid,
             self.run_engine.manager_connecting_ops)
