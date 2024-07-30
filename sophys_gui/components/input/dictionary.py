@@ -45,7 +45,6 @@ class SophysInputDict(QWidget):
         self.inputDict[key] = newValue
         self.toggleEditRow(row, 0)
         self.inputWid[row][1].currentWidget().setText(newValue)
-        self.inputWid[row][1].currentWidget().setText(newValue)
 
     def toggleEditRow(self, row, value):
         for col in range(1, 3):
