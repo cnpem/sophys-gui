@@ -11,11 +11,12 @@ from sophys_gui.functions import addLineJumps
 
 class SophysOperationGUI(QMainWindow):
 
-    def __init__(self, model, kafka_ip, kafka_topic):
+    def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False):
         super().__init__()
 
         self._kafka_ip = kafka_ip
         self._kafka_topic = kafka_topic
+        self.has_api_key = has_api_key
 
         self.model = model
         self.runEngine = self.model.run_engine
@@ -46,9 +47,12 @@ class SophysOperationGUI(QMainWindow):
         passwordWid = self.login._password
         username = emailWid.text()
         password = passwordWid.text()
-        self.client_data = re._client.login(
-            username=username, password=password,
-            provider="ldap/token")
+        if not self.has_api_key:
+            self.client_data = re._client.login(
+                username=username, password=password,
+                provider="ldap/token")
+        else:
+            self.client_data = None
         if self.client_data:
             self.app.saveRunEngineClient(re._client)
             re._user_name = username
