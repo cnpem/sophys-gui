@@ -22,10 +22,10 @@ class SophysSpinBox(QWidget):
             :align: center
     """
 
-    def __init__(self, valueType):
+    def __init__(self, valueType, isRequired = True):
         super().__init__()
         self.value = None
-        self._setupUi(valueType)
+        self._setupUi(valueType, isRequired)
 
     def text(self):
         """
@@ -61,20 +61,21 @@ class SophysSpinBox(QWidget):
         if isNone:
             self.value = ''
 
-    def _setupUi(self, valueType):
+    def _setupUi(self, valueType, isRequired):
         hlay = QHBoxLayout(self)
 
-        self.cb = QCheckBox()
-        hlay.addWidget(self.cb)
-
         self.stack = QStackedWidget()
-        hlay.addWidget(self.stack)
 
-        noneLbl = QLabel("None")
-        self.stack.addWidget(noneLbl)
+        if not isRequired:
+            self.cb = QCheckBox()
+            hlay.addWidget(self.cb)
+            self.cb.clicked.connect(self.toggleStack)
+
+            noneLbl = QLabel("None")
+            self.stack.addWidget(noneLbl)
 
         self.spinbox = handleSpinboxWidget(valueType)
         self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)
 
-        self.cb.clicked.connect(self.toggleStack)
+        hlay.addWidget(self.stack)
