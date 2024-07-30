@@ -340,9 +340,8 @@ class SophysForm(QDialog):
         isNumber = any([item in strType for item in ["int", "float"]])
         isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
         isArgs = "args" in paramMeta["name"]
-        isDict  = "dict" in strType or "kwargs" in paramMeta["name"]
-        isStr = not (isNumber or isDict or isIterable)
-        if isDict:
+        isDict  = "dict" in strType
+        isStr = False
             inputWid = SophysInputDict()
         elif isArgs:
             inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
@@ -355,6 +354,7 @@ class SophysForm(QDialog):
             inputWid = SophysSpinBox(numericType)
             inputWid.setMaximumHeight(50)
         else:
+            isStr = True
             inputWid = QLineEdit()
         self.handleModalMode(inputWid, paramMeta, isStr)
         if not isArgs:
