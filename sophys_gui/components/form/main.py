@@ -325,6 +325,9 @@ class SophysForm(QDialog):
         combobox.setEditable(True)
         combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
         combobox.setInsertPolicy(QComboBox.NoInsert)
+        if inputType == "bool":
+            combobox.addItems(["True", "False"])
+            
         availableDevices = self.getAvailableDevicesType(inputType)
         if availableDevices:
             optionsList = self.getDevicesOptions(availableDevices)
@@ -339,9 +342,13 @@ class SophysForm(QDialog):
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
         isNumber = any([item in strType for item in ["int", "float"]])
         isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
+        isBool = "bool" in strType
         isArgs = "args" in paramMeta["name"]
         isDict  = "dict" in strType
         isStr = False
+        if isBool:
+            inputWid = self.getComboboxInput("bool")
+        elif isDict:
             inputWid = SophysInputDict()
         elif isArgs:
             inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
