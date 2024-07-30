@@ -22,7 +22,7 @@ def main():
 
     app = SophysApplication(sys.argv)
 
-    window = SophysOperationGUI(__backend_model, args.kafka_bootstrap, args.kafka_topic)
+    window = SophysOperationGUI(__backend_model, args.kafka_bootstrap, args.kafka_topic, args.http_server_api_key)
     window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
     window.setWindowTitle("SOPHYS GUI")
     window.show()
