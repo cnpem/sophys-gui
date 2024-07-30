@@ -334,7 +334,7 @@ class SophysForm(QDialog):
             combobox.addItems(optionsList)
         return combobox
 
-    def getInputWidget(self, paramMeta, paramType):
+    def getInputWidget(self, paramMeta, paramType, isRequired):
         """
             Get the parameter widget based on its types.
         """
@@ -358,7 +358,7 @@ class SophysForm(QDialog):
             inputWid = self.getComboboxInput(paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
-            inputWid = SophysSpinBox(numericType)
+            inputWid = SophysSpinBox(numericType, isRequired)
             inputWid.setMaximumHeight(50)
         else:
             isStr = True
@@ -429,7 +429,7 @@ class SophysForm(QDialog):
         pos[0] += 1
 
         rowStretch = 1 if title != "md" else 6 - pos[0]
-        inputWid = self.getInputWidget(paramMeta, paramType)
+        inputWid = self.getInputWidget(paramMeta, paramType, isRequired)
         glay.addWidget(inputWid, *pos, rowStretch, 1)
         pos[0] += 1
         
