@@ -12,14 +12,20 @@ class ServerModel:
         Class for monitoring and communicating with the Bluesky Run Engine.
     """
 
-    def __init__(self, http_server_uri):
+    def __init__(self, http_server_uri, api_key=None):
         """
             Start the Run Engine client and monitor some aspects of it.
         """
-        self.run_engine = RunEngineClient(
-            http_server_uri=http_server_uri
-        )
-
+        if api_key is not None:
+            self.run_engine = RunEngineClient(
+                http_server_uri=http_server_uri,
+                http_server_api_key=api_key
+            )
+        else:
+            self.run_engine = RunEngineClient(
+                http_server_uri=http_server_uri
+            )
+            
         self.server_callback(
             lambda status: status["plan_queue_uid"] != self.run_engine._plan_queue_uid,
             self.run_engine.manager_connecting_ops)
