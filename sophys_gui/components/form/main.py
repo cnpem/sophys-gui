@@ -325,13 +325,16 @@ class SophysForm(QDialog):
         combobox.setEditable(True)
         combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
         combobox.setInsertPolicy(QComboBox.NoInsert)
+        if inputType == "bool":
+            combobox.addItems(["True", "False"])
+            
         availableDevices = self.getAvailableDevicesType(inputType)
         if availableDevices:
             optionsList = self.getDevicesOptions(availableDevices)
             combobox.addItems(sorted(optionsList))
         return combobox
 
-    def getInputWidget(self, paramMeta, paramType):
+    def getInputWidget(self, paramMeta, paramType, isRequired):
         """
             Get the parameter widget based on its types.
         """
@@ -339,10 +342,13 @@ class SophysForm(QDialog):
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
         isNumber = any([item in strType for item in ["int", "float"]])
         isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
+        isBool = "bool" in strType
         isArgs = "args" in paramMeta["name"]
-        isDict  = "dict" in strType or "kwargs" in paramMeta["name"]
-        isStr = not (isNumber or isDict or isIterable)
-        if isDict:
+        isDict  = "dict" in strType
+        isStr = False
+        if isBool:
+            inputWid = self.getComboboxInput("bool")
+        elif isDict:
             inputWid = SophysInputDict()
         elif isArgs:
             inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
@@ -352,9 +358,10 @@ class SophysForm(QDialog):
             inputWid = self.getComboboxInput(paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
-            inputWid = SophysSpinBox(numericType)
+            inputWid = SophysSpinBox(numericType, isRequired)
             inputWid.setMaximumHeight(50)
         else:
+            isStr = True
             inputWid = QLineEdit()
         self.handleModalMode(inputWid, paramMeta, isStr)
         if not isArgs:
@@ -422,7 +429,7 @@ class SophysForm(QDialog):
         pos[0] += 1
 
         rowStretch = 1 if title != "md" else 6 - pos[0]
-        inputWid = self.getInputWidget(paramMeta, paramType)
+        inputWid = self.getInputWidget(paramMeta, paramType, isRequired)
         glay.addWidget(inputWid, *pos, rowStretch, 1)
         pos[0] += 1
         
