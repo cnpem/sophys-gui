@@ -25,7 +25,8 @@ class SophysSpinBox(QWidget):
     def __init__(self, valueType, isRequired = True):
         super().__init__()
         self.value = None
-        self._setupUi(valueType, isRequired)
+        self.isRequired = isRequired
+        self._setupUi(valueType)
 
     def text(self):
         """
@@ -49,7 +50,8 @@ class SophysSpinBox(QWidget):
         else:
             self.spinbox.setValue(float(value) if isinstance(self.spinbox, QDoubleSpinBox) else int(value))
             self.stack.setCurrentIndex(1)
-            self.cb.setChecked(True)
+            if not self.isRequired:
+                self.cb.setChecked(True)
         self.value = value
 
     def toggleStack(self, value):
@@ -61,12 +63,12 @@ class SophysSpinBox(QWidget):
         if isNone:
             self.value = ''
 
-    def _setupUi(self, valueType, isRequired):
+    def _setupUi(self, valueType):
         hlay = QHBoxLayout(self)
 
         self.stack = QStackedWidget()
 
-        if not isRequired:
+        if not self.isRequired:
             self.cb = QCheckBox()
             hlay.addWidget(self.cb)
             self.cb.clicked.connect(self.toggleStack)
@@ -75,6 +77,8 @@ class SophysSpinBox(QWidget):
             self.stack.addWidget(noneLbl)
 
         self.spinbox = handleSpinboxWidget(valueType)
+        self.spinbox.setMinimum(-10000)
+        self.spinbox.setMaximum(10000)
         self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)
 
