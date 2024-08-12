@@ -143,4 +143,3 @@ class SophysOperationGUI(QMainWindow):
 
         if self.has_api_key:
             self.loginChanged.emit(True)
-        else:
