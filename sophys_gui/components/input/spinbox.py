@@ -24,7 +24,7 @@ class SophysSpinBox(QWidget):
 
     def __init__(self, valueType, isRequired = True):
         super().__init__()
-        self.value = None
+        self.value = 0 if isRequired else None
         self.isRequired = isRequired
         self._setupUi(valueType)
 
@@ -44,7 +44,7 @@ class SophysSpinBox(QWidget):
         """
             Add pre-existing value to the widget.
         """
-        isNone = not value or value == '' or value == 'None'
+        isNone = value == '' or value == 'None'
         if isNone:
             self.stack.setCurrentIndex(0)
         else:
@@ -59,7 +59,7 @@ class SophysSpinBox(QWidget):
             Change stack value between None and a chosen value.
         """
         self.stack.setCurrentIndex(value)
-        isNone = not value
+        isNone = value == '' or value == 'None'
         if isNone:
             self.value = ''
 
@@ -79,7 +79,7 @@ class SophysSpinBox(QWidget):
         self.spinbox = handleSpinboxWidget(valueType)
         self.spinbox.setMinimum(-10000)
         self.spinbox.setMaximum(10000)
-        self.spinbox.valueChanged.connect(self.setValue)
         self.stack.addWidget(self.spinbox)
+        self.spinbox.setValue(0)
 
         hlay.addWidget(self.stack)
