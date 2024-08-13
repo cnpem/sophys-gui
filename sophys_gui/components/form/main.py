@@ -295,7 +295,7 @@ class SophysForm(QDialog):
             Handle iterable inputs with pre existing options.
         """
         optionsList = None
-        if "motor" in paramMeta["name"]:
+        if "motor" in paramMeta["name"] or "device" in paramMeta["name"]:
             inputType = "__MOVABLE__"
         if inputType:
             availableDevices = self.getAvailableDevicesType(inputType)
