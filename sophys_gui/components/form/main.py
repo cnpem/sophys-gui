@@ -224,6 +224,8 @@ class SophysForm(QDialog):
         placeHolderType = any([isinstance(inputWid, widType) for widType in [QLineEdit, SophysSpinBox]])
         if placeHolderType:
             default = ""
+            if isinstance(inputWid, SophysSpinBox):
+                default = 0
             if "default" in paramMeta:
                 default = paramMeta["default"]
             inputWid.setPlaceholderText(default)
