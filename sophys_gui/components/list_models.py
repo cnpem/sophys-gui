@@ -93,7 +93,12 @@ class ListModel(QAbstractTableModel):
         if item["item_type"] == "plan":
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:
-                param = next(filter(lambda x: x["name"] == key, params))
+                matches = list(filter(lambda x: x["name"] == key, params))
+                if len(matches) == 0:
+                    continue
+
+                param = matches[0]
+
                 if "description" in param:
                     description = param["description"]
                     try:
