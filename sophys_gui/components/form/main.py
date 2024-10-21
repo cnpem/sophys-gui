@@ -168,6 +168,7 @@ class SophysForm(QDialog):
         itemParameters = self.getItemParameters()
         item = self.getItemMetadata(itemParameters)
         isItemUpdate = "edit" in self.modalMode
+        
         if isItemUpdate:
             self.model.queue_item_update(item=item)
         else:
@@ -468,9 +469,13 @@ class SophysForm(QDialog):
             Update the current plan input parameters.
         """
         itemAllowedParams = self.allowedParameters(name=currentItem)
+
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
+
+        if "description" in itemAllowedParams:
+            self.plan_description.setText(itemAllowedParams["description"])
 
         self.chosenItem = itemAllowedParams["name"]
         group.setTitle(self.chosenItem)
@@ -497,8 +502,8 @@ class SophysForm(QDialog):
         """
         group = QGroupBox()
         group.setMaximumHeight(75)
-        hlay = QHBoxLayout()
-        group.setLayout(hlay)
+        vlay = QVBoxLayout()
+        group.setLayout(vlay)
         group.setTitle(self.itemType)
 
         combobox = QComboBox()
@@ -510,7 +515,10 @@ class SophysForm(QDialog):
         combobox.activated.connect(
             lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
         currItem = combobox.currentText()
-        hlay.addWidget(combobox)
+        vlay.addWidget(combobox)
+
+        self.plan_description = QLabel()
+        vlay.addWidget(self.plan_description)
 
         return group, currItem
 
