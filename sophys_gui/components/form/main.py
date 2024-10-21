@@ -523,7 +523,7 @@ class SophysForm(QDialog):
         return group, currItem
 
     def setupUi(self):
-        self.setMaximumSize(1000, 500)
+        self.setMaximumSize(1500, 1000)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.group = QGroupBox()
