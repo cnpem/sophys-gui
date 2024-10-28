@@ -35,7 +35,7 @@ class SophysForm(QDialog):
 
     """
 
-    def __init__(self, model, modalMode, allowedParameters, allowedNames, hasEnv=True):
+    def __init__(self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path=""):
         super().__init__()
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
@@ -43,6 +43,9 @@ class SophysForm(QDialog):
         self.model = model
         self.modalMode = modalMode
         self.hasEnv = hasEnv
+        self.plan_description = None
+        self.metadata_file_path = None
+        self.global_metadata_path = metadata_file_path
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
 
@@ -140,7 +143,11 @@ class SophysForm(QDialog):
             elif isRequired:
                 isValid = False
                 exception = "002: Missing required fields!!"
-
+            if key == "md" and self.metadata_file_path != None:
+                if not hasParam:
+                    inputValues["kwargs"]["md"] = {}
+                inputValues["kwargs"]["md"]["metadata_save_file_location"] = self.metadata_file_path.text()
+                self.global_metadata_path(self.metadata_file_path.text())
         if not isValid:
             raise Exception(exception)
         return inputValues
@@ -168,6 +175,7 @@ class SophysForm(QDialog):
         itemParameters = self.getItemParameters()
         item = self.getItemMetadata(itemParameters)
         isItemUpdate = "edit" in self.modalMode
+        
         if isItemUpdate:
             self.model.queue_item_update(item=item)
         else:
@@ -468,9 +476,13 @@ class SophysForm(QDialog):
             Update the current plan input parameters.
         """
         itemAllowedParams = self.allowedParameters(name=currentItem)
+
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
+
+        if "description" in itemAllowedParams and self.plan_description != None:
+            self.plan_description.setText(itemAllowedParams["description"])
 
         self.chosenItem = itemAllowedParams["name"]
         group.setTitle(self.chosenItem)
@@ -490,15 +502,15 @@ class SophysForm(QDialog):
             glay.addWidget(self.getNoParametersLabel())
         self.updateParametersLayout(group)
 
-    def getItemCombbox(self):
+    def getGeneralPlanData(self):
         """
             Create combobox for choosing the plan or instruction to add.
             Only appear when creating a new plan or instruction.
         """
         group = QGroupBox()
-        group.setMaximumHeight(75)
-        hlay = QHBoxLayout()
-        group.setLayout(hlay)
+        group.setMaximumHeight(150)
+        vlay = QVBoxLayout()
+        group.setLayout(vlay)
         group.setTitle(self.itemType)
 
         combobox = QComboBox()
@@ -510,12 +522,23 @@ class SophysForm(QDialog):
         combobox.activated.connect(
             lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
         currItem = combobox.currentText()
-        hlay.addWidget(combobox)
+        vlay.addWidget(combobox)
+
+        self.plan_description = QLabel()
+        vlay.addWidget(self.plan_description)
+
+        if self.itemType == "plan":
+            hbox = QHBoxLayout()
+            metadata_lbl = QLabel("Metadata File Path")
+            hbox.addWidget(metadata_lbl)
+            self.metadata_file_path = QLineEdit(self.global_metadata_path())
+            hbox.addWidget(self.metadata_file_path)
+            vlay.addLayout(hbox)
 
         return group, currItem
 
     def setupUi(self):
-        self.setMaximumSize(1000, 500)
+        self.setMaximumSize(1500, 1000)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.group = QGroupBox()
@@ -524,7 +547,7 @@ class SophysForm(QDialog):
 
         isAddition = "add" in self.modalMode
         if isAddition:
-            itemCombbox, currItem = self.getItemCombbox()
+            itemCombbox, currItem = self.getGeneralPlanData()
             lay.addWidget(itemCombbox)
         else:
             currItem = self.selectedItemMetadata()["name"]
