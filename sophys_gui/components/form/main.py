@@ -126,7 +126,8 @@ class SophysForm(QDialog):
             value = self.handleDetectorValue(inputWid, key)
             hasParam = self.getHasParameters(value)
             if hasParam:
-                value = evaluateValue(value)
+                if not isinstance(inputWid["widget"], QLineEdit):
+                    value = evaluateValue(value)
                 validParam = self.verifyValueType(value, inputWid["type"])
                 if validParam:
                     isDetectors = inputWid["kind"] == "POSITIONAL_ONLY"
