@@ -1,6 +1,6 @@
 from qtpy.QtWidgets import QWidget, QLabel, QHBoxLayout, \
     QHBoxLayout, QStackedWidget, QCheckBox, QDoubleSpinBox
-from sophys_gui.functions import handleSpinboxWidget
+from sophys_gui.functions import handleSpinboxWidget, handle_none_params
 
 
 class SophysSpinBox(QWidget):
@@ -22,11 +22,12 @@ class SophysSpinBox(QWidget):
             :align: center
     """
 
-    def __init__(self, valueType, isRequired = True):
+    def __init__(self, valueType, isRequired = True, **kwargs):
         super().__init__()
         self.value = 0 if isRequired else None
         self.isRequired = isRequired
         self._setupUi(valueType)
+
 
     def text(self):
         """
@@ -85,3 +86,26 @@ class SophysSpinBox(QWidget):
         self.stack.addWidget(self.spinbox)
 
         hlay.addWidget(self.stack)
+
+
+class SpinFacade:
+
+    @handle_none_params
+    def meta_parameters_parser(self,
+                               min=-10000,
+                               max=10000,
+                               default=0,
+                               step=1,
+                               description='No available description',
+                               **kwargs):
+
+        self.sping_widget.spinbox.setMinimum(self.format_converter(min))
+        self.sping_widget.spinbox.setMaximum(self.format_converter(max))
+        self.sping_widget.spinbox.setSingleStep(self.format_converter(step))
+        self.sping_widget.spinbox.setValue(self.format_converter(default))
+
+    def __init__(self, *args, spinbox: SophysSpinBox, **kwargs):
+        self.sping_widget = spinbox(*args)
+        self.format_converter = float if isinstance(self.sping_widget.spinbox, QDoubleSpinBox) else int
+        self.meta_parameters_parser(**kwargs)
+
