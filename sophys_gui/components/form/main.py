@@ -7,7 +7,7 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter, QComboBox
 from sophys_gui.functions import evaluateValue, getMotorInput
-from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
+from ..input import SophysInputList, SophysInputDict, SophysSpinBox, SpinFacade, \
     SophysInputMotor
 from .util import UNKNOWN_TYPES
 
@@ -369,7 +369,8 @@ class SophysForm(QDialog):
             inputWid = self.getComboboxInput(paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
-            inputWid = SophysSpinBox(numericType, isRequired)
+            spinbox_facade = SpinFacade(numericType, isRequired, spinbox=SophysSpinBox, **paramMeta)
+            inputWid = spinbox_facade.sping_widget
             inputWid.setMaximumHeight(50)
         else:
             isStr = True
