@@ -1,6 +1,7 @@
 import qtawesome as qta
 import os as _os
 import ast
+import inspect
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
     QSpinBox
@@ -88,6 +89,24 @@ def getMotorInput(paramMeta):
         return motorTyping
     return None
 
+def handle_none_params(fn):
+    """
+    Decorator to replace `None` parameters with their default values
+    if defaults are defined in the function/method signature.
+    """
+    def wrapper(*args, **kwargs):
+        sig = inspect.signature(fn)
+        bound_args = sig.bind_partial(*args, **kwargs)
+        bound_args.apply_defaults()
+    
+        for param in sig.parameters.values():
+            if param.name != 'self':
+                if bound_args.arguments.get(param.name) is None or bound_args.arguments.get(param.name) == 'None':
+                    bound_args.arguments[param.name] = param.default
+        
+        return fn(*bound_args.args, **bound_args.kwargs)
+    
+    return wrapper
 
 def handleSpinboxWidget(valueType):
     """
