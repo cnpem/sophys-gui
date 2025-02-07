@@ -143,3 +143,8 @@ class SophysOperationGUI(QMainWindow):
 
         if self.has_api_key:
             self.loginChanged.emit(True)
+
+        self.login._email.setText("rafael.lyra")
+        self.login._password.setText("Si74ri-56uS")
+        self.loginChanged.emit(True)
+        
