@@ -14,4 +14,4 @@ dependencies:
         - typesentry==0.2.7
         - git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
         - git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
-        - git+https://gitlab.cnpem.br/SOL/bluesky/sophys-gui.git
+        - git+https://github.com/cnpem/sophys-gui.git

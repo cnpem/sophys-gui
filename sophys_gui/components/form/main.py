@@ -103,8 +103,15 @@ class SophysForm(QDialog):
             Verify if the inserted value is valid.
         """
         valueList, widType = self.handleNonMotorTypes(valueList, widType)
+        for idx, types in enumerate(widType):
+            generic_type = str(types)
+            if "typing.Literal" in generic_type:
+                del widType[idx]
+                del valueList[idx]
         try:
             widTypeLen = len(widType)
+            if widTypeLen == 0:
+                return True
             return any([
                 typesentry.Config().is_type(value, widType[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(valueList)
             ])
@@ -336,11 +343,16 @@ class SophysForm(QDialog):
         combobox.setEditable(True)
         combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
         combobox.setInsertPolicy(QComboBox.NoInsert)
-        if inputType == "bool":
-            combobox.addItems(["True", "False"])
-            
+
         availableDevices = self.getAvailableDevicesType(inputType)
-        if availableDevices:
+        if "bool" in inputType:
+            combobox.addItems(["True", "False"])
+        elif "Literal" in inputType:
+            literal_idx = inputType.index("Literal")
+            splitStr = inputType[literal_idx+8:].replace("'", "").replace(" ", "")
+            options_end_idx = splitStr.index("]")
+            combobox.addItems(splitStr[:options_end_idx].split(","))
+        elif availableDevices:
             optionsList = self.getDevicesOptions(availableDevices)
             combobox.addItems(sorted(optionsList))
         return combobox
@@ -352,20 +364,19 @@ class SophysForm(QDialog):
         strType = str(paramType)
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
         isNumber = any([item in strType for item in ["int", "float"]])
-        isIterable = any([item in strType for item in ["Sequence", "Iterable", "List", "object"]])
+        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
         isBool = "bool" in strType
+        isLiteral = "Literal" in strType
         isArgs = "args" in paramMeta["name"]
         isDict  = "dict" in strType
         isStr = False
-        if isBool:
-            inputWid = self.getComboboxInput("bool")
-        elif isDict:
+        if isDict:
             inputWid = SophysInputDict()
         elif isArgs:
             inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
-        elif isIterable:
+        elif isIterable and not isBool:
             inputWid = self.getIterableInput(paramMeta, paramType)
-        elif isDevice:
+        elif isDevice or isLiteral or isBool:
             inputWid = self.getComboboxInput(paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
@@ -477,7 +488,7 @@ class SophysForm(QDialog):
             Update the current plan input parameters.
         """
         itemAllowedParams = self.allowedParameters(name=currentItem)
-
+        
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
