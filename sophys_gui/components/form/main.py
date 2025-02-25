@@ -35,7 +35,9 @@ class SophysForm(QDialog):
 
     """
 
-    def __init__(self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path=""):
+    def __init__(
+            self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
+            form_gui_widget = ""):
         super().__init__()
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
@@ -47,7 +49,7 @@ class SophysForm(QDialog):
         self.metadata_file_path = None
         self.global_metadata_path = metadata_file_path
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
-        self.setupUi()
+        self.setupUi(form_gui_widget)
 
     def keyPressEvent(self: QDialog, event: object) -> None:
         """
@@ -528,7 +530,7 @@ class SophysForm(QDialog):
         self.plan_description = QLabel()
         vlay.addWidget(self.plan_description)
 
-        if self.itemType == "plan":
+        if self.itemType == "plan" and self.global_metadata_path != "":
             hbox = QHBoxLayout()
             metadata_lbl = QLabel("Metadata File Path")
             hbox.addWidget(metadata_lbl)
@@ -538,7 +540,7 @@ class SophysForm(QDialog):
 
         return group, currItem
 
-    def setupUi(self):
+    def setupUi(self, form_gui_widget):
         self.setMaximumSize(1500, 1000)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
@@ -547,16 +549,19 @@ class SophysForm(QDialog):
         lay = QVBoxLayout(self)
 
         isAddition = "add" in self.modalMode
-        if isAddition:
-            itemCombbox, currItem = self.getGeneralPlanData()
-            lay.addWidget(itemCombbox)
+        if len(form_gui_widget) > 0:
+            currItem = form_gui_widget
         else:
-            currItem = self.selectedItemMetadata()["name"]
+            if isAddition:
+                itemCombbox, currItem = self.getGeneralPlanData()
+                lay.addWidget(itemCombbox)
+            else:
+                currItem = self.selectedItemMetadata()["name"]
 
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 
-        btns = self.getDialogBtns()
+        btns = self.getDialogBtns(len(form_gui_widget) == 0)
         lay.addWidget(btns)
 
         app = QApplication.instance()
