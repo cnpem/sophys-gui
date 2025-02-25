@@ -1,3 +1,4 @@
+import time
 import typing
 import qtawesome as qta
 import typesentry
@@ -478,7 +479,14 @@ class SophysForm(QDialog):
         """
             Update the current plan input parameters.
         """
-        itemAllowedParams = self.allowedParameters(name=currentItem)
+        itemAllowedParams = None
+        retry_count = 0
+        while itemAllowedParams == None or retry_count > 5:
+            itemAllowedParams = self.allowedParameters(name=currentItem)
+            time.sleep(0.2)
+            retry_count += 1
+        if retry_count > 5:
+            raise Exception()
 
         group = QGroupBox()
         glay = QGridLayout()
