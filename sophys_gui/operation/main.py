@@ -1,12 +1,10 @@
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget, QApplication
+    QGridLayout, QTabWidget
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
-    SophysConsoleMonitor
+    SophysConsoleMonitor, SophysLogin
 from kafka_bluesky_live.live_view import LiveView, VisualElements
-from suitscase import LoginCNPEM
-from sophys_gui.functions import addLineJumps
 
 
 class SophysOperationGUI(QMainWindow):
@@ -22,7 +20,6 @@ class SophysOperationGUI(QMainWindow):
 
         self.model = model
         self.runEngine = self.model.run_engine
-        self.app = QApplication.instance()
         self.client_data = None
 
         self._setupUi()
@@ -32,56 +29,8 @@ class SophysOperationGUI(QMainWindow):
             Logout user when closing the GUI.
         """
         if self.client_data != None:
-            self.logoutUser()
+            self.login.logoutUser()
         self.runEngine.stop_console_output_monitoring()
-
-    def logoutUser(self):
-        re = self.runEngine
-        re._user_name = 'GUI Client'
-        re._user_group = 'primary'
-        re._client.logout()
-        self.app.saveRunEngineClient(None)
-        self.client_data = None
-
-    def loginUser(self):
-        re = self.runEngine
-        emailWid = self.login._email
-        passwordWid = self.login._password
-        username = emailWid.text()
-        password = passwordWid.text()
-        self.client_data = re._client.login(
-            username=username, password=password,
-            provider="ldap/token")
-        if self.client_data:
-            self.app.saveRunEngineClient(re._client)
-            re._user_name = username
-            re._user_group = self.login._allowed_group
-            emailWid.setText("")
-            passwordWid.setText("")
-        else:
-            self.login.toggle_login_status()
-            self.logoutUser()
-
-    def handleToggleUser(self, isLogged):
-        """
-            Toggle user permissions.
-        """
-        if isLogged:
-            self.loginUser()
-            return
-        self.logoutUser()
-
-    def createLoginWidget(self):
-        login = LoginCNPEM()
-        login.login_signal.connect(self.handleToggleUser)
-        login._email.setMinimumWidth(150)
-        login._password.setMinimumWidth(150)
-        tooltip_msg = "Login into the HTTP Server in order to be " \
-            "able to control and operate the Queue Server. Without the login " \
-            "you will be on the observer mode."
-        tooltip_msg = addLineJumps(tooltip_msg)
-        login.setToolTip(tooltip_msg)
-        return login
 
     def queueControls(self):
         """
@@ -121,7 +70,7 @@ class SophysOperationGUI(QMainWindow):
         wid.setLayout(glay)
 
         if not self.has_api_key:
-            self.login = self.createLoginWidget()
+            self.login = SophysLogin(self.model)
             self.login.setMaximumWidth(500)
             self.loginChanged = self.login.login_signal
             glay.addWidget(self.login, 0, 2, 1, 1)
