@@ -38,8 +38,9 @@ class SophysForm(QDialog):
 
     def __init__(
             self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
-            form_gui_widget = ""):
+            form_gui_widget = "", max_rows = 3):
         super().__init__()
+        self.max_rows = max_rows
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
         self.inputWidgets = {}
@@ -507,7 +508,7 @@ class SophysForm(QDialog):
             pos = [0, 0]
             for paramMeta in parameters:
                 pos = self.addParameterInput(paramMeta, pos, glay)
-                if pos[0] > 4:
+                if pos[0] >= self.max_rows*2:
                     pos[0] = 0
                     pos[1] += 2
 
