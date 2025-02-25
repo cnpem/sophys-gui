@@ -349,7 +349,7 @@ class SophysForm(QDialog):
             combobox.addItems(["True", "False"])
         elif "Literal" in inputType:
             literal_idx = inputType.index("Literal")
-            splitStr = inputType[literal_idx+8:].replace("'", "").replace(" ", "")
+            splitStr = inputType[literal_idx+8:].replace(" '", "").replace("'", "")
             options_end_idx = splitStr.index("]")
             combobox.addItems(splitStr[:options_end_idx].split(","))
         elif availableDevices:
