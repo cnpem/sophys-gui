@@ -201,13 +201,15 @@ class SophysForm(QDialog):
         self.addItemToQueue({"pos": "front"})
         self.model.queue_start()
 
-    def getDialogBtns(self):
+    def getDialogBtns(self, hasAddItemBtn: bool = True):
         """
             Create the form dialog buttons.
         """
-        self.btns = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel
-        )
+        self.btns = QDialogButtonBox()
+        if hasAddItemBtn:
+            self.btns = QDialogButtonBox(
+                QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            )
         if "add" in self.modalMode:
             btn = self.btns.addButton("Execute", QDialogButtonBox.ActionRole)
             btn.setIcon(qta.icon("fa5s.play"))
