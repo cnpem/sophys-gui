@@ -70,7 +70,7 @@ class SophysOperationGUI(QMainWindow):
         wid.setLayout(glay)
 
         if not self.has_api_key:
-            self.login = SophysLogin(self.model)
+            self.login = SophysLogin(self.model.run_engine)
             self.login.setMaximumWidth(500)
             self.loginChanged = self.login.login_signal
             glay.addWidget(self.login, 0, 2, 1, 1)
