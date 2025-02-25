@@ -5,9 +5,9 @@ from sophys_gui.functions import addLineJumps
 
 class SophysLogin(LoginCNPEM):
 
-    def __init__(self, model):
+    def __init__(self, run_engine):
         super().__init__()
-        self.runEngine = model.run_engine
+        self.runEngine = run_engine
         self.app = QApplication.instance()
         self.login_signal.connect(self.handleToggleUser)
         self._email.setMinimumWidth(150)
