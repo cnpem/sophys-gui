@@ -278,9 +278,9 @@ class SophysForm(QDialog):
                 kwargsParams = metadata["kwargs"]
                 if paramName in kwargsParams:
                     item = kwargsParams[paramName]
-            if hasArgs and not item:
+            if hasArgs and (item == None):
                 item = self.handleArgsParam(metadata["args"], paramName)
-            if item:
+            if (item != None):
                 self.setWidgetValue(inputWid, item, isStr)
 
     def getAvailableDevicesType(self, title):
