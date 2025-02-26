@@ -58,10 +58,11 @@ class SophysForm(QDialog):
         """
             Override close dialog on pressing the Enter key.
         """
-        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and not (len(self.form_gui_widget) > 0):
-            event.accept()
-        else:
-            super(SophysForm, self).keyPressEvent(event)
+        if not (len(self.form_gui_widget) > 0):
+            if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+                event.accept()
+            else:
+                super(SophysForm, self).keyPressEvent(event)
 
     def selectedItemMetadata(self):
         """
