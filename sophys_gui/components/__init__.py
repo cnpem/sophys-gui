@@ -6,3 +6,4 @@ from .application import SophysApplication
 from .input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .console import SophysConsoleMonitor
+from .login import SophysLogin

@@ -18,10 +18,11 @@ class SophysApplication(QApplication):
 
     """
 
-    def __init__(self, argv):
+    def __init__(self, argv, use_stylesheet = True):
         super().__init__(argv)
         self.popup = []
         self.runEngineClient = None
+        self.use_stylesheet = use_stylesheet
         self.codeErrors = {
             "001": "Invalid Input type!!",
             "002": "Missing required fields!!",
@@ -33,9 +34,19 @@ class SophysApplication(QApplication):
         """
             Generate a generic style for the GUI application.
         """
-        style_file = getFilePath("_assets/css-style.css")
-        with open(style_file, 'r') as f:
-            style = f.read()
+        style = ""
+        if self.use_stylesheet:
+            style_file = getFilePath("_assets/css-style.css")
+            with open(style_file, 'r') as f:
+                style = f.read()
+        style += """
+        #popup QWidget {
+            margin: 1em;
+            background-color: #ffdb3b;
+            border: 1px solid #808080;
+            border-radius: 10px;
+        }
+        """
         self.setStyleSheet(style)
 
     def showBugError(self, exctype, excvalue, tracebackobj):
