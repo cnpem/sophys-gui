@@ -70,13 +70,6 @@ QSlider::handle, QLineEdit {
     border-radius: 5px;
 }
 
-#popup QWidget {
-    margin: 1em;
-    background-color: #ffdb3b;
-    border: 1px solid #808080;
-    border-radius: 10px;
-}
-
 QSplitter::handle {
     background: qradialgradient(
         cx: 0.5, cy: 0.5, radius: 0.3,
