@@ -41,6 +41,7 @@ class SophysForm(QDialog):
             form_gui_widget = "", max_rows = 3):
         super().__init__()
         self.max_rows = max_rows
+        self.form_gui_widget = form_gui_widget
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
         self.inputWidgets = {}
@@ -51,13 +52,13 @@ class SophysForm(QDialog):
         self.metadata_file_path = None
         self.global_metadata_path = metadata_file_path
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
-        self.setupUi(form_gui_widget)
+        self.setupUi()
 
     def keyPressEvent(self: QDialog, event: object) -> None:
         """
             Override close dialog on pressing the Enter key.
         """
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+        if (event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return) and not (len(self.form_gui_widget) > 0):
             event.accept()
         else:
             super(SophysForm, self).keyPressEvent(event)
@@ -562,7 +563,7 @@ class SophysForm(QDialog):
 
         return group, currItem
 
-    def setupUi(self, form_gui_widget):
+    def setupUi(self):
         self.setMaximumSize(1500, 1000)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
@@ -571,8 +572,8 @@ class SophysForm(QDialog):
         lay = QVBoxLayout(self)
 
         isAddition = "add" in self.modalMode
-        if len(form_gui_widget) > 0:
-            currItem = form_gui_widget
+        if len(self.form_gui_widget) > 0:
+            currItem = self.form_gui_widget
         else:
             if isAddition:
                 itemCombbox, currItem = self.getGeneralPlanData()
