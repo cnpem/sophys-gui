@@ -252,6 +252,9 @@ class SophysForm(QDialog):
             if "default" in paramMeta:
                 default = paramMeta["default"]
             inputWid.setPlaceholderText(default)
+        elif isinstance(inputWid, QComboBox):
+            if "default" in paramMeta:
+                inputWid.setCurrentText(paramMeta["default"])
 
     def handleArgsParam(self, argsParams, paramName):
         """
