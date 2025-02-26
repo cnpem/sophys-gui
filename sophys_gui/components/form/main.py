@@ -584,7 +584,7 @@ class SophysForm(QDialog):
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 
-        btns = self.getDialogBtns(len(form_gui_widget) == 0)
+        btns = self.getDialogBtns(len(self.form_gui_widget) == 0)
         lay.addWidget(btns)
 
         app = QApplication.instance()
