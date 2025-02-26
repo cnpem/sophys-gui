@@ -53,16 +53,19 @@ class SophysForm(QDialog):
         self.global_metadata_path = metadata_file_path
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
+    
+    def accept(self):
+        if not (len(self.form_gui_widget) > 0):
+            super().accept()
 
     def keyPressEvent(self: QDialog, event: object) -> None:
         """
             Override close dialog on pressing the Enter key.
         """
-        if not (len(self.form_gui_widget) > 0):
-            if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-                event.accept()
-            else:
-                super(SophysForm, self).keyPressEvent(event)
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            event.accept()
+        else:
+            super(SophysForm, self).keyPressEvent(event)
 
     def selectedItemMetadata(self):
         """
