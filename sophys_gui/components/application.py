@@ -34,19 +34,9 @@ class SophysApplication(QApplication):
         """
             Generate a generic style for the GUI application.
         """
-        style = ""
-        if self.use_stylesheet:
-            style_file = getFilePath("_assets/css-style.css")
-            with open(style_file, 'r') as f:
-                style = f.read()
-        style += """
-        #popup QWidget {
-            margin: 1em;
-            background-color: #ffdb3b;
-            border: 1px solid #808080;
-            border-radius: 10px;
-        }
-        """
+        style_file = getFilePath("_assets/css-style.css")
+        with open(style_file, 'r') as f:
+            style = f.read()
         self.setStyleSheet(style)
 
     def showBugError(self, exctype, excvalue, tracebackobj):
@@ -124,12 +114,20 @@ class SophysApplication(QApplication):
         """
         popup = PopupWidget(window)
         popup.setVisible(False)
+        popup.setStyleSheet("""{
+            margin: 1em;
+            background-color: #ffdb3b;
+            border: 1px solid #808080;
+            border-radius: 10px;
+        }
+        """)
         self.popup.append(popup)
 
     def saveRunEngineClient(self, client):
         self.runEngineClient = client
 
     def _setupUi(self):
-        self.setStyle()
+        if self.use_stylesheet:
+            self.setStyle()
         sys.excepthook = self.excepthook
         signal.signal(signal.SIGINT, signal.SIG_DFL)
