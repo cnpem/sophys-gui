@@ -503,7 +503,7 @@ class SophysForm(QDialog):
         """
         itemAllowedParams = None
         retry_count = 0
-        while itemAllowedParams == None or retry_count > 5:
+        while itemAllowedParams == None and retry_count <= 5:
             itemAllowedParams = self.allowedParameters(name=currentItem)
             time.sleep(0.2)
             retry_count += 1
