@@ -55,7 +55,7 @@ class SophysForm(QDialog):
         self.setupUi()
     
     def accept(self):
-        if not (len(self.form_gui_widget) > 0):
+        if len(self.form_gui_widget) == 0:
             super().accept()
 
     def keyPressEvent(self: QDialog, event: object) -> None:
