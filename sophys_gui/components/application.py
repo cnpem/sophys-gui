@@ -114,12 +114,11 @@ class SophysApplication(QApplication):
         """
         popup = PopupWidget(window)
         popup.setVisible(False)
-        popup.setStyleSheet("""{
+        popup.setStyleSheet("""
             margin: 1em;
             background-color: #ffdb3b;
             border: 1px solid #808080;
             border-radius: 10px;
-        }
         """)
         self.popup.append(popup)
 
