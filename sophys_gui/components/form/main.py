@@ -507,7 +507,7 @@ class SophysForm(QDialog):
             itemAllowedParams = self.allowedParameters(name=currentItem)
             time.sleep(0.2)
             retry_count += 1
-        if retry_count > 5:
+        if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
 
         group = QGroupBox()
