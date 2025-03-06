@@ -31,6 +31,8 @@ class SophysLogin(LoginCNPEM):
         emailWid = self._email
         passwordWid = self._password
         username = emailWid.text()
+        if "@" in username:
+            username = username.split("@")[0]
         password = passwordWid.text()
         self.client_data = re._client.login(
             username=username, password=password,
