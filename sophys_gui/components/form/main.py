@@ -1,3 +1,4 @@
+import time
 import typing
 import qtawesome as qta
 import typesentry
@@ -35,8 +36,12 @@ class SophysForm(QDialog):
 
     """
 
-    def __init__(self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path=""):
+    def __init__(
+            self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
+            form_gui_widget = "", max_rows = 3):
         super().__init__()
+        self.max_rows = max_rows
+        self.form_gui_widget = form_gui_widget
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
         self.inputWidgets = {}
@@ -48,6 +53,10 @@ class SophysForm(QDialog):
         self.global_metadata_path = metadata_file_path
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
+    
+    def accept(self):
+        if len(self.form_gui_widget) == 0:
+            super().accept()
 
     def keyPressEvent(self: QDialog, event: object) -> None:
         """
@@ -205,13 +214,15 @@ class SophysForm(QDialog):
         self.addItemToQueue({"pos": "front"})
         self.model.queue_start()
 
-    def getDialogBtns(self):
+    def getDialogBtns(self, hasAddItemBtn: bool = True):
         """
             Create the form dialog buttons.
         """
-        self.btns = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel
-        )
+        self.btns = QDialogButtonBox()
+        if hasAddItemBtn:
+            self.btns = QDialogButtonBox(
+                QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            )
         if "add" in self.modalMode:
             btn = self.btns.addButton("Execute", QDialogButtonBox.ActionRole)
             btn.setIcon(qta.icon("fa5s.play"))
@@ -245,6 +256,9 @@ class SophysForm(QDialog):
             if "default" in paramMeta:
                 default = paramMeta["default"]
             inputWid.setPlaceholderText(default)
+        elif isinstance(inputWid, QComboBox):
+            if "default" in paramMeta:
+                inputWid.setCurrentText(paramMeta["default"])
 
     def handleArgsParam(self, argsParams, paramName):
         """
@@ -487,8 +501,15 @@ class SophysForm(QDialog):
         """
             Update the current plan input parameters.
         """
-        itemAllowedParams = self.allowedParameters(name=currentItem)
-        
+        itemAllowedParams = None
+        retry_count = 0
+        while itemAllowedParams == None and retry_count <= 5:
+            itemAllowedParams = self.allowedParameters(name=currentItem)
+            time.sleep(0.2)
+            retry_count += 1
+        if retry_count > 5 and itemAllowedParams is None:
+            raise Exception()
+
         group = QGroupBox()
         glay = QGridLayout()
         group.setLayout(glay)
@@ -506,7 +527,7 @@ class SophysForm(QDialog):
             pos = [0, 0]
             for paramMeta in parameters:
                 pos = self.addParameterInput(paramMeta, pos, glay)
-                if pos[0] > 4:
+                if pos[0] >= self.max_rows*2:
                     pos[0] = 0
                     pos[1] += 2
 
@@ -539,7 +560,7 @@ class SophysForm(QDialog):
         self.plan_description = QLabel()
         vlay.addWidget(self.plan_description)
 
-        if self.itemType == "plan":
+        if self.itemType == "plan" and self.global_metadata_path != "":
             hbox = QHBoxLayout()
             metadata_lbl = QLabel("Metadata File Path")
             hbox.addWidget(metadata_lbl)
@@ -558,16 +579,19 @@ class SophysForm(QDialog):
         lay = QVBoxLayout(self)
 
         isAddition = "add" in self.modalMode
-        if isAddition:
-            itemCombbox, currItem = self.getGeneralPlanData()
-            lay.addWidget(itemCombbox)
+        if len(self.form_gui_widget) > 0:
+            currItem = self.form_gui_widget
         else:
-            currItem = self.selectedItemMetadata()["name"]
+            if isAddition:
+                itemCombbox, currItem = self.getGeneralPlanData()
+                lay.addWidget(itemCombbox)
+            else:
+                currItem = self.selectedItemMetadata()["name"]
 
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 
-        btns = self.getDialogBtns()
+        btns = self.getDialogBtns(len(self.form_gui_widget) == 0)
         lay.addWidget(btns)
 
         app = QApplication.instance()

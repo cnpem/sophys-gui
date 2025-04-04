@@ -18,10 +18,11 @@ class SophysApplication(QApplication):
 
     """
 
-    def __init__(self, argv):
+    def __init__(self, argv, use_stylesheet = True):
         super().__init__(argv)
         self.popup = []
         self.runEngineClient = None
+        self.use_stylesheet = use_stylesheet
         self.codeErrors = {
             "001": "Invalid Input type!!",
             "002": "Missing required fields!!",
@@ -113,12 +114,19 @@ class SophysApplication(QApplication):
         """
         popup = PopupWidget(window)
         popup.setVisible(False)
+        popup.setStyleSheet("""
+            margin: 1em;
+            background-color: #ffdb3b;
+            border: 1px solid #808080;
+            border-radius: 10px;
+        """)
         self.popup.append(popup)
 
     def saveRunEngineClient(self, client):
         self.runEngineClient = client
 
     def _setupUi(self):
-        self.setStyle()
+        if self.use_stylesheet:
+            self.setStyle()
         sys.excepthook = self.excepthook
         signal.signal(signal.SIGINT, signal.SIG_DFL)
