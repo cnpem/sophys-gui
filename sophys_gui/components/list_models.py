@@ -3,6 +3,7 @@ import re
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
+from qtpy.QtWidgets import QMainWindow, QLabel, QScrollArea, QApplication
 from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps
 from .form import SophysForm
 
@@ -242,6 +243,26 @@ class HistoryModel(ListModel):
     def copy_to_queue(self):
         self.setSelectedItems()
         self._re_model.run_engine.history_item_add_to_queue()
+
+    @Slot()
+    def error_log(self):
+        selected_row = self.getSelectedRows()
+        if len(selected_row) > 0:
+            selected_item = self._re_model.run_engine._plan_history_items[selected_row[0]]
+            traceback = selected_item["result"]["traceback"]
+            
+            if len(traceback) > 0:
+                self.window = QMainWindow()
+                scroll = QScrollArea()
+                scroll.setWidgetResizable(True)
+                log = QLabel(traceback)
+                scroll.setWidget(log)
+                self.window.setCentralWidget(scroll)
+                self.window.show()
+            else:
+                app = QApplication.instance()
+                app.popup[0].set_text("No error log!")
+                app.popup[0].show_popup()
 
 
 class QueueModel(ListModel):
