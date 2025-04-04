@@ -15,9 +15,16 @@ HISTORY_BTNS = [
         "enabled": False,
         "permission": 1,
         "tooltip": "Duplicate the selected item to the end of the queue list."
+    },
+    {
+        "title": "Error Log",
+        "icon": "msc.error",
+        "cmd": lambda re: re.error_log(),
+        "enabled": True,
+        "permission": 0,
+        "tooltip": "Show the error log of the selected item."
     }
 ]
-
 
 QUEUE_BTNS = [
     {
