@@ -5,7 +5,7 @@ import sys
 
 import qtawesome
 
-from sophys_gui.server import ServerModel
+from sophys_gui.server import ServerModel, KafkaDataRegister
 from sophys_gui.components import SophysApplication
 from sophys_gui.operation import SophysOperationGUI
 
@@ -19,10 +19,11 @@ def main():
     args = parser.parse_args()
 
     __backend_model = ServerModel(args.http_server, args.http_server_api_key)
+    __kafka_monitor = KafkaDataRegister(args.kafka_bootstrap, args.kafka_topic)
 
     app = SophysApplication(sys.argv)
     has_api_key = True if args.http_server_api_key else False
-    window = SophysOperationGUI(__backend_model, args.kafka_bootstrap, args.kafka_topic, has_api_key)
+    window = SophysOperationGUI(__backend_model, __kafka_monitor, args.kafka_bootstrap, args.kafka_topic, has_api_key)
     window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
     window.setWindowTitle("SOPHYS GUI")
     window.show()

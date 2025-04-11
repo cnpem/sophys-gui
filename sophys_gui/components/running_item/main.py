@@ -23,11 +23,12 @@ class SophysRunningItem(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged):
+    def __init__(self, model, kafka_monitor, loginChanged):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.group = QGroupBox()
         self.runEngine = model.run_engine
+        self.kafka_monitor = kafka_monitor
         self._setupUi(loginChanged)
 
     def createBtns(self, glay, loginChanged):
@@ -66,6 +67,7 @@ class SophysRunningItem(QWidget):
         """
             Update running item widget.
         """
+        self.kafka_monitor.clear_data()
         self.group.deleteLater()
         self.attributesDisplay.addWidget(group)
         self.group = group
@@ -128,6 +130,8 @@ class SophysRunningItem(QWidget):
                 if pos[1] >= 2:
                     pos[1] = 0
                     pos[0] += 2
+            print("----------------")
+            print(self.kafka_monitor.data)
         self.updateRunningItem(group)
 
     def createLoading(self):
