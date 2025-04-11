@@ -278,13 +278,13 @@ class HistoryModel(ListModel):
             row_id = selected_row[0]+1
             if selected_item["result"]["exit_status"] == "failed":
                 self.window = QMainWindow()
-                self.window.setWindowTitle(f"Error log on the run number {row_id}")
+                self.window.setWindowTitle(f"Error log of the run number {row_id}")
                 self.window.setCentralWidget(
                     self.create_traceback_widget(selected_item["result"]))
                 self.window.show()
             else:
                 app = QApplication.instance()
-                app.popup[0].set_text(f"No error log on the run number {row_id}!")
+                app.popup[0].set_text(f"No error log of the run number {row_id}!")
                 app.popup[0].show_popup()
 
 
