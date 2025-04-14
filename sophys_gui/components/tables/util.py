@@ -9,6 +9,14 @@ HISTORY_BTNS = [
         "tooltip": "Delete all the history items."
     },
     {
+        "title": "Error Log",
+        "icon": "msc.error",
+        "cmd": lambda re: re.error_log(),
+        "enabled": True,
+        "permission": 0,
+        "tooltip": "Show the error log of the selected item."
+    },
+    {
         "title": "Copy to Queue",
         "icon": "mdi6.content-copy",
         "cmd": lambda re: re.copy_to_queue(),
@@ -17,7 +25,6 @@ HISTORY_BTNS = [
         "tooltip": "Duplicate the selected item to the end of the queue list."
     }
 ]
-
 
 QUEUE_BTNS = [
     {
