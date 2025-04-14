@@ -23,12 +23,14 @@ class ProgressBar(QProgressBar):
 
     @DeferredFunction
     def handle_plan_args(self, runningItem):
-        if "num" in runningItem["kwargs"]:
-            self.total_events = runningItem["kwargs"]["num"]
-        elif "args" in runningItem["kwargs"]:
-            motor_args = runningItem["kwargs"]["args"][1]
-            if len(motor_args) > 0:
-                self.total_events = len(motor_args)
+        kwargs = runningItem["kwargs"]
+        if "num" in kwargs:
+            self.total_events = kwargs["num"]
+        elif "args" in kwargs:
+            motor_args = kwargs["args"][1]
+            args_size = len(motor_args)
+            if args_size > 0:
+                self.total_events = args_size
 
     @DeferredFunction
     def runningItemChanged(self, evt):
