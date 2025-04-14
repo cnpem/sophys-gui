@@ -47,6 +47,5 @@ class ProgressBar(QProgressBar):
         if events_size > 0:
             last_run = self.kafka_monitor.get_data()[-1]
             if "seq_num" in last_run:
-                print(self.total_events, last_run["seq_num"])
                 self.setValue(int(100*last_run["seq_num"]/self.total_events))
                 self.kafka_monitor.clear_data()
