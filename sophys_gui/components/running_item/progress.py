@@ -23,14 +23,24 @@ class ProgressBar(QProgressBar):
 
     @DeferredFunction
     def handle_plan_args(self, runningItem):
+        self.total_events = 1
         kwargs = runningItem["kwargs"]
+        isGrid = "grid" in runningItem["name"]
+        isList = "list" in runningItem["name"]
         if "num" in kwargs:
             self.total_events = kwargs["num"]
         elif "args" in kwargs:
-            motor_args = kwargs["args"][1]
-            args_size = len(motor_args)
-            if args_size > 0:
-                self.total_events = args_size
+            motor_args = kwargs["args"]
+            if isGrid:
+                for num, arg in enumerate(motor_args):
+                    if isinstance(arg, list):
+                        self.total_events *= len(arg)
+                    elif not isList and (num+1)%4 == 0:
+                        self.total_events *= arg
+            elif isList:
+                args_size = len(motor_args[1])
+                if args_size > 0:
+                    self.total_events = args_size
 
     @DeferredFunction
     def runningItemChanged(self, evt):
@@ -42,7 +52,6 @@ class ProgressBar(QProgressBar):
             self.setVisible(True)
         else:
             self.kafka_timer.stop()
-            self.total_events = 1
             self.setVisible(False)
 
     @DeferredFunction
