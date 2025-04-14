@@ -11,7 +11,6 @@ setup(
         'QtAwesome==1.2.3',
         'bluesky-queueserver-api==0.0.10',
         'bluesky-widgets',
-        'kafka-bluesky-live>=0.1.0',
         'typesentry==0.2.7',
         'numpy<2.0.0'
     ],
