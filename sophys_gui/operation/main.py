@@ -11,15 +11,14 @@ class SophysOperationGUI(QMainWindow):
 
     loginChanged = Signal([bool])
 
-    def __init__(self, model, kafka_monitor, kafka_ip, kafka_topic, has_api_key=False):
+    def __init__(self, model, kafka_bootstrap, kafka_topic, has_api_key=False):
         super().__init__()
 
-        self._kafka_ip = kafka_ip
+        self._kafka_bootstrap = kafka_bootstrap
         self._kafka_topic = kafka_topic
         self.has_api_key = has_api_key
 
         self.model = model
-        self.kafka_monitor = kafka_monitor
         self.runEngine = self.model.run_engine
         self.client_data = None
 
@@ -41,7 +40,7 @@ class SophysOperationGUI(QMainWindow):
         queue = SophysQueueTable(self.model, self.loginChanged)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, self.kafka_monitor, self.loginChanged)
+        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_bootstrap, self._kafka_topic)
         hsplitter.addWidget(running)
 
         history = SophysHistoryTable(self.model, self.loginChanged)
@@ -57,7 +56,7 @@ class SophysOperationGUI(QMainWindow):
         monitorTabs = QTabWidget()
 
         visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
-        live_view = LiveView(self._kafka_topic, self._kafka_ip, visual_elements)
+        live_view = LiveView(self._kafka_topic, self._kafka_bootstrap, visual_elements)
         monitorTabs.addTab(live_view, "Live View")
 
         console = SophysConsoleMonitor(self.model)
