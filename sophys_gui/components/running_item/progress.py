@@ -37,9 +37,11 @@ class ProgressBar(QProgressBar):
         if hasRunningItem:
             self.handle_plan_args(runningItem)
             self.kafka_timer.start()
+            self.setVisible(True)
         else:
             self.kafka_timer.stop()
             self.total_events = 1
+            self.setVisible(False)
 
     @DeferredFunction
     def kafka_monitor_callback(self):
