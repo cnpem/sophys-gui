@@ -1,11 +1,13 @@
 import copy
 import re
+from datetime import datetime
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
+from qtpy.QtWidgets import QMainWindow, QLabel, QScrollArea, QApplication, QWidget, \
+    QVBoxLayout, QHBoxLayout
 from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps
 from .form import SophysForm
-
 
 class ListModel(QAbstractTableModel):
     SelectedRole = Qt.UserRole + 1
@@ -242,6 +244,48 @@ class HistoryModel(ListModel):
     def copy_to_queue(self):
         self.setSelectedItems()
         self._re_model.run_engine.history_item_add_to_queue()
+
+    def create_traceback_widget(self, result):
+        widget = QWidget()
+        vlay = QVBoxLayout(widget)
+        for scan_times in ["time_start", "time_stop"]:
+            hlay = QHBoxLayout()
+            title = QLabel(f"<strong>{scan_times[5:].capitalize()}</strong>")
+            hlay.addWidget(title)
+
+            utc_s = result[scan_times] - 3 * 60**2
+            date = datetime.utcfromtimestamp(utc_s)
+            lbl = QLabel(date.strftime("%X %x"))
+            hlay.addWidget(lbl)
+            vlay.addLayout(hlay)
+
+        title = QLabel("<strong>Traceback</strong>", alignment=Qt.AlignCenter)
+        vlay.addWidget(title)
+
+        scroll = QScrollArea()
+        log = QLabel(result["traceback"])
+        scroll.setWidget(log)
+        scroll.setWidgetResizable(True)
+        vlay.addWidget(scroll)
+
+        return widget
+
+    @Slot()
+    def error_log(self):
+        selected_row = self.getSelectedRows()
+        if len(selected_row) > 0:
+            selected_item = self._re_model.run_engine._plan_history_items[selected_row[0]]
+            row_id = selected_row[0]+1
+            if selected_item["result"]["exit_status"] == "failed":
+                self.window = QMainWindow()
+                self.window.setWindowTitle(f"Error log of the run number {row_id}")
+                self.window.setCentralWidget(
+                    self.create_traceback_widget(selected_item["result"]))
+                self.window.show()
+            else:
+                app = QApplication.instance()
+                app.popup[0].set_text(f"No error log of the run number {row_id}!")
+                app.popup[0].show_popup()
 
 
 class QueueModel(ListModel):
