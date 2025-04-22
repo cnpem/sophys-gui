@@ -77,8 +77,6 @@ class SophysSpinBox(QWidget):
             self.stack.addWidget(noneLbl)
 
         self.spinbox = handleSpinboxWidget(valueType)
-        self.spinbox.setMinimum(-10000)
-        self.spinbox.setMaximum(10000)
         self.spinbox.setValue(0)
         self.spinbox.editingFinished.connect(
             lambda: self.setValue(self.spinbox.value()))
