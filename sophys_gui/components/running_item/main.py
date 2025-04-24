@@ -5,6 +5,7 @@ from sophys_gui.functions import getHeader, createSingleBtn, \
     addArgsToKwargs
 from ..led import SophysLed
 from .util import CONTROL_BTNS
+from .progress import ProgressBar
 
 from suitscase.utilities.threading import DeferredFunction
 
@@ -23,12 +24,12 @@ class SophysRunningItem(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged):
+    def __init__(self, model, loginChanged, kafka_bootstrap, kafka_topic):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.group = QGroupBox()
         self.runEngine = model.run_engine
-        self._setupUi(loginChanged)
+        self._setupUi(loginChanged, kafka_bootstrap, kafka_topic)
 
     def createBtns(self, glay, loginChanged):
         """
@@ -139,7 +140,7 @@ class SophysRunningItem(QWidget):
         return SophysLed(
             self.runEngine, statusKey, statusComp, isLoading=True)
 
-    def _setupUi(self, loginChanged):
+    def _setupUi(self, loginChanged, kafka_bootstrap, kafka_topic):
         glay = QGridLayout(self)
 
         header = getHeader("Running")
@@ -148,9 +149,13 @@ class SophysRunningItem(QWidget):
         loading = self.createLoading()
         glay.addWidget(loading, 0, 1, 1, 1)
 
+        progressBar = ProgressBar(self.runEngine, kafka_bootstrap, kafka_topic)
+        progressBar.setOrientation(Qt.Horizontal)
+        glay.addWidget(progressBar, 1, 0, 1, 2)
+
         self.attributesDisplay = QHBoxLayout()
         self.attributesDisplay.addWidget(self.group)
-        glay.addLayout(self.attributesDisplay, 1, 0, 5, 2)
+        glay.addLayout(self.attributesDisplay, 2, 0, 5, 2)
 
         self.createBtns(glay, loginChanged)
 
