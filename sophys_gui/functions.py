@@ -101,7 +101,8 @@ def handleSpinboxWidget(valueType):
     else:
         spinbox = QSpinBox()
     spinbox.setMaximumHeight(50)
-    spinbox.setMaximum(10000)
+    spinbox.setMinimum(-10**8)
+    spinbox.setMaximum(10**8)
     return spinbox
 
 
