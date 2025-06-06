@@ -352,11 +352,12 @@ class SophysForm(QDialog):
             return description
         return ""
 
-    def getComboboxInput(self, inputType):
+    def getComboboxInput(self, inputType, insertAvailable):
         combobox = QComboBox()
         combobox.setEditable(True)
         combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
-        combobox.setInsertPolicy(QComboBox.NoInsert)
+        insert_mode = QComboBox.InsertAlphabetically if insertAvailable else QComboBox.NoInsert
+        combobox.setInsertPolicy(insert_mode)
 
         availableDevices = self.getAvailableDevicesType(inputType)
         if "bool" in inputType:
@@ -383,7 +384,7 @@ class SophysForm(QDialog):
         isLiteral = "Literal" in strType
         isArgs = "args" in paramMeta["name"]
         isDict  = "dict" in strType
-        isStr = False
+        isStr = "str" in strType
         if isDict:
             inputWid = SophysInputDict()
         elif isArgs:
@@ -391,7 +392,7 @@ class SophysForm(QDialog):
         elif isIterable and not isBool:
             inputWid = self.getIterableInput(paramMeta, paramType)
         elif isDevice or isLiteral or isBool:
-            inputWid = self.getComboboxInput(paramType)
+            inputWid = self.getComboboxInput(paramType, isStr)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
             inputWid = SophysSpinBox(numericType, isRequired)
