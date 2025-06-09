@@ -382,7 +382,7 @@ class SophysForm(QDialog):
         isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
         isBool = "bool" in strType
         isLiteral = "Literal" in strType
-        isArgs = "-.-" in paramMeta["description"]
+        isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
         isDict  = "dict" in strType
         isStr = "str" in strType
         if isDict:
@@ -430,7 +430,7 @@ class SophysForm(QDialog):
         """
             Convert a string or an array to a python variable type.
         """
-        isArgs = "-.-" in paramMeta["description"]
+        isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
         if isArgs:
             motorTyping = getMotorInput(paramMeta)
             motorArray = motorTyping.split(";")
