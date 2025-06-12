@@ -174,6 +174,7 @@ class SophysInputMotor(QWidget):
 
         col = 0
         for title, tooltip, argType in zip(motorTitles, motorTooltip, motorTypes):
+            argType = argType.replace(".", ",")
             titleWid = QLabel(title)
             titleWid.setAlignment(Qt.AlignCenter)
             glay.addWidget(titleWid, 0, col)

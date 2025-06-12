@@ -426,7 +426,7 @@ class SophysForm(QDialog):
 
     def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
-        return eval(varType) if varType != "" else object
+        return eval(varType) if varType != "" and not "Literal" in varType else object
     
     def getParamPythonType(self, paramMeta):
         """
@@ -439,6 +439,7 @@ class SophysForm(QDialog):
             motorTypes = motorArray[2].split(",")
             arrayType = []
             for strType in motorTypes:
+                strType = strType.replace(".", ",")
                 arrayType.append(self.convertTypeToPythonType(strType))
             return arrayType
         hasAnnotation = "annotation" in paramMeta
