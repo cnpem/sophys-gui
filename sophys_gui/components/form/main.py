@@ -144,7 +144,7 @@ class SophysForm(QDialog):
             if hasParam:
                 if not isinstance(inputWid["widget"], QLineEdit):
                     value = evaluateValue(value)
-                if "Literal" in str(inputWid["type"]):
+                if "Literal" in str(inputWid["type"]) and not isinstance(inputWid["type"], list):
                     value = str(value)
                 validParam = self.verifyValueType(value, inputWid["type"])
                 if validParam:
