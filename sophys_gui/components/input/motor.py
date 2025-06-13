@@ -167,14 +167,14 @@ class SophysInputMotor(QWidget):
         """
             Dynamically add motor input widgets.
         """
-        motorArray = motorTyping.split(";")
+        motorArray = motorTyping.replace("\"", "'").replace("',", "|").split(";")
         motorTitles = motorArray[0].split(",")
         motorTooltip = motorArray[1].split(",")
         motorTypes = motorArray[2].split(",")
 
         col = 0
         for title, tooltip, argType in zip(motorTitles, motorTooltip, motorTypes):
-            argType = argType.replace(".", ",")
+            argType = argType.replace("|", "',")
             titleWid = QLabel(title)
             titleWid.setAlignment(Qt.AlignCenter)
             glay.addWidget(titleWid, 0, col)
