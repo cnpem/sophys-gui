@@ -6,7 +6,7 @@ from math import floor
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
-    QApplication, QCompleter, QComboBox
+    QApplication, QCompleter, QComboBox, QWidget
 from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
@@ -38,8 +38,9 @@ class SophysForm(QDialog):
 
     def __init__(
             self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
-            form_gui_widget = "", max_rows = 3):
+            form_gui_widget = "", max_rows = 3, showOnlyInputs = False):
         super().__init__()
+        self.showOnlyInputs = showOnlyInputs
         self.max_rows = max_rows
         self.form_gui_widget = form_gui_widget
         self.allowedParameters = allowedParameters
@@ -512,16 +513,19 @@ class SophysForm(QDialog):
             retry_count += 1
         if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
+        self.chosenItem = itemAllowedParams["name"]
 
-        group = QGroupBox()
+        if self.showOnlyInputs:
+            group = QWidget()
+        else:
+            group = QGroupBox()
+            group.setTitle(self.chosenItem)
+
         glay = QGridLayout()
         group.setLayout(glay)
 
         if "description" in itemAllowedParams and self.plan_description != None:
             self.plan_description.setText(itemAllowedParams["description"])
-
-        self.chosenItem = itemAllowedParams["name"]
-        group.setTitle(self.chosenItem)
 
         hasParameters = "parameters" in itemAllowedParams
         if hasParameters:
@@ -577,7 +581,10 @@ class SophysForm(QDialog):
         self.setMaximumSize(1500, 1000)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
-        self.group = QGroupBox()
+        if self.showOnlyInputs:
+            self.group = QWidget()
+        else:
+            self.group = QGroupBox()
         self.parametersLayout = QGridLayout()
         lay = QVBoxLayout(self)
 
