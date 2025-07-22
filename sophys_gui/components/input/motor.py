@@ -1,7 +1,7 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
-    QGridLayout, QVBoxLayout
+    QGridLayout, QVBoxLayout, QScrollArea
 from sophys_gui.functions import getMotorInput, addLineJumps
 from .list import SophysInputList
 
@@ -189,7 +189,14 @@ class SophysInputMotor(QWidget):
             col += 1
 
     def _setupUi(self):
-        glay = QGridLayout(self)
+        hlay = QVBoxLayout(self)
+        scrollarea = QScrollArea()
+        scrollarea.setMinimumHeight(100)
+        scrollarea.setMaximumHeight(250)
+        hlay.addWidget(scrollarea)
+
+        container = QWidget()
+        glay = QGridLayout()
         glay.setSpacing(2)
         glay.setContentsMargins(2, 2, 2, 2)
 
@@ -203,3 +210,7 @@ class SophysInputMotor(QWidget):
         else:
             listInput = SophysInputList(None, False)
             glay.addWidget(listInput)
+
+        container.setLayout(glay)
+        scrollarea.setWidgetResizable(True)
+        scrollarea.setWidget(container)
