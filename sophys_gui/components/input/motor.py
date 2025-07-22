@@ -185,7 +185,7 @@ class SophysInputMotor(QWidget):
             self.widList.append(wid)
             tooltipMsg = addLineJumps(tooltip)
             wid.setTooltip(tooltipMsg)
-            glay.addWidget(wid, 1, col, 1, 1)
+            glay.addWidget(wid, 1, col, 3, 1)
             col += 1
 
     def _setupUi(self):
@@ -206,7 +206,7 @@ class SophysInputMotor(QWidget):
 
             self.btnsList = self.addMotorBtn()
             argsQuant = glay.columnCount() + 1
-            glay.addLayout(self.btnsList, 1, argsQuant, 1, 1)
+            glay.addLayout(self.btnsList, 1, argsQuant, 3, 1)
         else:
             listInput = SophysInputList(None, False)
             glay.addWidget(listInput)
