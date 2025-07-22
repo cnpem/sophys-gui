@@ -180,8 +180,7 @@ class SophysInputDict(QWidget):
         scrollarea = QScrollArea()
         scrollarea.setWidgetResizable(True)
         scrollarea.setMinimumHeight(100)
-        scrollarea.setMaximumHeight(250)
-        hlay.addWidget(scrollarea)
+        hlay.addWidget(scrollarea, 5)
 
         container = QWidget()
         vlay = QVBoxLayout()
