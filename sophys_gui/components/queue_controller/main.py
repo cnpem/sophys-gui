@@ -18,12 +18,13 @@ class QueueController(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged):
+    def __init__(self, run_engine, loginChanged, execution_monitor=False):
         super().__init__()
-        self.run_engine = model.run_engine
+        self.run_engine = run_engine
         self.updateEvent = self.run_engine.events.status_changed
         self.reStatus = self.run_engine.re_manager_status
         self.isLogged = False
+        self.execution_monitor = execution_monitor
         self.cmdStacks = []
 
         self._setupUi(loginChanged)
@@ -127,7 +128,10 @@ class QueueController(QWidget):
         group.setMinimumWidth(300)
         hlay.setContentsMargins(25, 2, 25, 2)
 
-        for cmdBtnKey in ["start", "stop", "help"]:
+        queue_stacks = ["start", "stop", "help"]
+        if self.execution_monitor:
+            queue_stacks = ["start_monitor", "stop", "help"]
+        for cmdBtnKey in queue_stacks:
             self.addControlButton(cmdBtnKey, hlay)
 
         return group
@@ -143,8 +147,12 @@ class QueueController(QWidget):
 
     def _setupUi(self, loginChanged):
         hlay = QHBoxLayout(self)
+        
 
-        self.addStatusLeds(hlay)
+        if not self.execution_monitor:
+            self.addStatusLeds(hlay)
+        else:
+            self.cmdStacks.append(QStackedWidget())
 
         group = self.getQueueController()
         hlay.addWidget(group)

@@ -76,7 +76,7 @@ class SophysOperationGUI(QMainWindow):
             self.loginChanged = self.login.login_signal
             glay.addWidget(self.login, 0, 2, 1, 1)
 
-        controller = QueueController(self.model, self.loginChanged)
+        controller = QueueController(self.model.run_engine, self.loginChanged)
         glay.addWidget(controller, 0, 0, 1, 3 if self.has_api_key else 2)
 
         vsplitter = QSplitter(Qt.Vertical)
