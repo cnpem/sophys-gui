@@ -196,6 +196,7 @@ class SophysInputMotor(QWidget):
         hlay.addWidget(scrollarea)
 
         container = QWidget()
+        container.setObjectName("QScrollArea")
         glay = QGridLayout()
         glay.setSpacing(2)
         glay.setContentsMargins(2, 2, 2, 2)

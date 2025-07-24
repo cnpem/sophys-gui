@@ -183,6 +183,7 @@ class SophysInputDict(QWidget):
         hlay.addWidget(scrollarea, 5)
 
         container = QWidget()
+        container.setObjectName("QScrollArea")
         vlay = QVBoxLayout()
         container.setLayout(vlay)
         vlay.setContentsMargins(2, 2, 2, 2)
