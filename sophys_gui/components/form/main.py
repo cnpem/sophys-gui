@@ -542,6 +542,9 @@ class SophysForm(QDialog):
             glay.addWidget(self.getNoParametersLabel())
         self.updateParametersLayout(group)
 
+    def save_metadata_file_path(self):
+        self.global_metadata_path(self.metadata_file_path.text())
+
     def getGeneralPlanData(self):
         """
             Create combobox for choosing the plan or instruction to add.
@@ -572,6 +575,7 @@ class SophysForm(QDialog):
             metadata_lbl = QLabel("Metadata File Path")
             hbox.addWidget(metadata_lbl)
             self.metadata_file_path = QLineEdit(self.global_metadata_path())
+            self.metadata_file_path.returnPressed.connect(self.save_metadata_file_path)
             hbox.addWidget(self.metadata_file_path)
             vlay.addLayout(hbox)
 
