@@ -290,11 +290,12 @@ class HistoryModel(ListModel):
 
 class QueueModel(ListModel):
 
-    def __init__(self, re_model, parent=None):
+    def __init__(self, re_model, reading_order, parent=None):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
         self.global_metadata = ""
+        self.reading_order = reading_order
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
 
     @Slot(int)
@@ -393,18 +394,22 @@ class QueueModel(ListModel):
     def add_plan_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
-            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), metadata_file_path=self.global_metadata_updater).exec()
+            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
+            metadata_file_path=self.global_metadata_updater, readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_instruction_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("instruction")
         SophysForm(self._re_model.run_engine, "add_instruction",
-            allowed_parameters, allowed_names, hasEnv=self.has_open_environment()).exec()
+            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
+            readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_stop_queue(self):
         allowed_parameters, allowed_names = self.get_name_param_variables('instruction')
-        form = SophysForm(self._re_model.run_engine, "add_instruction", allowed_parameters, allowed_names)
+        form = SophysForm(
+            self._re_model.run_engine, "add_instruction", 
+            allowed_parameters, allowed_names, readingOrder=self.reading_order)
         form.addItemToQueue()
 
     @Slot()
@@ -413,7 +418,7 @@ class QueueModel(ListModel):
         item_type = self.get_item_type()
         allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
         SophysForm(self._re_model.run_engine, "copy",
-            allowed_parameters, allowed_names).exec()
+            allowed_parameters, allowed_names, readingOrder=self.reading_order).exec()
 
     @Slot()
     def edit_queue_item(self):
@@ -421,4 +426,4 @@ class QueueModel(ListModel):
         item_type = self.get_item_type()
         allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
         SophysForm(self._re_model.run_engine, "edit_"+item_type,
-            allowed_parameters, allowed_names).exec()
+            allowed_parameters, allowed_names, readingOrder=self.reading_order).exec()

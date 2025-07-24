@@ -11,7 +11,7 @@ class SophysOperationGUI(QMainWindow):
 
     loginChanged = Signal([bool])
 
-    def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False):
+    def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down'):
         super().__init__()
 
         self._kafka_ip = kafka_ip
@@ -21,6 +21,7 @@ class SophysOperationGUI(QMainWindow):
         self.model = model
         self.runEngine = self.model.run_engine
         self.client_data = None
+        self.reading_order = reading_order
 
         self._setupUi()
 
@@ -37,7 +38,7 @@ class SophysOperationGUI(QMainWindow):
             Widgets for controlling the Queue Server.
         """
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, self.loginChanged)
+        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order)
         hsplitter.addWidget(queue)
 
         running = SophysRunningItem(self.model, self.loginChanged)
