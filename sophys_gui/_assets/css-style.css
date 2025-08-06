@@ -46,6 +46,11 @@ QGroupBox {
     margin-top: 1em;
 }
 
+#QScrollArea {
+    background-color: #c4c4c4;
+    border: 1px solid #808080;
+} 
+
 QSlider{
     background: #00000000;
     border-radius: 5px;

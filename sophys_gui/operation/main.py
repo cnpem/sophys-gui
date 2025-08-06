@@ -11,16 +11,17 @@ class SophysOperationGUI(QMainWindow):
 
     loginChanged = Signal([bool])
 
-    def __init__(self, model, kafka_bootstrap, kafka_topic, has_api_key=False):
+    def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down'):
         super().__init__()
 
-        self._kafka_bootstrap = kafka_bootstrap
+        self._kafka_ip = kafka_ip
         self._kafka_topic = kafka_topic
         self.has_api_key = has_api_key
 
         self.model = model
         self.runEngine = self.model.run_engine
         self.client_data = None
+        self.reading_order = reading_order
 
         self._setupUi()
 
@@ -37,10 +38,10 @@ class SophysOperationGUI(QMainWindow):
             Widgets for controlling the Queue Server.
         """
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, self.loginChanged)
+        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_bootstrap, self._kafka_topic)
+        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic)
         hsplitter.addWidget(running)
 
         history = SophysHistoryTable(self.model, self.loginChanged)
@@ -56,7 +57,7 @@ class SophysOperationGUI(QMainWindow):
         monitorTabs = QTabWidget()
 
         visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
-        live_view = LiveView(self._kafka_topic, self._kafka_bootstrap, visual_elements)
+        live_view = LiveView(self._kafka_topic, self._kafka_ip, visual_elements)
         monitorTabs.addTab(live_view, "Live View")
 
         console = SophysConsoleMonitor(self.model)
@@ -75,7 +76,7 @@ class SophysOperationGUI(QMainWindow):
             self.loginChanged = self.login.login_signal
             glay.addWidget(self.login, 0, 2, 1, 1)
 
-        controller = QueueController(self.model, self.loginChanged)
+        controller = QueueController(self.model.run_engine, self.loginChanged)
         glay.addWidget(controller, 0, 0, 1, 3 if self.has_api_key else 2)
 
         vsplitter = QSplitter(Qt.Vertical)

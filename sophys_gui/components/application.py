@@ -112,15 +112,16 @@ class SophysApplication(QApplication):
         """
             Create a hidden popup widget.
         """
-        popup = PopupWidget(window)
-        popup.setVisible(False)
-        popup.setStyleSheet("""
-            margin: 1em;
-            background-color: #ffdb3b;
-            border: 1px solid #808080;
-            border-radius: 10px;
-        """)
-        self.popup.append(popup)
+        if isinstance(self.popup, list):
+            popup = PopupWidget(window)
+            popup.setVisible(False)
+            popup.setStyleSheet("""
+                margin: 1em;
+                background-color: #ffdb3b;
+                border: 1px solid #808080;
+                border-radius: 10px;
+            """)
+            self.popup.append(popup)
 
     def saveRunEngineClient(self, client):
         self.runEngineClient = client
