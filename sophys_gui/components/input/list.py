@@ -1,8 +1,9 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QLabel, QComboBox, \
+from qtpy.QtWidgets import QWidget, QLabel, \
     QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
-    QLineEdit, QHBoxLayout, QCompleter
+    QLineEdit, QHBoxLayout
+from .combobox import SophysComboBox
 from sophys_gui.functions import evaluateValue, handleSpinboxWidget
 
 
@@ -32,12 +33,12 @@ class SophysInputList(QWidget):
             :align: center
     """
 
-    def __init__(self, itemList, isNumber, isSingle=True):
+    def __init__(self, run_engine, inputType, isSingle=True):
         super().__init__()
+        self.run_engine = run_engine
         self.selectedItems = []
         self.selectedWidgets = []
-        self.availableItems = itemList
-        self.isNumber = isNumber
+        self.inputType = inputType
         self.isSingle = isSingle
         self.removeFunction = []
         self.curr_index = [0, 0]
@@ -74,13 +75,6 @@ class SophysInputList(QWidget):
         evaluatedItems = self.evaluateList(self.selectedItems)
         return evaluatedItems
 
-    def updateOptions(self):
-        """
-            Update combobox options
-        """
-        self.edit.clear()
-        self.edit.addItems(sorted(self.availableItems))
-
     def setValue(self, value):
         """
             Set pre-existing list value.
@@ -89,10 +83,10 @@ class SophysInputList(QWidget):
             value = [value]
         self.selectedItems = value
         self.showSelectedItems(self.selectedItems)
-        if self.availableItems != None:
+        if isinstance(self.edit, SophysComboBox):
             for val in value:
-                self.availableItems.remove(val)
-            self.updateOptions()
+                self.edit.options_list.remove(val)
+            self.edit.updateOptions()
 
     def getSelectedTag(self, title):
         """
@@ -146,9 +140,10 @@ class SophysInputList(QWidget):
         self.selectedItems.remove(item)
         self.showSelectedItems(self.selectedItems)
 
-        if self.availableItems != None:
-            self.availableItems.append(item)
-            self.updateOptions()
+        if isinstance(self.edit, SophysComboBox):
+            self.edit.options_list.append(item)
+            self.edit.updateOptions()
+
 
     def addItemFromCombobox(self):
         """
@@ -160,8 +155,8 @@ class SophysInputList(QWidget):
             self.selectedItems.append(selectedItem)
             self.showSelectedItems([selectedItem])
 
-            self.availableItems.remove(selectedItem)
-            self.updateOptions()
+            self.edit.options_list.remove(selectedItem)
+            self.edit.updateOptions()
             return True
         return False
 
@@ -169,9 +164,9 @@ class SophysInputList(QWidget):
         """
             Add a new item to the list.
         """
-        if self.availableItems != None:
+        if isinstance(self.edit, SophysComboBox):
             return self.addItemFromCombobox()
-        elif self.isNumber:
+        elif "float" in self.inputType or "int" in self.inputType:
             value = self.edit.value()
         else:
             value = self.edit.text()
@@ -188,24 +183,18 @@ class SophysInputList(QWidget):
         """
         return super().setToolTip(args)
 
-    def getCombobox(self):
-        wid = QComboBox()
-        wid.setEditable(True)
-        wid.completer().setCompletionMode(QCompleter.PopupCompletion)
-        wid.setInsertPolicy(QComboBox.NoInsert)
-        wid.addItems(sorted(self.availableItems))
-        return wid
-
     def handleListWidget(self):
         """
             Show the correct input widget for the list type.
         """
         minWid = 50
-        if self.availableItems != None:
+        isDevice = any([item in self.inputType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
+        isLiteral = "Literal" in self.inputType
+        if isDevice or isLiteral:
             minWid = 100
-            wid = self.getCombobox()
-        elif self.isNumber:
-            wid = handleSpinboxWidget(self.isNumber)
+            wid = SophysComboBox(self.run_engine, self.inputType)
+        elif "float" in self.inputType or "int" in self.inputType:
+            wid = handleSpinboxWidget("int" if "int" in self.inputType else "float")
         else:
             wid = QLineEdit()
         wid.setMinimumWidth(minWid)

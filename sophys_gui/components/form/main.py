@@ -9,7 +9,7 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QApplication, QCompleter, QComboBox, QWidget
 from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
-    SophysInputMotor
+    SophysInputMotor, SophysComboBox
 from .util import UNKNOWN_TYPES
 
 NoneType = type(None)
@@ -303,45 +303,13 @@ class SophysForm(QDialog):
             if (item != None):
                 self.setWidgetValue(inputWid, item, isStr)
 
-    def getAvailableDevicesType(self, title):
-        """
-            Get the key for searching the devices options.
-        """
-        optionsMode = {
-            "__MOVABLE__": "is_movable",
-            "__READABLE__": "is_readable",
-            "__FLYABLE__": "is_flyable"
-        }
-        for device_type, http_server_key in optionsMode.items():
-            if device_type in title:
-                return http_server_key
-        return None
-
-    def getDevicesOptions(self, availableDevices):
-        """
-            Get all the available devices based on one of its property.
-        """
-        allowedDevices = self.model._allowed_devices
-        optionsList = []
-        for key, device in allowedDevices.items():
-            if device[availableDevices]:
-                optionsList.append(key)
-        return optionsList
-
     def getIterableInput(self, paramMeta, inputType, isGrouped=False):
         """
             Handle iterable inputs with pre existing options.
         """
-        optionsList = None
         if "motor" in paramMeta["name"]:
             inputType = "__MOVABLE__"
-        if inputType:
-            availableDevices = self.getAvailableDevicesType(inputType)
-            if availableDevices:
-                optionsList = self.getDevicesOptions(availableDevices)
-            else:
-                inputType = "int" if "int" in inputType else "float" if "float" in inputType else None
-        return SophysInputList(optionsList, inputType, not isGrouped)
+        return SophysInputList(self.model, inputType, not isGrouped)
 
     def getInputTooltip(self, param):
         """
@@ -357,26 +325,6 @@ class SophysForm(QDialog):
                 pass
             return description
         return ""
-
-    def getComboboxInput(self, inputType, insertAvailable):
-        combobox = QComboBox()
-        combobox.setEditable(True)
-        combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
-        insert_mode = QComboBox.InsertAlphabetically if insertAvailable else QComboBox.NoInsert
-        combobox.setInsertPolicy(insert_mode)
-
-        availableDevices = self.getAvailableDevicesType(inputType)
-        if "bool" in inputType:
-            combobox.addItems(["True", "False"])
-        elif "Literal" in inputType:
-            literal_idx = inputType.index("Literal")
-            splitStr = inputType[literal_idx+8:].replace(" '", "").replace("'", "")
-            options_end_idx = splitStr.index("]")
-            combobox.addItems(splitStr[:options_end_idx].split(","))
-        elif availableDevices:
-            optionsList = self.getDevicesOptions(availableDevices)
-            combobox.addItems(sorted(optionsList))
-        return combobox
 
     def getInputWidget(self, paramMeta, paramType, isRequired):
         """
@@ -394,11 +342,11 @@ class SophysForm(QDialog):
         if isDict:
             inputWid = SophysInputDict()
         elif isArgs:
-            inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
+            inputWid = SophysInputMotor(self.model, paramMeta, self.getIterableInput)
         elif isIterable and not isBool:
             inputWid = self.getIterableInput(paramMeta, paramType)
         elif isDevice or isLiteral or isBool:
-            inputWid = self.getComboboxInput(paramType, isStr)
+            inputWid = SophysComboBox(self.model, paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
             inputWid = SophysSpinBox(numericType, isRequired)
