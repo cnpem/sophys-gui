@@ -38,10 +38,13 @@ class SophysForm(QDialog):
 
     def __init__(
             self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
-            form_gui_widget = "", max_rows = 3, showOnlyInputs = False):
+            form_gui_widget = "", max_rows = 3, max_cols = 3, showOnlyInputs = False, readingOrder="up_down"):
         super().__init__()
+    
+        self.readingOrder = readingOrder
         self.showOnlyInputs = showOnlyInputs
         self.max_rows = max_rows
+        self.max_cols = max_cols
         self.form_gui_widget = form_gui_widget
         self.allowedParameters = allowedParameters
         self.allowedNames = allowedNames
@@ -534,10 +537,17 @@ class SophysForm(QDialog):
             pos = [0, 0]
             for paramMeta in parameters:
                 pos = self.addParameterInput(paramMeta, pos, glay)
-                if pos[0] >= self.max_rows*2:
-                    pos[0] = 0
-                    pos[1] += 2
-
+                if self.readingOrder == "up_down":
+                    if pos[0] >= self.max_rows*2:
+                        pos[0] = 0
+                        pos[1] += 2
+                else:
+                    if pos[1] >= self.max_cols - 1:
+                        pos[1] = 0
+                        pos[0] += 1
+                    else:
+                        pos[1] += 1
+                        pos[0] -= 2
         else:
             glay.addWidget(self.getNoParametersLabel())
         self.updateParametersLayout(group)
