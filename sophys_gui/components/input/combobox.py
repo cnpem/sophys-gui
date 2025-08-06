@@ -8,6 +8,7 @@ class SophysComboBox(QComboBox):
         super().__init__()
         self.run_engine = run_engine
         self.options_list = []
+        self.exclusive_items = False
         self._setupUi(inputType)
 
     def getAvailableDevicesType(self, title):
@@ -55,6 +56,7 @@ class SophysComboBox(QComboBox):
             options_end_idx = splitStr.index("]")
             self.options_list = splitStr[:options_end_idx].split(",")
         elif availableDevices:
+            self.exclusive_items = True
             optionsList = self.getDevicesOptions(availableDevices)
             self.options_list = optionsList
         self.addItems(sorted(self.options_list))

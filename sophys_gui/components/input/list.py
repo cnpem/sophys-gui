@@ -84,9 +84,10 @@ class SophysInputList(QWidget):
         self.selectedItems = value
         self.showSelectedItems(self.selectedItems)
         if isinstance(self.edit, SophysComboBox):
-            for val in value:
-                self.edit.options_list.remove(val)
-            self.edit.updateOptions()
+            if self.edit.exclusive_items:
+                for val in value:
+                    self.edit.options_list.remove(val)
+                self.edit.updateOptions()
 
     def getSelectedTag(self, title):
         """
@@ -141,8 +142,9 @@ class SophysInputList(QWidget):
         self.showSelectedItems(self.selectedItems)
 
         if isinstance(self.edit, SophysComboBox):
-            self.edit.options_list.append(item)
-            self.edit.updateOptions()
+            if self.edit.exclusive_items:
+                self.edit.options_list.append(item)
+                self.edit.updateOptions()
 
 
     def addItemFromCombobox(self):
@@ -150,13 +152,13 @@ class SophysInputList(QWidget):
             Add an item from the combobox options.
         """
         selectedItem = self.edit.currentText()
-        validSelectedItem = selectedItem and not selectedItem in self.selectedItems
-        if validSelectedItem:
+        if selectedItem:
             self.selectedItems.append(selectedItem)
             self.showSelectedItems([selectedItem])
 
-            self.edit.options_list.remove(selectedItem)
-            self.edit.updateOptions()
+            if self.edit.exclusive_items:
+                self.edit.options_list.remove(selectedItem)
+                self.edit.updateOptions()
             return True
         return False
 
