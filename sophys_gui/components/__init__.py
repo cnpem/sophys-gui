@@ -7,3 +7,5 @@ from .input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
 from .console import SophysConsoleMonitor
 from .login import SophysLogin
+from .led import SophysLed
+from .form import SophysForm

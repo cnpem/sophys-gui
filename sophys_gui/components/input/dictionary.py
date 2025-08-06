@@ -2,7 +2,7 @@ import qtawesome as qta
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
     QGridLayout, QLineEdit, QVBoxLayout, QStackedWidget, \
-    QSizePolicy
+    QSizePolicy, QScrollArea
 
 
 class SophysInputDict(QWidget):
@@ -172,14 +172,24 @@ class SophysInputDict(QWidget):
         return glay
 
     def _setupUi(self):
-        vlay = QVBoxLayout()
-        vlay.setContentsMargins(2, 2, 2, 2)
-        vlay.setSpacing(2)
+        hlay = QVBoxLayout(self)
 
         keyValueWid = self.getKeyValueInput()
-        vlay.addLayout(keyValueWid, 1)
+        hlay.addLayout(keyValueWid, 1)
+
+        scrollarea = QScrollArea()
+        scrollarea.setWidgetResizable(True)
+        scrollarea.setMinimumHeight(100)
+        hlay.addWidget(scrollarea, 5)
+
+        container = QWidget()
+        container.setObjectName("QScrollArea")
+        vlay = QVBoxLayout()
+        container.setLayout(vlay)
+        vlay.setContentsMargins(2, 2, 2, 2)
+        vlay.setSpacing(2)
 
         self.inputDictList = QGridLayout()
         vlay.addLayout(self.inputDictList, 4)
 
-        self.setLayout(vlay)
+        scrollarea.setWidget(container)

@@ -19,11 +19,32 @@ CONFIG = {
             "tooltip": "Resume running the paused queue item."
         }
     ],
+    "start_monitor": [
+        {
+            'icon': 'fa5s.play',
+            'title': 'Start',
+            'cmd': lambda _: print(""),
+            'enabled': False,
+            "tooltip": "Start running the first queue item."
+        },
+        {
+            'icon': 'fa5s.pause',
+            'title': 'Pause',
+            'cmd': lambda re: re.re_pause(option='deferred'),
+            "tooltip": "Pause the running item."
+        },
+        {
+            'icon': 'fa5s.play',
+            'title': 'Resume',
+            'cmd': lambda re: re.re_resume(),
+            "tooltip": "Resume running the paused queue item."
+        }
+    ],
     "stop": [
         {
             'icon': 'fa5s.stop',
             'title': 'Stop',
-            'cmd': lambda _: print(""),
+            'cmd': lambda re: re.re_pause(option="deferred"),
             'enabled': False,
             "tooltip": "Stop running the queue list."
         },
@@ -45,7 +66,7 @@ CONFIG = {
         {
             'icon': 'fa5s.pause-circle',
             'title': 'Pause Now',
-            'cmd': lambda _: print(""),
+            'cmd': lambda re: re.re_pause(option="deferred"),
             'enabled': False,
             "tooltip": "Pause the execution now. This may cause the plan to fail later."
         },
