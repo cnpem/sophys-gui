@@ -116,21 +116,25 @@ class SophysForm(QDialog):
         """
             Verify if the inserted value is valid.
         """
-        valueList, widType = self.handleNonMotorTypes(valueList, widType)
-        for idx, types in enumerate(widType):
+        curValueList, curWidType = self.handleNonMotorTypes(valueList, widType)
+        value2Verify = []
+        wid2Verify = []
+        for idx, types in enumerate(curWidType):
             generic_type = str(types)
             if "typing.Literal" in generic_type:
-                del widType[idx]
-                del valueList[idx]
+                continue
+            wid2Verify.append(curWidType[idx])
+            value2Verify.append(curValueList[idx])
         try:
-            widTypeLen = len(widType)
+            widTypeLen = len(wid2Verify)
             if widTypeLen == 0:
                 return True
             return any([
-                typesentry.Config().is_type(value, widType[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(valueList)
+                typesentry.Config().is_type(value, wid2Verify[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(value2Verify)
             ])
         except Exception:
-            print(valueList, type(valueList), widType)
+            print("Couldn't verify:")
+            print(value2Verify, type(value2Verify), wid2Verify)
         return False
 
     def getItemParameters(self):
@@ -145,7 +149,7 @@ class SophysForm(QDialog):
         for key, inputWid in self.inputWidgets.items():
             strType = str(inputWid["type"])
             isLiteral = "Literal" in strType
-            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]])
+            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)
             isRequired = inputWid["required"]
             value = self.handleSingleListValue(inputWid, key)
             hasParam = self.getHasParameters(value)
