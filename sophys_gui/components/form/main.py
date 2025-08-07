@@ -88,14 +88,15 @@ class SophysForm(QDialog):
             hasParam = len(value) > 0
         return hasParam
 
-    def handleDetectorValue(self, inputWid, key):
+    def handleSingleListValue(self, inputWid, key):
         """
             Transform the detector value to a list if there is only one.
         """
         widget = inputWid["widget"]
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
+        isIterable = any([item in str(inputWid["type"]).lower() for item in ["Sequence", "Iterable", "list", "object"]])
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
-        if isDetector and isinstance(value, str):
+        if isDetector and isinstance(value, str) or (isIterable and not isinstance(value, list)):
             value = [value]
         return value
 
@@ -142,13 +143,16 @@ class SophysForm(QDialog):
         }
         isValid = True
         for key, inputWid in self.inputWidgets.items():
+            strType = str(inputWid["type"])
+            isLiteral = "Literal" in strType
+            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]])
             isRequired = inputWid["required"]
-            value = self.handleDetectorValue(inputWid, key)
+            value = self.handleSingleListValue(inputWid, key)
             hasParam = self.getHasParameters(value)
             if hasParam:
                 if not isinstance(inputWid["widget"], QLineEdit):
                     value = evaluateValue(value)
-                if "Literal" in str(inputWid["type"]) and not isinstance(inputWid["type"], list):
+                if isLiteral and not isIterable:
                     value = str(value)
                 validParam = self.verifyValueType(value, inputWid["type"])
                 if validParam:

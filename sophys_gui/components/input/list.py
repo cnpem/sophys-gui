@@ -146,7 +146,6 @@ class SophysInputList(QWidget):
                 self.edit.options_list.append(item)
                 self.edit.updateOptions()
 
-
     def addItemFromCombobox(self):
         """
             Add an item from the combobox options.
