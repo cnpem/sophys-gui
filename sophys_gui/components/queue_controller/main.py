@@ -1,7 +1,7 @@
 import qtawesome as qta
 from qtpy.QtCore import QSize
 from qtpy.QtWidgets import QWidget, QHBoxLayout, QGroupBox, \
-    QStackedWidget, QPushButton
+    QStackedWidget, QPushButton, QMessageBox
 from sophys_gui.functions import addLineJumps
 from ..led import SophysLed
 from .util import CONFIG
@@ -98,25 +98,61 @@ class QueueController(QWidget):
             ledGroup = self.addStatusGroup(title, param_dict)
             hlay.addWidget(ledGroup)
 
+    def getSinglePushButton(self, btnConfig):
+        btn = QPushButton(btnConfig["title"])
+        btn.setIcon(qta.icon(btnConfig["icon"]))
+        btn.setIconSize(QSize(20, 20))
+        if "cmd" in btnConfig:
+            btn.clicked.connect(
+                lambda _, cmd=btnConfig["cmd"]: cmd(self.run_engine))
+        tooltipMsg = addLineJumps(btnConfig["tooltip"])
+        btn.setToolTip(tooltipMsg)
+        if "enabled" in btnConfig:
+            btn.setEnabled(btnConfig["enabled"])
+        return btn
+
     def getControllerStack(self, cmdBtnDict):
         """
             Group the control buttons in a dynamic stack.
         """
         stack = QStackedWidget()
         for btnConfig in cmdBtnDict:
-            btn = QPushButton(btnConfig["title"])
-            btn.setIcon(qta.icon(btnConfig["icon"]))
-            btn.setIconSize(QSize(20, 20))
-            btn.clicked.connect(
-                lambda _, cmd=btnConfig["cmd"]: cmd(self.run_engine))
-            tooltipMsg = addLineJumps(btnConfig["tooltip"])
-            btn.setToolTip(tooltipMsg)
-            if "enabled" in btnConfig:
-                btn.setEnabled(btnConfig["enabled"])
+            btn = self.getSinglePushButton(btnConfig)
             stack.addWidget(btn)
 
         return stack
 
+    def confirmationDialog(self):
+        """
+            Confirm the desired action.
+        """
+        msg = "This procedure will destroy the bluesky environment.\n" \
+        "You should only use this if you a running plan is frozen and you " \
+        "can't halt or abort it.\nAre you sure you want to proceed?"
+        resCode = QMessageBox.question(self, "Destroy Bluesky Environment",
+            msg)
+        if resCode == QMessageBox.Yes:
+            return True
+        return False
+    
+    def handle_destroy(self):
+        confirmation = self.confirmationDialog()
+        if confirmation:
+            self.run_engine.activate_env_destroy(True)
+            self.run_engine.environment_destroy(timeout=5)
+
+    def addDestroyButton(self, hlay):
+        group = QGroupBox()
+        group.setTitle("Destroy")
+        groupLay = QHBoxLayout()
+        groupLay.setContentsMargins(25, 2, 25, 2)
+        group.setLayout(groupLay)
+
+        btn = self.getSinglePushButton(CONFIG["destroy"])
+        btn.clicked.connect(self.handle_destroy)
+        groupLay.addWidget(btn)
+        hlay.addWidget(group)
+        
     def getQueueController(self):
         """
             Group the buttons stacks for controlling the queue.
@@ -150,6 +186,7 @@ class QueueController(QWidget):
         
 
         if not self.execution_monitor:
+            self.addDestroyButton(hlay)
             self.addStatusLeds(hlay)
         else:
             self.cmdStacks.append(QStackedWidget())
