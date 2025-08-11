@@ -192,6 +192,7 @@ class SophysInputList(QWidget):
         wid = QComboBox()
         wid.setEditable(True)
         wid.completer().setCompletionMode(QCompleter.PopupCompletion)
+        wid.completer().setFilterMode(Qt.MatchContains)
         wid.setInsertPolicy(QComboBox.NoInsert)
         wid.addItems(sorted(self.availableItems))
         return wid
