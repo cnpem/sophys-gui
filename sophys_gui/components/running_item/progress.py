@@ -13,6 +13,9 @@ class ProgressBar(QProgressBar):
         super().__init__()
         self.run_engine = run_engine
         self.total_events = 1
+        self.event_sum = 0
+        self.last_run = 0
+        self.multi_run = False
         self.setMaximum(100)
         self.setMinimum(0)
         self.kafka_monitor = KafkaDataRegister(kafka_bootstrap, kafka_topic)
@@ -27,6 +30,11 @@ class ProgressBar(QProgressBar):
         kwargs = runningItem["kwargs"]
         isGrid = "grid" in runningItem["name"]
         isList = "list" in runningItem["name"]
+        if "metadata" in kwargs:
+            if "total_seq_num" in kwargs["metadata"]:
+                self.total_events = int(kwargs["metadata"]["total_seq_num"])
+                self.multi_run = True
+                return
         if "num" in kwargs:
             self.total_events = kwargs["num"]
         elif "args" in kwargs:
@@ -53,12 +61,27 @@ class ProgressBar(QProgressBar):
         else:
             self.kafka_timer.stop()
             self.setVisible(False)
+            self.setValue(0)
+            self.multi_run = False
+            self.last_run = 0
+            self.event_sum = 0
+            self.kafka_monitor.get_data()
 
     @DeferredFunction
     def kafka_monitor_callback(self):
-        events_size = len(self.kafka_monitor.get_data())
+        kafka_data = self.kafka_monitor.get_data()
+        events_size = len(kafka_data)
         if events_size > 0:
-            last_run = self.kafka_monitor.get_data()[-1]
+            last_run = kafka_data[-1]
+            seq_num = 0
             if "seq_num" in last_run:
-                self.setValue(int(100*last_run["seq_num"]/self.total_events))
-                self.kafka_monitor.clear_data()
+                if self.multi_run:
+                    if last_run["seq_num"] > self.last_run:
+                        self.event_sum += last_run["seq_num"] - self.last_run
+                    else:
+                        self.event_sum += last_run["seq_num"]
+                    seq_num = self.event_sum
+                    self.last_run = last_run["seq_num"]
+                else:
+                    seq_num = last_run["seq_num"]
+                self.setValue(int(100*seq_num/self.total_events))
