@@ -123,7 +123,7 @@ class SophysForm(QDialog):
         wid2Verify = []
         for idx, types in enumerate(curWidType):
             generic_type = str(types)
-            if "typing.Literal" in generic_type:
+            if "typing.Literal" in generic_type or "list" in generic_type:
                 continue
             wid2Verify.append(curWidType[idx])
             value2Verify.append(curValueList[idx])
