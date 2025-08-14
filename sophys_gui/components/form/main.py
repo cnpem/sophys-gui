@@ -55,6 +55,7 @@ class SophysForm(QDialog):
         self.hasEnv = hasEnv
         self.plan_description = None
         self.autosave_metadata = None
+        self.md_widget = None
         self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
@@ -395,6 +396,8 @@ class SophysForm(QDialog):
         isStr = "str" in strType
         if isDict:
             inputWid = SophysInputDict()
+            if paramMeta["name"] == "md":
+                self.md_widget = inputWid
         elif isArgs:
             inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
         elif isIterable and not isBool:
@@ -555,7 +558,7 @@ class SophysForm(QDialog):
         self.updateParametersLayout(group)
 
     def openMetadataForm(self):
-        self.autosave_metadata = SophysMetadataForm(self.global_metadata_updater)
+        self.autosave_metadata = SophysMetadataForm(self.global_metadata_updater, self.md_widget)
         self.autosave_metadata.exec()
 
     def getGeneralPlanData(self):

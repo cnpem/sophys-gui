@@ -44,10 +44,11 @@ BLUESKY_AUTOSAVE_METADATA = {
 
 class SophysMetadataForm(QDialog):
 
-    def __init__(self, metadata_updater):
+    def __init__(self, metadata_updater, md_widget):
         super().__init__()
         self.metadata_values = metadata_updater()
         self.global_metadata_updater = metadata_updater
+        self.md_widget = md_widget
         self._setupUi()
 
     def getDialogBtns(self, hasAddItemBtn: bool = True):
@@ -63,7 +64,11 @@ class SophysMetadataForm(QDialog):
         return btns
     
     def saveMetadata(self):
-        self.global_metadata_updater(self.getValues())
+        autosave_metadata = self.getValues()
+        self.global_metadata_updater(autosave_metadata)
+        metadata = self.md_widget.text()
+        metadata.update(autosave_metadata)
+        self.md_widget.setValue(metadata)
         self.accept()
 
     def getValues(self):
