@@ -1,6 +1,8 @@
 from typing import Literal
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, QLabel, \
     QLineEdit, QComboBox
+from assonant.naming_standards import BeamlineName, ExperimentStage, \
+    ExperimentalTechniquesAcronyms
 
 
 BLUESKY_AUTOSAVE_METADATA = {
@@ -23,15 +25,18 @@ BLUESKY_AUTOSAVE_METADATA = {
         "tooltip": "If present, this disables using a 'scan id'-like logic to create file names when the identifier is customized and would normally override the previous file with the same name."
     },
     "beamline_name": {
-        "type": str,
+        "type": Literal,
+        "enum": [bl.value for bl in BeamlineName],
         "tooltip": "The name of the source beamline the data is coming from. Used as a metadata inside the NeXus file, but also to mount the default path on Ibira for data_schema_file_path if it hasn't been set."
     },
     "experiment_stage": {
-        "type": str,
+        "type": Literal,
+        "enum": [stage.value for stage in ExperimentStage],
         "tooltip": "The name of the experiment stage in which the data was collected."
     },
     "experimental_technique": {
-        "type": str,
+        "type": Literal,
+        "enum": [tech.value for tech in ExperimentalTechniquesAcronyms],
         "default": "",
         "tooltip": "The acronym of the experimental technique being performed. Currently, it is just an additional metadata but in the future it will be of great importance for the operation."
     },
@@ -78,11 +83,11 @@ class SophysMetadataForm(QDialog):
         for title, wid in self.inputs.items():
             if isinstance(wid, QLineEdit):
                 values[title] = wid.text()
-                if len(values[title]) == 0:
-                    if "default" in BLUESKY_AUTOSAVE_METADATA[title]:
-                        del values[title]
             else:
                 values[title] = wid.currentText()
+            if len(values[title]) == 0:
+                if "default" in BLUESKY_AUTOSAVE_METADATA[title]:
+                    del values[title]
         return values
 
     def _setupUi(self):
