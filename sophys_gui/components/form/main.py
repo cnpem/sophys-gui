@@ -589,6 +589,7 @@ class SophysForm(QDialog):
 
         if self.itemType == "plan" and self.global_metadata_updater != "":
             metadata_btn = QPushButton("Metadata")
+            metadata_btn.setIcon(qta.icon("fa5s.file-alt"))
             metadata_btn.clicked.connect(self.openMetadataForm)
             glay.addWidget(metadata_btn, 1, 4, 1, 1)
 
