@@ -1,4 +1,5 @@
 from typing import Literal
+from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout
 
 
 BLUESKY_AUTOSAVE_METADATA = {
@@ -12,7 +13,7 @@ BLUESKY_AUTOSAVE_METADATA = {
     },
     "metadata_save_file_format": {
         "type": Literal["NEXUS", "JSON", "SPEC"],
-        "default": "NEXUS",
+        "default": "JSON,NEXUS",
         "tooltip": "The file format to use for saving the metadata. If not set, it will use the JSON format. Available options are defined in the aforementioned file. You can also specify multiple formats separated by comma, and all the options will be used."
     },
     "metadata_save_increment_disable": {
@@ -39,3 +40,36 @@ BLUESKY_AUTOSAVE_METADATA = {
         "tooltip": "If set, defines the path to the data schema file instead of using the default one at Ibira, which is based on beamline_name."
     }
 }
+
+
+class SophysMetadataForm(QDialog):
+
+    def __init__(self, metadata_updater):
+        super().__init__()
+        self.metadata_values = metadata_updater()
+        self.global_metadata_updater = metadata_updater
+        self._setupUi()
+
+    def getDialogBtns(self, hasAddItemBtn: bool = True):
+        """
+            Create the form dialog buttons.
+        """
+        btns = QDialogButtonBox()
+        btns = QDialogButtonBox(
+            QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        )
+        btns.accepted.connect(self.saveMetadata)
+        btns.rejected.connect(self.reject)
+        return btns
+    
+    def saveMetadata(self):
+        self.global_metadata_updater(self.getValues())
+        self.accept()
+
+    def getValues(self):
+        return {}
+
+    def _setupUi(self):
+        glay = QGridLayout(self)
+
+        glay.addWidget(self.getDialogBtns())

@@ -395,7 +395,7 @@ class QueueModel(ListModel):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
             allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
-            metadata_file_path=self.global_metadata_updater, readingOrder=self.reading_order).exec()
+            metadata_updater=self.global_metadata_updater, readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_instruction_item(self):

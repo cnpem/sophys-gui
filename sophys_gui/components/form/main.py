@@ -5,11 +5,12 @@ import typesentry
 from math import floor
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
-    QComboBox, QGroupBox, QHBoxLayout, QLineEdit, QLabel, QVBoxLayout, \
-    QApplication, QCompleter, QComboBox, QWidget
+    QComboBox, QGroupBox, QLineEdit, QLabel, QVBoxLayout, \
+    QApplication, QCompleter, QComboBox, QWidget, QPushButton
 from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor
+from .metadata import SophysMetadataForm
 from .util import UNKNOWN_TYPES
 
 NoneType = type(None)
@@ -37,7 +38,7 @@ class SophysForm(QDialog):
     """
 
     def __init__(
-            self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_file_path="",
+            self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_updater="",
             form_gui_widget = "", max_rows = 3, max_cols = 3, showOnlyInputs = False, readingOrder="up_down"):
         super().__init__()
     
@@ -53,8 +54,8 @@ class SophysForm(QDialog):
         self.modalMode = modalMode
         self.hasEnv = hasEnv
         self.plan_description = None
-        self.metadata_file_path = None
-        self.global_metadata_path = metadata_file_path
+        self.autosave_metadata = None
+        self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.setupUi()
     
@@ -166,11 +167,11 @@ class SophysForm(QDialog):
             elif isRequired:
                 isValid = False
                 exception = "002: Missing required fields!!"
-            if key == "md" and self.metadata_file_path != None:
+            if key == "md" and self.autosave_metadata != None:
                 if not hasParam:
                     inputValues["kwargs"]["md"] = {}
-                inputValues["kwargs"]["md"]["metadata_save_file_location"] = self.metadata_file_path.text()
-                self.global_metadata_path(self.metadata_file_path.text())
+                inputValues["kwargs"]["md"].update(self.autosave_metadata.getValues())
+                self.global_metadata_updater(self.autosave_metadata.getValues())
         if not isValid:
             raise Exception(exception)
         return inputValues
@@ -553,8 +554,9 @@ class SophysForm(QDialog):
             glay.addWidget(self.getNoParametersLabel())
         self.updateParametersLayout(group)
 
-    def save_metadata_file_path(self):
-        self.global_metadata_path(self.metadata_file_path.text())
+    def openMetadataForm(self):
+        self.autosave_metadata = SophysMetadataForm(self.global_metadata_updater)
+        self.autosave_metadata.exec()
 
     def getGeneralPlanData(self):
         """
@@ -563,8 +565,8 @@ class SophysForm(QDialog):
         """
         group = QGroupBox()
         group.setMaximumHeight(150)
-        vlay = QVBoxLayout()
-        group.setLayout(vlay)
+        glay = QGridLayout()
+        group.setLayout(glay)
         group.setTitle(self.itemType)
 
         combobox = QComboBox()
@@ -577,19 +579,15 @@ class SophysForm(QDialog):
         combobox.activated.connect(
             lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
         currItem = combobox.currentText()
-        vlay.addWidget(combobox)
+        glay.addWidget(combobox, 0, 0, 1, 5)
 
         self.plan_description = QLabel()
-        vlay.addWidget(self.plan_description)
+        glay.addWidget(self.plan_description, 1, 0, 1, 4)
 
-        if self.itemType == "plan" and self.global_metadata_path != "":
-            hbox = QHBoxLayout()
-            metadata_lbl = QLabel("Metadata File Path")
-            hbox.addWidget(metadata_lbl)
-            self.metadata_file_path = QLineEdit(self.global_metadata_path())
-            self.metadata_file_path.returnPressed.connect(self.save_metadata_file_path)
-            hbox.addWidget(self.metadata_file_path)
-            vlay.addLayout(hbox)
+        if self.itemType == "plan" and self.global_metadata_updater != "":
+            metadata_btn = QPushButton("Metadata")
+            metadata_btn.clicked.connect(self.openMetadataForm)
+            glay.addWidget(metadata_btn, 1, 4, 1, 1)
 
         return group, currItem
 
