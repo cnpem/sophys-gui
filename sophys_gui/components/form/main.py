@@ -523,6 +523,7 @@ class SophysForm(QDialog):
         combobox = QComboBox()
         combobox.setEditable(True)
         combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
+        combobox.completer().setFilterMode(Qt.MatchContains)
         combobox.setInsertPolicy(QComboBox.NoInsert)
         allowedNames = self.allowedNames()
         combobox.addItems(sorted(allowedNames))

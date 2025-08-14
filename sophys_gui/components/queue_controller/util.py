@@ -97,6 +97,11 @@ CONFIG = {
             "tooltip": "Close the Bluesky Environment."
         }
     ],
+    "destroy": {
+        'icon': 'fa5s.skull',
+        'title': '',
+        "tooltip": "Destroy the Bluesky Environment."
+    },
     "leds": {
         'Connected': {
             'key': 'worker_environment_exists',
