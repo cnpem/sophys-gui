@@ -15,13 +15,11 @@ BLUESKY_AUTOSAVE_METADATA = {
     "metadata_save_file_format": {
         "type": Literal,
         "enum": ["JSON,NEXUS", "NEXUS", "JSON", "SPEC"],
-        "default": "JSON,NEXUS",
         "tooltip": "The file format to use for saving the metadata. If not set, it will use the JSON format. Available options are defined in the aforementioned file. You can also specify multiple formats separated by comma, and all the options will be used."
     },
     "metadata_save_increment_disable": {
         "type": Literal,
         "enum": ["True", "False"],
-        "default": None,
         "tooltip": "If present, this disables using a 'scan id'-like logic to create file names when the identifier is customized and would normally override the previous file with the same name."
     },
     "beamline_name": {
@@ -80,6 +78,9 @@ class SophysMetadataForm(QDialog):
         for title, wid in self.inputs.items():
             if isinstance(wid, QLineEdit):
                 values[title] = wid.text()
+                if len(values[title]) == 0:
+                    if "default" in BLUESKY_AUTOSAVE_METADATA[title]:
+                        del values[title]
             else:
                 values[title] = wid.currentText()
         return values
