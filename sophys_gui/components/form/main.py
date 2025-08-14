@@ -93,10 +93,12 @@ class SophysForm(QDialog):
             Transform the detector value to a list if there is only one.
         """
         widget = inputWid["widget"]
+        strType = str(inputWid["type"]).lower()
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
-        isIterable = any([item in str(inputWid["type"]).lower() for item in ["Sequence", "Iterable", "list", "object"]])
+        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
+        isUnion = "union" in strType
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
-        if isDetector and isinstance(value, str) or (isIterable and not isinstance(value, list)):
+        if isDetector and isinstance(value, str) or (isIterable and not isinstance(value, list) and not isUnion):
             value = [value]
         return value
 
