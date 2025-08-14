@@ -294,7 +294,7 @@ class QueueModel(ListModel):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
-        self.global_metadata = ""
+        self.global_metadata = {}
         self.reading_order = reading_order
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
 
