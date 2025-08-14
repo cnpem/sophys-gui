@@ -55,7 +55,7 @@ class SophysMetadataForm(QDialog):
         self.md_widget = md_widget
         self._setupUi()
 
-    def getDialogBtns(self, hasAddItemBtn: bool = True):
+    def getDialogBtns(self):
         """
             Create the form dialog buttons.
         """
