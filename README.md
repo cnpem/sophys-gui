@@ -26,6 +26,7 @@ Some of its features are:
   * Monitoring of the http server communication via a console.
   * Rescaling of the widgets.
   * Tooltips for the plans and parameters.
+  * Loading bar for current running plan. If the "total_seq_num" metadata key is set, this will be the total number of events set in the progress ration.
 
 ![Screenshot from 2024-11-25 09-28-15](https://github.com/user-attachments/assets/0bc4c227-e8e7-4b3c-830b-6d768e7154ab)
 ![Screenshot from 2024-11-25 09-28-00](https://github.com/user-attachments/assets/5f537bc6-37ad-4869-a97a-aae751c689b6)
