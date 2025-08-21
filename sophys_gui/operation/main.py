@@ -41,7 +41,7 @@ class SophysOperationGUI(QMainWindow):
         queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, self.loginChanged)
+        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic)
         hsplitter.addWidget(running)
 
         history = SophysHistoryTable(self.model, self.loginChanged)
