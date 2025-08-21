@@ -16,7 +16,8 @@ BLUESKY_AUTOSAVE_METADATA = {
     },
     "metadata_save_file_format": {
         "type": Literal,
-        "enum": ["JSON,NEXUS", "NEXUS", "JSON", "SPEC"],
+        "enum": ["JSON,NEXUS", "SPEC,NEXUS", "NEXUS", "JSON", "SPEC"],
+        "insert": True,
         "tooltip": "The file format to use for saving the metadata. If not set, it will use the JSON format. Available options are defined in the aforementioned file. You can also specify multiple formats separated by comma, and all the options will be used."
     },
     "metadata_save_increment_disable": {
@@ -105,7 +106,12 @@ class SophysMetadataForm(QDialog):
                 input_wid = QComboBox()
                 input_wid.addItems(widget_spec["enum"])
                 if title in self.metadata_values:
-                    input_wid.setCurrentText(self.metadata_values[title])
+                    curr_value = self.metadata_values[title]
+                    if not curr_value in widget_spec["enum"]:
+                        input_wid.addItem(curr_value)
+                    input_wid.setCurrentText(curr_value)
+                if "insert" in widget_spec:
+                    input_wid.setEditable(True)
             self.inputs[title] = input_wid
             glay.addWidget(input_wid, idx, 1)
 
