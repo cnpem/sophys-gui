@@ -294,7 +294,7 @@ class QueueModel(ListModel):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
-        self.global_metadata = ""
+        self.global_metadata = {}
         self.reading_order = reading_order
         super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
 
@@ -395,7 +395,7 @@ class QueueModel(ListModel):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
             allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
-            metadata_file_path=self.global_metadata_updater, readingOrder=self.reading_order).exec()
+            metadata_updater=self.global_metadata_updater, readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_instruction_item(self):

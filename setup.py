@@ -12,7 +12,8 @@ setup(
         'bluesky-queueserver-api==0.0.10',
         'bluesky-widgets',
         'typesentry==0.2.7',
-        'numpy<2.0.0'
+        'numpy<2.0.0',
+        'assonant[naming-standards]'
     ],
     include_package_data=True,
     packages=find_packages(),

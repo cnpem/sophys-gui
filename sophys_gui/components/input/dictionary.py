@@ -35,6 +35,9 @@ class SophysInputDict(QWidget):
             Set pre-existing dictionary value.
         """
         self.inputDict = item
+        for widgetList in self.inputWid:
+            for widget in widgetList:
+                widget.deleteLater()
         self.createAllInputDict()
 
     def saveEditRow(self, key, row):
