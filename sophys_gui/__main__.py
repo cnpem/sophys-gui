@@ -17,13 +17,16 @@ def main():
     parser.add_argument("--kafka-bootstrap", required=True, help="The Kafka broker address to connect to. (e.g. 127.0.0.1:kafka_port)")
     parser.add_argument("--kafka-topic", required=True, help="The Kafka topic to listen to. (e.g. test_bluesky_raw_docs)")
     parser.add_argument("--reading-order", required=False, default='up_down', help="The reading order of the parameters in the form for the addition of a new plan.")
+    parser.add_argument("--show-all-logs", required=False, default=False, help="Don't hide the queue server logs")
     args = parser.parse_args()
 
     __backend_model = ServerModel(args.http_server, args.http_server_api_key)
 
     app = SophysApplication(sys.argv)
     has_api_key = True if args.http_server_api_key else False
-    window = SophysOperationGUI(__backend_model, args.kafka_bootstrap, args.kafka_topic, has_api_key, args.reading_order)
+    window = SophysOperationGUI(
+        __backend_model, args.kafka_bootstrap, args.kafka_topic, 
+        has_api_key, args.reading_order, args.show_all_logs)
     window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
     window.setWindowTitle("SOPHYS GUI")
     window.show()

@@ -21,9 +21,9 @@ class SophysConsoleMonitor(QScrollArea):
 
     appendLine = Signal(str)
 
-    def __init__(self, model):
+    def __init__(self, model, all_logs=False):
         super().__init__()
-
+        self.all_logs = all_logs
         self.run_engine = model.run_engine
         self.appendLine.connect(self.onAppendLine)
 
@@ -46,7 +46,8 @@ class SophysConsoleMonitor(QScrollArea):
             if newOutput:
                 new_console_line = newOutput[1].strip()
                 if new_console_line != "":
-                    self.appendLine.emit(new_console_line)
+                    if not "bluesky_queueserver" in new_console_line or self.all_logs:
+                        self.appendLine.emit(new_console_line)
             else:
                 break
 
