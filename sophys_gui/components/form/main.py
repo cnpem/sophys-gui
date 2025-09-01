@@ -9,8 +9,7 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QApplication, QCompleter, QComboBox, QWidget, QPushButton
 from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
-    SophysInputMotor
-from .metadata import SophysMetadataForm
+    SophysInputMotor, SophysComboBox
 from .util import UNKNOWN_TYPES
 
 NoneType = type(None)
@@ -90,14 +89,17 @@ class SophysForm(QDialog):
             hasParam = len(value) > 0
         return hasParam
 
-    def handleDetectorValue(self, inputWid, key):
+    def handleSingleListValue(self, inputWid, key):
         """
             Transform the detector value to a list if there is only one.
         """
         widget = inputWid["widget"]
+        strType = str(inputWid["type"]).lower()
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
+        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
+        isUnion = "union" in strType
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
-        if isDetector and isinstance(value, str):
+        if isDetector and isinstance(value, str) or (isIterable and not isinstance(value, list) and not isUnion):
             value = [value]
         return value
 
@@ -117,21 +119,25 @@ class SophysForm(QDialog):
         """
             Verify if the inserted value is valid.
         """
-        valueList, widType = self.handleNonMotorTypes(valueList, widType)
-        for idx, types in enumerate(widType):
+        curValueList, curWidType = self.handleNonMotorTypes(valueList, widType)
+        value2Verify = []
+        wid2Verify = []
+        for idx, types in enumerate(curWidType):
             generic_type = str(types)
-            if "typing.Literal" in generic_type:
-                del widType[idx]
-                del valueList[idx]
+            if "typing.Literal" in generic_type or "list" in generic_type:
+                continue
+            wid2Verify.append(curWidType[idx])
+            value2Verify.append(curValueList[idx])
         try:
-            widTypeLen = len(widType)
+            widTypeLen = len(wid2Verify)
             if widTypeLen == 0:
                 return True
             return any([
-                typesentry.Config().is_type(value, widType[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(valueList)
+                typesentry.Config().is_type(value, wid2Verify[idx-widTypeLen*floor(idx/widTypeLen)]) for idx, value in enumerate(value2Verify)
             ])
         except Exception:
-            print(valueList, type(valueList), widType)
+            print("Couldn't verify:")
+            print(value2Verify, type(value2Verify), wid2Verify)
         return False
 
     def getItemParameters(self):
@@ -144,13 +150,16 @@ class SophysForm(QDialog):
         }
         isValid = True
         for key, inputWid in self.inputWidgets.items():
+            strType = str(inputWid["type"])
+            isLiteral = "Literal" in strType
+            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)
             isRequired = inputWid["required"]
-            value = self.handleDetectorValue(inputWid, key)
+            value = self.handleSingleListValue(inputWid, key)
             hasParam = self.getHasParameters(value)
             if hasParam:
                 if not isinstance(inputWid["widget"], QLineEdit):
                     value = evaluateValue(value)
-                if "Literal" in str(inputWid["type"]):
+                if isLiteral and not isIterable:
                     value = str(value)
                 validParam = self.verifyValueType(value, inputWid["type"])
                 if validParam:
@@ -305,45 +314,13 @@ class SophysForm(QDialog):
             if (item != None):
                 self.setWidgetValue(inputWid, item, isStr)
 
-    def getAvailableDevicesType(self, title):
-        """
-            Get the key for searching the devices options.
-        """
-        optionsMode = {
-            "__MOVABLE__": "is_movable",
-            "__READABLE__": "is_readable",
-            "__FLYABLE__": "is_flyable"
-        }
-        for device_type, http_server_key in optionsMode.items():
-            if device_type in title:
-                return http_server_key
-        return None
-
-    def getDevicesOptions(self, availableDevices):
-        """
-            Get all the available devices based on one of its property.
-        """
-        allowedDevices = self.model._allowed_devices
-        optionsList = []
-        for key, device in allowedDevices.items():
-            if device[availableDevices]:
-                optionsList.append(key)
-        return optionsList
-
     def getIterableInput(self, paramMeta, inputType, isGrouped=False):
         """
             Handle iterable inputs with pre existing options.
         """
-        optionsList = None
         if "motor" in paramMeta["name"]:
             inputType = "__MOVABLE__"
-        if inputType:
-            availableDevices = self.getAvailableDevicesType(inputType)
-            if availableDevices:
-                optionsList = self.getDevicesOptions(availableDevices)
-            else:
-                inputType = "int" if "int" in inputType else "float" if "float" in inputType else None
-        return SophysInputList(optionsList, inputType, not isGrouped)
+        return SophysInputList(self.model, inputType, not isGrouped)
 
     def getInputTooltip(self, param):
         """
@@ -359,27 +336,6 @@ class SophysForm(QDialog):
                 pass
             return description
         return ""
-
-    def getComboboxInput(self, inputType, insertAvailable):
-        combobox = QComboBox()
-        combobox.setEditable(True)
-        combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
-        combobox.completer().setFilterMode(Qt.MatchContains)
-        insert_mode = QComboBox.InsertAlphabetically if insertAvailable else QComboBox.NoInsert
-        combobox.setInsertPolicy(insert_mode)
-
-        availableDevices = self.getAvailableDevicesType(inputType)
-        if "bool" in inputType:
-            combobox.addItems(["True", "False"])
-        elif "Literal" in inputType:
-            literal_idx = inputType.index("Literal")
-            splitStr = inputType[literal_idx+8:].replace(" '", "").replace("'", "")
-            options_end_idx = splitStr.index("]")
-            combobox.addItems(splitStr[:options_end_idx].split(","))
-        elif availableDevices:
-            optionsList = self.getDevicesOptions(availableDevices)
-            combobox.addItems(sorted(optionsList))
-        return combobox
 
     def getInputWidget(self, paramMeta, paramType, isRequired):
         """
@@ -399,11 +355,11 @@ class SophysForm(QDialog):
             if paramMeta["name"] == "md":
                 self.md_widget = inputWid
         elif isArgs:
-            inputWid = SophysInputMotor(paramMeta, self.getIterableInput)
+            inputWid = SophysInputMotor(self.model, paramMeta, self.getIterableInput)
         elif isIterable and not isBool:
             inputWid = self.getIterableInput(paramMeta, paramType)
         elif isDevice or isLiteral or isBool:
-            inputWid = self.getComboboxInput(paramType, isStr)
+            inputWid = SophysComboBox(self.model, paramType)
         elif isNumber:
             numericType = "int" if "int" in paramType else "float"
             inputWid = SophysSpinBox(numericType, isRequired)
@@ -443,11 +399,12 @@ class SophysForm(QDialog):
         """
         isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
         if isArgs:
-            motorTyping = getMotorInput(paramMeta)
+            motorTyping = getMotorInput(paramMeta).replace("\"", "'").replace("',", "|")
             motorArray = motorTyping.split(";")
             motorTypes = motorArray[2].split(",")
             arrayType = []
             for strType in motorTypes:
+                strType = strType.replace("|", "',")
                 arrayType.append(self.convertTypeToPythonType(strType))
             return arrayType
         hasAnnotation = "annotation" in paramMeta

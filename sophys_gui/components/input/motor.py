@@ -23,8 +23,9 @@ class SophysInputMotor(QWidget):
             :align: center
     """
 
-    def __init__(self, motorParameters, iterableInput):
+    def __init__(self, run_engine, motorParameters, iterableInput):
         super().__init__()
+        self.run_engine = run_engine
         self.motorParameters = motorParameters
         self.iterableInput = iterableInput
         self.widList = []
@@ -167,21 +168,19 @@ class SophysInputMotor(QWidget):
         """
             Dynamically add motor input widgets.
         """
-        motorArray = motorTyping.split(";")
+        motorArray = motorTyping.replace("\"", "'").replace("',", "|").split(";")
         motorTitles = motorArray[0].split(",")
         motorTooltip = motorArray[1].split(",")
         motorTypes = motorArray[2].split(",")
 
         col = 0
         for title, tooltip, argType in zip(motorTitles, motorTooltip, motorTypes):
+            argType = argType.replace("|", "',")
             titleWid = QLabel(title)
             titleWid.setAlignment(Qt.AlignCenter)
             glay.addWidget(titleWid, 0, col)
 
-            isNumber = any([item in argType for item in ["int", "float"]])
-            if isNumber:
-                isNumber = argType
-            wid = self.iterableInput({"name":title}, isNumber, True)
+            wid = self.iterableInput({"name":title}, argType, True)
             self.widList.append(wid)
             tooltipMsg = addLineJumps(tooltip)
             wid.setTooltip(tooltipMsg)
@@ -209,7 +208,7 @@ class SophysInputMotor(QWidget):
             argsQuant = glay.columnCount() + 1
             glay.addLayout(self.btnsList, 1, argsQuant, 3, 1)
         else:
-            listInput = SophysInputList(None, False)
+            listInput = SophysInputList(self.run_engine, motorTyping, None)
             glay.addWidget(listInput)
 
         container.setLayout(glay)
