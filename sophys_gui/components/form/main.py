@@ -10,6 +10,7 @@ from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
 from sophys_gui.functions import evaluateValue, getMotorInput
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor, SophysComboBox
+from .metadata import SophysMetadataForm
 from .util import UNKNOWN_TYPES
 
 NoneType = type(None)
