@@ -10,6 +10,7 @@ from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJum
 from .form import SophysForm
 
 class ListModel(QAbstractTableModel):
+    update_visible = True
     SelectedRole = Qt.UserRole + 1
     _roles = {Qt.DisplayRole: b"value", Qt.ToolTipRole: b"tooltip", SelectedRole: b"selected"}
     updateTable = Signal([int])
@@ -154,7 +155,10 @@ class ListModel(QAbstractTableModel):
     def rowCount(self, parent=QModelIndex()):
         if parent.isValid():
             return 0
-        return len(self.plan_items)
+        rows = len(self.plan_items)
+        if self.update_visible:
+            self.visible_rows = (0, rows)
+        return rows
 
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
@@ -172,22 +176,19 @@ class ListModel(QAbstractTableModel):
         if not index.isValid():
             return
         row = self.row_count(index.row()) - 1
-        try:
-            item = copy.deepcopy(self.plan_items[row])
-        except IndexError:
-            return
-
-        column_spec = self.columns[index.column()]
-        if role == Qt.BackgroundRole:
-            return QBrush(QColor(self.getBackgroundColor(row)))
-        if role == Qt.DisplayRole:
-            return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
-        if role == Qt.ToolTipRole:
-            if column_spec[3] is None:
-                return
-            return column_spec[3](self, item, getItemRecursively(item, column_spec[1]))
-        if role == self.SelectedRole:
-            return index.row() in self.selected_rows
+        if row <= self.visible_rows[1] and row >= self.visible_rows[0]:
+            item = self.plan_items[row]
+            column_spec = self.columns[index.column()]
+            if role == Qt.BackgroundRole:
+                return QBrush(QColor(self.getBackgroundColor(row)))
+            if role == Qt.DisplayRole:
+                return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
+            if role == Qt.ToolTipRole:
+                if column_spec[3] is None:
+                    return
+                return column_spec[3](self, item, getItemRecursively(item, column_spec[1]))
+            if role == self.SelectedRole:
+                return index.row() in self.selected_rows
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
@@ -222,6 +223,8 @@ class HistoryModel(ListModel):
         history_changed = re_model.run_engine.events.plan_history_changed
         history_items = re_model.run_engine._plan_history_items
         row_count = lambda section: self.rowCount()-section
+        self.update_visible = False
+        self.visible_rows = (0, 0)
         super().__init__(re_model, history_changed, history_items, row_count, "History", parent)
 
     @Slot(int)
