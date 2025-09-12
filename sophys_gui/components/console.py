@@ -1,5 +1,5 @@
 from qtpy.QtCore import Qt, Signal, Slot
-from qtpy.QtGui import QTextOption
+from qtpy.QtGui import QTextOption, QColor
 from qtpy.QtWidgets import QTextEdit, QScrollArea
 from suitscase.utilities.threading import AsyncFunction
 
@@ -32,6 +32,16 @@ class SophysConsoleMonitor(QScrollArea):
 
     @Slot(str)
     def onAppendLine(self, line: str):
+        # if "bluesky_queueserver" in line:
+        #     self.console.setTextColor(QColor("#2f00ff"))
+        # elif "[E " in line:
+        #     self.console.setTextColor(QColor("#cc0000"))
+        # elif "[W " in line:
+        #     self.console.setTextColor(QColor("#cc9900"))
+        # elif "[I " in line:
+        #     self.console.setTextColor(QColor("#009933"))
+        # else:
+        #     self.console.setTextColor(QColor("#000000"))
         self.console.append(line)
         self.scrollBar.setValue(self.scrollBar.maximum())
 
@@ -46,7 +56,9 @@ class SophysConsoleMonitor(QScrollArea):
             if newOutput:
                 new_console_line = newOutput[1].strip()
                 if new_console_line != "":
-                    if not "bluesky_queueserver" in new_console_line or self.all_logs:
+                    is_debug = ("[D " in new_console_line) or ("bluesky_queueserver" in new_console_line) or \
+                        ("run_engine" in new_console_line)
+                    if not is_debug or self.all_logs:
                         self.appendLine.emit(new_console_line)
             else:
                 break
