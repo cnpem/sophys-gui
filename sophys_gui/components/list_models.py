@@ -19,10 +19,6 @@ class ListModel(QAbstractTableModel):
         """Renders the 'Status' column items."""
         return str(status)
 
-    def typeRender(self, item: dict, type: str):
-        """Renders the 'Type' column items."""
-        return type[0].upper()
-
     def nameRender(self, item: dict, name: str):
         """Renders the 'Name' column items."""
         return str(name)
@@ -61,10 +57,6 @@ class ListModel(QAbstractTableModel):
 
     def deleteTooltipRender(self, item: dict, item_type: str):
         return addLineJumps(f"Deletes the {item_type} in this row.")
-
-    def typeTooltipRender(self, item: dict, type: str):
-        """Renders the 'Type' column item tooltips."""
-        return str(type)
 
     def nameTooltipRender(self, item: dict, name: str):
         """Renders the 'Name' column item tooltips."""
@@ -120,7 +112,6 @@ class ListModel(QAbstractTableModel):
     # Display value: (self, item, value) => (display)
     # ToolTip value: (self, item, value) => (toolTip)
     columns = [
-        ("Type", ["item_type"], typeRender, typeTooltipRender),
         ("Name", ["name"], nameRender, nameTooltipRender),
         ("User", [["user", "item_type"]], userRender, userTooltipRender),
         ("Arguments", [["args", "kwargs"]], argumentsRender, argumentsTooltipRender)
