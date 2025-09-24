@@ -1,6 +1,7 @@
+import qtawesome as qta
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget, QScrollArea, QHBoxLayout
+    QGridLayout, QTabWidget, QScrollArea, QPushButton
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor, SophysLogin
@@ -8,6 +9,7 @@ from sophys_live_view.utils.data_source_manager import DataSourceManager
 from sophys_live_view.widgets.plot_display import PlotDisplay
 from sophys_live_view.widgets.run_selector import RunSelector
 from sophys_live_view.widgets.signal_selector import SignalSelector
+from sophys_live_view.widgets.metadata_viewer import MetadataViewer
 
 
 class SophysOperationGUI(QMainWindow):
@@ -54,9 +56,13 @@ class SophysOperationGUI(QMainWindow):
         hsplitter.setSizes([500, 100, 500])
         return hsplitter
 
+    def showMetadataGUI(self):
+        self.metadata_viewer.setMinimumSize(500, 300)
+        self.metadata_viewer.show()
+
     def showLiveViewWidgets(self):
         wid = QScrollArea()
-        lay = QHBoxLayout()
+        lay = QGridLayout()
         lay.setContentsMargins(0, 0, 0, 0)
         wid.setLayout(lay)
 
@@ -77,9 +83,17 @@ class SophysOperationGUI(QMainWindow):
             show_stats_by_default=False
         )
 
-        lay.addWidget(self.run_selector, 1)
-        lay.addWidget(self.plot_display, 2)
-        lay.addWidget(self.signal_selector, 1)
+        show_metadata = QPushButton("Show Metadata")
+        show_metadata.setIcon(qta.icon("fa5s.file-alt"))
+        self.metadata_viewer = MetadataViewer(
+            self.data_source_manager, self.run_selector.selected_streams_changed
+        )
+        show_metadata.clicked.connect(self.showMetadataGUI)
+
+        lay.addWidget(self.run_selector, 0, 0, 1, 1)
+        lay.addWidget(show_metadata, 1, 0, 1, 1)
+        lay.addWidget(self.plot_display, 0, 1, 2, 2)
+        lay.addWidget(self.signal_selector, 0, 3, 2, 1)
         
         self.signal_selector.set_plot_tab_changed_signal(
             self.plot_display.plot_tab_changed
