@@ -98,6 +98,8 @@ class SophysOperationGUI(QMainWindow):
         self.signal_selector.set_plot_tab_changed_signal(
             self.plot_display.plot_tab_changed
         )
+
+        self.data_source_manager.start()
         return wid
 
     def monitorWidgets(self):
@@ -142,4 +144,3 @@ class SophysOperationGUI(QMainWindow):
 
         if self.has_api_key:
             self.loginChanged.emit(True)
-        self.data_source_manager.start()
