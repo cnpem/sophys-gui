@@ -104,7 +104,7 @@ class SophysInputList(QWidget):
 
         if self.isSingle:
             removeItem = QPushButton()
-            removeItem.setIcon(qta.icon("fa.trash"))
+            removeItem.setIcon(qta.icon("fa5s.trash"))
             removeItem.setFixedSize(40, 25)
             removeItem.clicked.connect(
                 lambda _, item=title: self.removeItem(item))
