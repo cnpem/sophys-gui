@@ -43,6 +43,7 @@ class SophysLogin(LoginCNPEM):
             re._user_group = self._allowed_group
             emailWid.setText("")
             passwordWid.setText("")
+            re._client.permissions_reload()
         else:
             self.toggle_login_status()
             self.logoutUser()

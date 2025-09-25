@@ -24,6 +24,7 @@ class SophysHistoryTable(QWidget):
         super().__init__()
         self.queueModel = HistoryModel(model)
         self.cmd_btns = {}
+        self.index = 0
         self._setupUi(loginChanged)
 
     def handleCommand(self, cmd, title, hasConfirmation):
@@ -74,6 +75,17 @@ class SophysHistoryTable(QWidget):
         loginChanged.connect(
             lambda loginStatus: table.setLogin(loginStatus, self.cmd_btns))
 
+    def detectScroll(self, index):
+        self.index = index
+        self.queueModel.visible_rows = (
+            self.queueModel.rowCount() - index - 25,
+            self.queueModel.rowCount() - index
+        )
+
+    def rowCountUpdate(self, rowCount):
+        self.detectScroll(self.index)
+        self.table.detectChange(rowCount, self.cmd_btns)
+
     def _setupUi(self, loginChanged):
         vlay = QVBoxLayout(self)
 
@@ -86,10 +98,10 @@ class SophysHistoryTable(QWidget):
         controls = self.getTableControls()
         vlay.addLayout(controls)
 
-        self.queueModel.updateTable.connect(
-            lambda rowCount: table.detectChange(rowCount, self.cmd_btns))
+        self.queueModel.updateTable.connect(self.rowCountUpdate)
         table.pressed.connect(
             lambda _, cmd_btns=self.cmd_btns: table.updateIndex(cmd_btns))
+        table.verticalScrollBar().valueChanged.connect(self.detectScroll)
         self.table = table
 
         self.handleLoginChanged(loginChanged, table)

@@ -39,7 +39,7 @@ class SophysRunningItem(QWidget):
             btn = createSingleBtn(btnValue, self.runEngine)
             btn.setEnabled(False)
             loginChanged.connect(btn.setEnabled)
-            glay.addWidget(btn, 6, idy, 1, 2)
+            glay.addWidget(btn, 7, idy, 1, 2)
 
     def createDictionaryWidget(self, arg_dict):
         """
