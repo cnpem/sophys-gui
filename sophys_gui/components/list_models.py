@@ -168,7 +168,10 @@ class ListModel(QAbstractTableModel):
             return
         row = self.row_count(index.row()) - 1
         if row <= self.visible_rows[1] and row >= self.visible_rows[0]:
-            item = self.plan_items[row]
+            try:
+                item = copy.deepcopy(self.plan_items[row])
+            except IndexError:
+                return
             column_spec = self.columns[index.column()]
             if role == Qt.BackgroundRole:
                 return QBrush(QColor(self.getBackgroundColor(row)))
