@@ -32,16 +32,18 @@ class SophysConsoleMonitor(QScrollArea):
 
     @Slot(str)
     def onAppendLine(self, line: str):
-        # if "bluesky_queueserver" in line:
-        #     self.console.setTextColor(QColor("#2f00ff"))
-        # elif "[E " in line:
-        #     self.console.setTextColor(QColor("#cc0000"))
-        # elif "[W " in line:
-        #     self.console.setTextColor(QColor("#cc9900"))
-        # elif "[I " in line:
-        #     self.console.setTextColor(QColor("#009933"))
-        # else:
-        #     self.console.setTextColor(QColor("#000000"))
+        if "bluesky_queueserver" in line:
+            self.console.setTextColor(QColor("#2f00ff"))
+        elif "[E " in line:
+            self.console.setTextColor(QColor("#cc0000"))
+        elif "[W " in line:
+            self.console.setTextColor(QColor("#cc9900"))
+        elif "[I " in line:
+            self.console.setTextColor(QColor("#009933"))
+        elif "[D " in line:
+            self.console.setTextColor(QColor("#007A99"))
+        else:
+            self.console.setTextColor(QColor("#000000"))
         self.console.append(line)
         self.scrollBar.setValue(self.scrollBar.maximum())
 
