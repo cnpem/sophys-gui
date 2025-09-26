@@ -38,10 +38,11 @@ class SophysForm(QDialog):
     """
 
     def __init__(
-            self, model, modalMode, allowedParameters, allowedNames, hasEnv=True, metadata_updater="",
+            self, model, modalMode, allowedParameters, allowedNames, yml_file_path = None, hasEnv=True, metadata_updater="",
             form_gui_widget = "", max_rows = 3, max_cols = 3, showOnlyInputs = False, readingOrder="up_down"):
         super().__init__()
-    
+
+        self.yml_file_path = yml_file_path
         self.readingOrder = readingOrder
         self.showOnlyInputs = showOnlyInputs
         self.max_rows = max_rows
@@ -429,7 +430,9 @@ class SophysForm(QDialog):
         paramType = self.getParamPythonType(paramMeta)
         isRequired = self.getIsRequired(paramMeta, paramType)
 
-        title = paramMeta["name"]
+        ## AQUI ENTRAR A MODIFICAÇÃO DOS NOMES DOS PARAMETROS ## 
+
+        title = paramMeta["name"]  ##NOMES DOS PARAMETROS DE ENTRADA DOS PLANOS
         lbl = self.getInputTitle(title, isRequired)
         glay.addWidget(lbl, *pos, 1, 1)
         pos[0] += 1
@@ -536,10 +539,31 @@ class SophysForm(QDialog):
         combobox.completer().setFilterMode(Qt.MatchContains)
         combobox.setInsertPolicy(QComboBox.NoInsert)
         allowedNames = self.allowedNames()
-        combobox.addItems(sorted(allowedNames))
+
+        if self.yml_file_path:
+
+            import yaml
+            with open(self.yml_file_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            new_names_dict = config.get("names", {}).get("plan_names", {})
+
+            filtered_names = [nome for nome in allowedNames if nome in new_names_dict]
+
+            for nome in sorted(filtered_names):
+                display_name = new_names_dict.get(nome, nome)
+                combobox.addItem(display_name, nome)
+        
+        else:
+            for nome in sorted(allowedNames):
+                combobox.addItem(nome, nome)
+
+
         combobox.activated.connect(
-            lambda idx, combobox=combobox: self.changeCurrentItem(combobox.itemText(idx)))
-        currItem = combobox.currentText()
+            lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
+        
+        currItem = combobox.currentData()
+
         glay.addWidget(combobox, 0, 0, 1, 5)
 
         self.plan_description = QLabel()
@@ -573,7 +597,7 @@ class SophysForm(QDialog):
                 lay.addWidget(itemCombbox)
             else:
                 currItem = self.selectedItemMetadata()["name"]
-
+        
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 
