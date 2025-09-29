@@ -427,13 +427,27 @@ class SophysForm(QDialog):
         """
             Add one parameter input with its title.
         """
+
+
         paramType = self.getParamPythonType(paramMeta)
         isRequired = self.getIsRequired(paramMeta, paramType)
 
-        ## AQUI ENTRAR A MODIFICAÇÃO DOS NOMES DOS PARAMETROS ## 
+        title = paramMeta["name"]
 
-        title = paramMeta["name"]  ##NOMES DOS PARAMETROS DE ENTRADA DOS PLANOS
-        lbl = self.getInputTitle(title, isRequired)
+        if self.yml_file_path:
+            import yaml
+            with open(self.yml_file_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            param_names_dict = config.get("names", {}).get("param_names", {})
+
+            display_title = param_names_dict.get(title, title)
+
+        else:
+            display_title = title
+
+
+        lbl = self.getInputTitle(display_title, isRequired)
         glay.addWidget(lbl, *pos, 1, 1)
         pos[0] += 1
 
@@ -548,9 +562,7 @@ class SophysForm(QDialog):
 
             new_names_dict = config.get("names", {}).get("plan_names", {})
 
-            filtered_names = [nome for nome in allowedNames if nome in new_names_dict]
-
-            for nome in sorted(filtered_names):
+            for nome in sorted(allowedNames):
                 display_name = new_names_dict.get(nome, nome)
                 combobox.addItem(display_name, nome)
         
