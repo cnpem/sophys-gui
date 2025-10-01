@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sophys-gui',
-    version='0.14.4',
+    version='0.15.0',
     author='SWC - LNLS',
     description='Control GUI for the Bluesky queue.',
     install_requires=[
@@ -13,7 +13,8 @@ setup(
         'bluesky-widgets',
         'typesentry==0.2.7',
         'numpy<2.0.0',
-        'assonant[naming-standards]'
+        'assonant[naming-standards]',
+        'sophys_live_view'
     ],
     include_package_data=True,
     packages=find_packages(),
