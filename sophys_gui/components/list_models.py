@@ -424,4 +424,4 @@ class QueueModel(ListModel):
         item_type = self.get_item_type()
         allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
         SophysForm(self._re_model.run_engine, "edit_"+item_type,
-            allowed_parameters, allowed_names, readingOrder=self.reading_order).exec()
+            allowed_parameters, allowed_names, yml_file_path=self.yml_file_path,readingOrder=self.reading_order).exec()
