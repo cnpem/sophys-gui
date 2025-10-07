@@ -8,7 +8,7 @@ setup(
     description='Control GUI for the Bluesky queue.',
     install_requires=[
         'QtPy==2.3.1',
-        'QtAwesome==1.2.3',
+        'QtAwesome>1.2.3',
         'bluesky-queueserver-api==0.0.10',
         'bluesky-widgets',
         'typesentry==0.2.7',
