@@ -15,7 +15,7 @@ class KafkaDataRegister():
             self.kafka_topic,
             bootstrap_servers=[self.kafka_uri])
         if consumer.bootstrap_connected():
-            kafka_thread = threading.Thread(target=self.monitor, args=(consumer, ))
+            kafka_thread = threading.Thread(target=self.monitor, args=(consumer, ), daemon=True)
             kafka_thread.start()
 
     def monitor(self, consumer):
