@@ -1,4 +1,5 @@
 import time
+import yaml
 import typing
 import qtawesome as qta
 import typesentry
@@ -435,17 +436,25 @@ class SophysForm(QDialog):
         title = paramMeta["name"]
 
         if self.yml_file_path:
-            import yaml
+
             with open(self.yml_file_path, "r") as f:
                 config = yaml.safe_load(f)
 
-            param_names_dict = config.get("names", {}).get("param_names", {})
+            plans_config = config.get("plans", {})
+            plan_config = plans_config.get(self.chosenItem)
 
-            display_title = param_names_dict.get(title, title)
+            if plan_config:
+                param_names = plan_config.get("param_names", {})
+                if isinstance(param_names, dict) and any(isinstance(v, dict) for v in param_names.values()):
+                    title_dict = param_names.get(self.group_name)
+                    display_title = title_dict.get(title, title)
 
+                else:
+                    display_title = param_names.get(title, title)
+            else:
+                display_title = title
         else:
             display_title = title
-
 
         lbl = self.getInputTitle(display_title, isRequired)
         glay.addWidget(lbl, *pos, 1, 1)
@@ -484,6 +493,20 @@ class SophysForm(QDialog):
         self.parametersLayout.addWidget(newGroup)
         self.group = newGroup
 
+    def addInputWidget(self, paramMeta, pos, glay):
+        pos = self.addParameterInput(paramMeta, pos, glay)
+        if self.readingOrder == "up_down":
+            if pos[0] >= self.max_rows*2:
+                pos[0] = 0
+                pos[1] += 2
+        else:
+            if pos[1] >= self.max_cols - 1:
+                pos[1] = 0
+                pos[0] += 1
+            else:
+                pos[1] += 1
+                pos[0] -= 2
+        
     def changeCurrentItem(self, currentItem):
         """
             Update the current plan input parameters.
@@ -496,16 +519,34 @@ class SophysForm(QDialog):
             retry_count += 1
         if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
+        
         self.chosenItem = itemAllowedParams["name"]
+        if self.yml_file_path:
+
+            with open(self.yml_file_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            plans_config = config.get("plans", {})
+            plan_config = plans_config.get(self.chosenItem)
+
+            if plan_config:
+                display_title = plan_config.get("name", self.chosenItem)
+
+            else:
+                display_title = self.chosenItem
+        else:
+            display_title = self.chosenItem
+
 
         if self.showOnlyInputs:
             group = QWidget()
         else:
             group = QGroupBox()
-            group.setTitle(self.chosenItem)
+            group.setTitle(display_title)
 
         glay = QGridLayout()
         group.setLayout(glay)
+
 
         if "description" in itemAllowedParams and self.plan_description != None:
             self.plan_description.setText(itemAllowedParams["description"])
@@ -514,22 +555,56 @@ class SophysForm(QDialog):
         if hasParameters:
             parameters = itemAllowedParams["parameters"]
             self.inputWidgets = {}
-            pos = [0, 0]
-            for paramMeta in parameters:
-                pos = self.addParameterInput(paramMeta, pos, glay)
-                if self.readingOrder == "up_down":
-                    if pos[0] >= self.max_rows*2:
-                        pos[0] = 0
-                        pos[1] += 2
-                else:
-                    if pos[1] >= self.max_cols - 1:
-                        pos[1] = 0
-                        pos[0] += 1
+
+            if self.yml_file_path:
+                with open(self.yml_file_path, "r") as f:
+                    config = yaml.safe_load(f)
+
+                plans_config = config.get("plans", {})
+                plan_config = plans_config.get(self.chosenItem)
+
+                if plan_config:
+                    param_names = plan_config.get("param_names", {})
+
+                    if isinstance(param_names, dict) and any(isinstance(v, dict) for v in param_names.values()):
+                        pos_combo = [0,0]
+                        for group_name, group_params in param_names.items():
+                            self.group_name = group_name
+                            groupBox = QGroupBox(self.group_name)
+                            gridLay = QGridLayout()
+                            groupBox.setLayout(gridLay)
+
+                            pos = [0, 0]
+                            for param_key, display_title in group_params.items():
+                                paramMeta = next((p for p in parameters if p["name"] == param_key), None)
+                                if paramMeta:
+                                    self.addInputWidget(paramMeta, pos, gridLay)
+        
+                            glay.addWidget(groupBox, *pos_combo, 1, 1)
+                            pos_combo[1] += 1
+                            if pos_combo[1] > 2:
+                                pos_combo[0] += 1
+                                pos_combo[1] = 0
+                                
                     else:
-                        pos[1] += 1
-                        pos[0] -= 2
+                        pos = [0, 0]
+                        for param_key, display_title in param_names.items():
+                            paramMeta = next((p for p in parameters if p["name"] == param_key), None)
+                            if paramMeta:
+                                self.addInputWidget(paramMeta, pos, glay)
+
+                else:
+                    pos = [0, 0]
+                    for paramMeta in parameters:
+                        self.addInputWidget(paramMeta, pos, glay)
+            else:
+                pos = [0, 0]
+                for paramMeta in parameters:
+                    self.addInputWidget(paramMeta, pos, glay)
+        
         else:
             glay.addWidget(self.getNoParametersLabel())
+
         self.updateParametersLayout(group)
 
     def openMetadataForm(self):
@@ -556,20 +631,19 @@ class SophysForm(QDialog):
 
         if self.yml_file_path:
 
-            import yaml
             with open(self.yml_file_path, "r") as f:
                 config = yaml.safe_load(f)
 
-            new_names_dict = config.get("names", {}).get("plan_names", {})
+            plans_config = config.get("plans", {})
 
-            for nome in sorted(allowedNames):
-                display_name = new_names_dict.get(nome, nome)
-                combobox.addItem(display_name, nome)
-        
+            for allowed_name in sorted(allowedNames):
+
+                plan_names = plans_config.get(allowed_name, {})
+                display_name = plan_names.get("name", allowed_name)
+                combobox.addItem(display_name, allowed_name)
         else:
-            for nome in sorted(allowedNames):
-                combobox.addItem(nome, nome)
-
+            for allowed_name in sorted(allowedNames):
+                combobox.addItem(allowed_name, allowed_name)
 
         combobox.activated.connect(
             lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
