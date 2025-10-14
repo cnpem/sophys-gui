@@ -15,7 +15,7 @@ setup(
         'numpy<2.0.0',
         'assonant[naming-standards]',
         'sophys_live_view'
-        'pyyaml'
+        'PyYAML'
     ],
     include_package_data=True,
     packages=find_packages(),
