@@ -18,6 +18,7 @@ def main():
     parser.add_argument("--kafka-topic", required=True, help="The Kafka topic to listen to. (e.g. test_bluesky_raw_docs)")
     parser.add_argument("--reading-order", required=False, default='up_down', help="The reading order of the parameters in the form for the addition of a new plan.")
     parser.add_argument("--show-all-logs", required=False, default=False, help="Don't hide the queue server logs")
+    parser.add_argument("--yml-file-path", required=False, default=None, help="Path to a yaml file for the customize sophys form.")
     args = parser.parse_args()
 
     __backend_model = ServerModel(args.http_server, args.http_server_api_key)
@@ -28,7 +29,7 @@ def main():
     has_api_key = True if args.http_server_api_key else False
     window = SophysOperationGUI(
         __backend_model, __kafka_data_source, args.kafka_bootstrap, args.kafka_topic,
-        has_api_key, args.reading_order, args.show_all_logs)
+        has_api_key, args.reading_order, args.show_all_logs, args.yml_file_path)
     window.setWindowIcon(qtawesome.icon("mdi.cloud", color="#ffffff"))
     window.setWindowTitle("SOPHYS GUI")
     window.show()
