@@ -16,13 +16,14 @@ class SophysOperationGUI(QMainWindow):
 
     loginChanged = Signal([bool])
 
-    def __init__(self, model, kafka_datasource, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down', all_logs=False):
+    def __init__(self, model, kafka_datasource, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down', all_logs=False, yml_file_path=None):
         super().__init__()
         self.all_logs = all_logs
         self._kafka_ip = kafka_ip
         self._kafka_topic = kafka_topic
         self.kafka_datasource = kafka_datasource
         self.has_api_key = has_api_key
+        self.yml_file_path = yml_file_path
 
         self.model = model
         self.runEngine = self.model.run_engine
@@ -44,7 +45,7 @@ class SophysOperationGUI(QMainWindow):
             Widgets for controlling the Queue Server.
         """
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order)
+        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order, self.yml_file_path)
         hsplitter.addWidget(queue)
 
         running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic)
