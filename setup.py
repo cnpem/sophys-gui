@@ -14,8 +14,8 @@ setup(
         'typesentry==0.2.7',
         'numpy<2.0.0',
         'assonant[naming-standards]',
-        'sophys_live_view'
-        'PyYAML'
+        'sophys_live_view',
+        'PyYAML',
     ],
     include_package_data=True,
     packages=find_packages(),
