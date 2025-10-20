@@ -432,20 +432,11 @@ class SophysForm(QDialog):
         lbl.setMaximumHeight(50)
         lbl.setAlignment(Qt.AlignCenter)
         return lbl
-
-    def addParameterInput(self, paramMeta, pos, glay):
-        """
-            Add one parameter input with its title.
-        """
-
-
-        paramType = self.getParamPythonType(paramMeta)
-        isRequired = self.getIsRequired(paramMeta, paramType)
-
-        title = paramMeta["name"]
+    
+    def changeParamTitle(self, title):
 
         if self.yml_file_path:
-            plan_config = self.config.get("plans", {}).get(self.chosenItem)
+            plan_config = self.config.get(self.chosenItem)
 
             if plan_config:
                 param_names = plan_config.get("param_names", {})
@@ -459,6 +450,19 @@ class SophysForm(QDialog):
                 display_title = title
         else:
             display_title = title
+
+        return display_title
+
+    def addParameterInput(self, paramMeta, pos, glay):
+        """
+            Add one parameter input with its title.
+        """
+
+        paramType = self.getParamPythonType(paramMeta)
+        isRequired = self.getIsRequired(paramMeta, paramType)
+
+        title = paramMeta["name"]
+        display_title = self.changeParamTitle(title)
 
         lbl = self.getInputTitle(display_title, isRequired)
         glay.addWidget(lbl, *pos, 1, 1)
@@ -519,7 +523,7 @@ class SophysForm(QDialog):
     def changePlanName(self):
 
         if self.yml_file_path:
-            plan_config = self.config.get("plans", {}).get(self.chosenItem)
+            plan_config = self.config.get(self.chosenItem)
 
             if plan_config:
                 display_title = plan_config.get("name", self.chosenItem)
@@ -531,9 +535,9 @@ class SophysForm(QDialog):
         
         return display_title
     
-    def comboBoxParameters(self, parameters, glay):
+    def groupBoxParameters(self, parameters, glay):
 
-        plan_config = self.config.get("plans", {}).get(self.chosenItem)
+        plan_config = self.config.get(self.chosenItem)
 
         if  plan_config:
             param_names = plan_config.get("param_names", {})
@@ -603,7 +607,7 @@ class SophysForm(QDialog):
             self.inputWidgets = {}
 
             if self.yml_file_path:
-                self.comboBoxParameters(parameters, glay)
+                self.groupBoxParameters(parameters, glay)
             else:
                 self.addParameters(parameters, glay)
         else:
@@ -614,6 +618,20 @@ class SophysForm(QDialog):
     def openMetadataForm(self):
         self.autosave_metadata = SophysMetadataForm(self.global_metadata_updater, self.md_widget)
         self.autosave_metadata.exec()
+
+    def comboBoxPlanNames(self, combobox, allowedNames):
+
+        if self.yml_file_path:
+
+            for allowed_name in sorted(allowedNames):
+
+                plan_names = self.config.get(allowed_name, {})
+                display_name = plan_names.get("name", allowed_name)
+                combobox.addItem(display_name, allowed_name)
+        else:
+
+            for allowed_name in sorted(allowedNames):
+                combobox.addItem(allowed_name, allowed_name)
 
     def getGeneralPlanData(self):
         """
@@ -633,21 +651,7 @@ class SophysForm(QDialog):
         combobox.setInsertPolicy(QComboBox.NoInsert)
         allowedNames = self.allowedNames()
 
-        if self.yml_file_path:
-
-            with open(self.yml_file_path, "r") as f:
-                config = yaml.safe_load(f)
-
-            plans_config = config.get("plans", {})
-
-            for allowed_name in sorted(allowedNames):
-
-                plan_names = plans_config.get(allowed_name, {})
-                display_name = plan_names.get("name", allowed_name)
-                combobox.addItem(display_name, allowed_name)
-        else:
-            for allowed_name in sorted(allowedNames):
-                combobox.addItem(allowed_name, allowed_name)
+        self.comboBoxPlanNames(combobox, allowedNames)
 
         combobox.activated.connect(
             lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
