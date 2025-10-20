@@ -30,3 +30,26 @@ Some of its features are:
 
 ![Screenshot from 2024-11-25 09-28-15](https://github.com/user-attachments/assets/0bc4c227-e8e7-4b3c-830b-6d768e7154ab)
 ![Screenshot from 2024-11-25 09-28-00](https://github.com/user-attachments/assets/5f537bc6-37ad-4869-a97a-aae751c689b6)
+
+### How to Configure the YAML File
+
+The `.yml` file is structured into multiple dictionaries, each identified by the plan name in snake case, as defined in the main function responsible for executing it.
+
+Each top-level dictionary must contain:
+  * `name:` an alternative display name for the plan, if a custom label is required.
+  * `param_names:` a mapping between the plan parameters (in snake case) and their modified values.
+
+The `param_names:` key may include nested dictionaries, where each key represents a group name and its value defines a specific set of parameters associated with the main plan.
+
+```yaml
+example_plan:
+    name: "Example Plan"
+    param_names:
+            "Plan Arguments":
+                "proposal": "Proposal"
+                "experiment_tag": "File Name"
+                "trajectory_file": "Trajectory File"
+                
+            "Detectors Config.":
+                "use_det1": "Use Detector 1"
+                "use_det2": "Use Detector 2"
