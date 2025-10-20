@@ -287,7 +287,7 @@ class HistoryModel(ListModel):
 
 class QueueModel(ListModel):
 
-    def __init__(self, re_model, reading_order, yml_file_path, parent=None):
+    def __init__(self, re_model, reading_order, yml_file_path=None, parent=None):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
