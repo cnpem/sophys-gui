@@ -59,10 +59,10 @@ class SophysForm(QDialog):
         self.md_widget = None
         self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
-        self.config = self.openYML()
+        self.config = self.openYaml()
         self.setupUi()
     
-    def openYML(self):
+    def openYaml(self):
         if self.yml_file_path:
 
             with open(self.yml_file_path, "r") as f:
@@ -522,16 +522,10 @@ class SophysForm(QDialog):
 
     def changePlanName(self):
 
+        display_title = self.chosenItem
+
         if self.yml_file_path:
-            plan_config = self.config.get(self.chosenItem)
-
-            if plan_config:
-                display_title = plan_config.get("name", self.chosenItem)
-
-            else:
-                display_title = self.chosenItem
-        else:
-            display_title = self.chosenItem
+            display_title = self.config.get(self.chosenItem, {}).get("name", self.chosenItem)
         
         return display_title
     
@@ -625,8 +619,7 @@ class SophysForm(QDialog):
 
             for allowed_name in sorted(allowedNames):
 
-                plan_names = self.config.get(allowed_name, {})
-                display_name = plan_names.get("name", allowed_name)
+                display_name = self.config.get(allowed_name, {}).get("name", allowed_name)
                 combobox.addItem(display_name, allowed_name)
         else:
 
