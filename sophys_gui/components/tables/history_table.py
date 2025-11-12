@@ -20,7 +20,7 @@ class SophysHistoryTable(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged, yml_file_path):
+    def __init__(self, model, loginChanged, yml_file_path = None):
         super().__init__()
         self.queueModel = HistoryModel(model, yml_file_path)
         self.cmd_btns = {}
