@@ -8,7 +8,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter, QComboBox, QWidget, QPushButton
-from sophys_gui.functions import evaluateValue, getMotorInput
+from sophys_gui.functions import evaluateValue, getMotorInput, openYaml
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor, SophysComboBox
 from .metadata import SophysMetadataForm
@@ -59,17 +59,8 @@ class SophysForm(QDialog):
         self.md_widget = None
         self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
-        self.config = self.openYaml()
+        self.config = openYaml(self.yml_file_path)
         self.setupUi()
-    
-    def openYaml(self):
-        if self.yml_file_path:
-
-            with open(self.yml_file_path, "r") as f:
-                config = yaml.safe_load(f)
-
-            return config
-        return None
 
     def accept(self):
         if len(self.form_gui_widget) == 0:

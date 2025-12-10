@@ -7,7 +7,7 @@ from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
 from qtpy.QtGui import QBrush, QColor
 from qtpy.QtWidgets import QMainWindow, QLabel, QScrollArea, QApplication, QWidget, \
     QVBoxLayout, QHBoxLayout
-from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps
+from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps, openYaml
 from .form import SophysForm
 
 class ListModel(QAbstractTableModel):
@@ -116,7 +116,6 @@ class ListModel(QAbstractTableModel):
             plan_name = item['name']
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:
-                new_key = key
                 matches = list(filter(lambda x: x["name"] == key, params))
                 if len(matches) == 0:
                     continue
@@ -134,6 +133,8 @@ class ListModel(QAbstractTableModel):
 
                     if self.yml_file_path:
                         new_key = self.changeParametersName(key, plan_name)
+                    else:
+                        new_key = key
 
                     tooltipRow = "{}: {}".format(new_key, description)
                 else:
@@ -166,7 +167,7 @@ class ListModel(QAbstractTableModel):
         self.plan_items = plan_items
         self.row_count = row_count
         self.yml_file_path = yml_file_path
-        self.config = self.openYaml()
+        self.config = openYaml(self.yml_file_path)
         plan_changed.connect(self.onPlanListChanged)
         self.selected_rows = []
         isHistory = listId == "History"
@@ -175,15 +176,6 @@ class ListModel(QAbstractTableModel):
         else:
             self.columns = self.columns_queue
     
-    def openYaml(self):
-        if self.yml_file_path:
-
-            with open(self.yml_file_path, "r") as f:
-                config = yaml.safe_load(f)
-
-            return config
-        return None
-
     def getColumns(self):
         return self.columns
 
@@ -221,10 +213,12 @@ class ListModel(QAbstractTableModel):
                 return QBrush(QColor(self.getBackgroundColor(row)))
             if role == Qt.DisplayRole:
                 name = getItemRecursively(item, column_spec[1])
-                new_name = name
-                               
+                      
                 if self.yml_file_path:
-                    new_name = self.config.get(str(new_name), {}).get("name", name)
+                    new_name = self.config.get(str(name), {}).get("name", name)
+
+                else:
+                    new_name = name
 
                 return column_spec[2](self, item, new_name)
             if role == Qt.ToolTipRole:

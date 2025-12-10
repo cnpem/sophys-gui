@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QGridLayout, \
     QLabel, QGroupBox, QHBoxLayout, QSizePolicy
 from sophys_gui.functions import getHeader, createSingleBtn, \
-    addArgsToKwargs
+    addArgsToKwargs, openYaml
 from ..led import SophysLed
 from .util import CONTROL_BTNS
 from .progress import ProgressBar
@@ -31,17 +31,8 @@ class SophysRunningItem(QWidget):
         self.group = QGroupBox()
         self.runEngine = model.run_engine
         self.yml_file_path = yml_file_path
-        self.config = self.openYaml()
+        self.config = openYaml(self.yml_file_path)
         self._setupUi(loginChanged, kafka_bootstrap, kafka_topic)
-
-    def openYaml(self):
-        if self.yml_file_path:
-
-            with open(self.yml_file_path, "r") as f:
-                config = yaml.safe_load(f)
-
-            return config
-        return None
 
     def createBtns(self, glay, loginChanged):
         """
