@@ -48,10 +48,10 @@ class SophysOperationGUI(QMainWindow):
         queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order, self.yml_file_path)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic)
+        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic, self.yml_file_path)
         hsplitter.addWidget(running)
 
-        history = SophysHistoryTable(self.model, self.loginChanged)
+        history = SophysHistoryTable(self.model, self.loginChanged, self.yml_file_path)
         hsplitter.addWidget(history)
 
         hsplitter.setSizes([500, 100, 500])

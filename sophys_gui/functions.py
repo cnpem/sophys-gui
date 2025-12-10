@@ -1,5 +1,6 @@
 import qtawesome as qta
 import os as _os
+import yaml
 import ast
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
@@ -125,3 +126,11 @@ def addLineJumps(message):
             newLine += " "
         newMsg += newLine
     return newMsg
+
+def openYaml(yml_file_path):
+    if yml_file_path:
+        with open(yml_file_path, "r") as f:
+                config = yaml.safe_load(f)
+
+        return config
+    return None

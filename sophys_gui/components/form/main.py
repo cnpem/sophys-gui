@@ -8,7 +8,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
     QComboBox, QGroupBox, QLineEdit, QLabel, QVBoxLayout, \
     QApplication, QCompleter, QComboBox, QWidget, QPushButton
-from sophys_gui.functions import evaluateValue, getMotorInput
+from sophys_gui.functions import evaluateValue, getMotorInput, openYaml
 from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
     SophysInputMotor, SophysComboBox
 from .metadata import SophysMetadataForm
@@ -59,17 +59,8 @@ class SophysForm(QDialog):
         self.md_widget = None
         self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
-        self.config = self.openYML()
+        self.config = openYaml(self.yml_file_path)
         self.setupUi()
-    
-    def openYML(self):
-        if self.yml_file_path:
-
-            with open(self.yml_file_path, "r") as f:
-                config = yaml.safe_load(f)
-
-            return config
-        return None
 
     def accept(self):
         if len(self.form_gui_widget) == 0:
@@ -522,16 +513,10 @@ class SophysForm(QDialog):
 
     def changePlanName(self):
 
+        display_title = self.chosenItem
+
         if self.yml_file_path:
-            plan_config = self.config.get(self.chosenItem)
-
-            if plan_config:
-                display_title = plan_config.get("name", self.chosenItem)
-
-            else:
-                display_title = self.chosenItem
-        else:
-            display_title = self.chosenItem
+            display_title = self.config.get(self.chosenItem, {}).get("name", self.chosenItem)
         
         return display_title
     
@@ -625,8 +610,7 @@ class SophysForm(QDialog):
 
             for allowed_name in sorted(allowedNames):
 
-                plan_names = self.config.get(allowed_name, {})
-                display_name = plan_names.get("name", allowed_name)
+                display_name = self.config.get(allowed_name, {}).get("name", allowed_name)
                 combobox.addItem(display_name, allowed_name)
         else:
 
