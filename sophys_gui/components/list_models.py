@@ -1,12 +1,13 @@
 import copy
 import re
+import yaml
 from datetime import datetime
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
     Signal
 from qtpy.QtGui import QBrush, QColor
 from qtpy.QtWidgets import QMainWindow, QLabel, QScrollArea, QApplication, QWidget, \
     QVBoxLayout, QHBoxLayout
-from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps
+from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps, openYaml
 from .form import SophysForm
 
 class ListModel(QAbstractTableModel):
@@ -26,6 +27,26 @@ class ListModel(QAbstractTableModel):
     def userRender(self, item: dict, user: str):
         """Renders the 'User' column items."""
         return str(user[0])
+    
+    def changeParametersName(self, key, plan_name):
+
+        plan_configuration = self.config.get(plan_name, {})
+        parameters_dict = plan_configuration.get("param_names", {})
+
+        kwargs_dict = dict()
+
+        if isinstance(parameters_dict, dict):
+
+            for value in parameters_dict.values():
+
+                if isinstance(value, dict):
+                    kwargs_dict.update(value)
+            
+                else:
+                    kwargs_dict.update(parameters_dict)
+                    break
+
+        return kwargs_dict.get(key, key)
 
     def argumentsRender(self, item: dict, argsList: dict):
         """Renders the 'Arguments' column items."""
@@ -39,8 +60,14 @@ class ListModel(QAbstractTableModel):
         if hasArgs:
             addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
+            plan_name = item['name']
             for key, val in argsList[1].items():
-                desc.append("{} = {}".format(key, val))
+
+                new_key = key
+                if self.yml_file_path:
+                    new_key = self.changeParametersName(key, plan_name)
+
+                desc.append("{} = {}".format(new_key, val))
             return "\n".join(desc)
         return str(desc)
 
@@ -86,6 +113,7 @@ class ListModel(QAbstractTableModel):
         if hasArgs:
             addArgsToKwargs(argsList)
         if item["item_type"] == "plan":
+            plan_name = item['name']
             params = self._re_model.run_engine.get_allowed_plan_parameters(name=item["name"])["parameters"]
             for key in argsList[1]:
                 matches = list(filter(lambda x: x["name"] == key, params))
@@ -102,7 +130,13 @@ class ListModel(QAbstractTableModel):
                     except Exception:
                         pass
                     description = re.sub("\n+", ". ", description)
-                    tooltipRow = "{}: {}".format(key, description)
+
+                    if self.yml_file_path:
+                        new_key = self.changeParametersName(key, plan_name)
+                    else:
+                        new_key = key
+
+                    tooltipRow = "{}: {}".format(new_key, description)
                 else:
                     tooltipRow = ""
                 desc.append(addLineJumps(tooltipRow))
@@ -126,12 +160,14 @@ class ListModel(QAbstractTableModel):
         (" Delete ", ["item_type"], uidRender, deleteTooltipRender)
     ]
 
-    def __init__(self, re_model, plan_changed, plan_items, row_count, listId, parent=None):
+    def __init__(self, re_model, plan_changed, plan_items, row_count, listId, yml_file_path = None, parent=None):
         super().__init__(parent)
 
         self._re_model = re_model
         self.plan_items = plan_items
         self.row_count = row_count
+        self.yml_file_path = yml_file_path
+        self.config = openYaml(self.yml_file_path)
         plan_changed.connect(self.onPlanListChanged)
         self.selected_rows = []
         isHistory = listId == "History"
@@ -139,7 +175,7 @@ class ListModel(QAbstractTableModel):
             self.columns = self.columns_history
         else:
             self.columns = self.columns_queue
-
+    
     def getColumns(self):
         return self.columns
 
@@ -176,7 +212,15 @@ class ListModel(QAbstractTableModel):
             if role == Qt.BackgroundRole:
                 return QBrush(QColor(self.getBackgroundColor(row)))
             if role == Qt.DisplayRole:
-                return column_spec[2](self, item, getItemRecursively(item, column_spec[1]))
+                name = getItemRecursively(item, column_spec[1])
+                      
+                if self.yml_file_path:
+                    new_name = self.config.get(str(name), {}).get("name", name)
+
+                else:
+                    new_name = name
+
+                return column_spec[2](self, item, new_name)
             if role == Qt.ToolTipRole:
                 if column_spec[3] is None:
                     return
@@ -213,13 +257,14 @@ class ListModel(QAbstractTableModel):
 
 class HistoryModel(ListModel):
 
-    def __init__(self, re_model, parent=None):
+    def __init__(self, re_model, yml_file_path=None, parent=None):
         history_changed = re_model.run_engine.events.plan_history_changed
         history_items = re_model.run_engine._plan_history_items
+        self.yml_file_path = yml_file_path
         row_count = lambda section: self.rowCount()-section
         self.update_visible = False
         self.visible_rows = (0, 0)
-        super().__init__(re_model, history_changed, history_items, row_count, "History", parent)
+        super().__init__(re_model, history_changed, history_items, row_count, "History", self.yml_file_path, parent)
 
     @Slot(int)
     def select(self, row):
@@ -287,13 +332,14 @@ class HistoryModel(ListModel):
 
 class QueueModel(ListModel):
 
-    def __init__(self, re_model, reading_order, parent=None):
+    def __init__(self, re_model, reading_order, yml_file_path=None, parent=None):
         queue_changed = re_model.run_engine.events.plan_queue_changed
         queue_items = re_model.run_engine._plan_queue_items
         row_count = lambda section: section + 1
+        self.yml_file_path = yml_file_path
         self.global_metadata = {}
         self.reading_order = reading_order
-        super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", parent)
+        super().__init__(re_model, queue_changed, queue_items, row_count, "Queue", self.yml_file_path, parent)
 
     @Slot(int)
     def select(self, row):
@@ -391,7 +437,7 @@ class QueueModel(ListModel):
     def add_plan_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
-            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
+            allowed_parameters, allowed_names, yml_file_path=self.yml_file_path, hasEnv=self.has_open_environment(), 
             metadata_updater=self.global_metadata_updater, readingOrder=self.reading_order).exec()
 
     @Slot()
@@ -423,4 +469,4 @@ class QueueModel(ListModel):
         item_type = self.get_item_type()
         allowed_parameters, allowed_names = self.get_name_param_variables(item_type)
         SophysForm(self._re_model.run_engine, "edit_"+item_type,
-            allowed_parameters, allowed_names, readingOrder=self.reading_order).exec()
+            allowed_parameters, allowed_names, yml_file_path=self.yml_file_path,readingOrder=self.reading_order).exec()

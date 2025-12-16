@@ -1,22 +1,29 @@
+import qtawesome as qta
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget
+    QGridLayout, QTabWidget, QScrollArea, QPushButton
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor, SophysLogin
-from kafka_bluesky_live.live_view import LiveView, VisualElements
+from sophys_live_view.utils.data_source_manager import DataSourceManager
+from sophys_live_view.widgets.plot_display import PlotDisplay
+from sophys_live_view.widgets.run_selector import RunSelector
+from sophys_live_view.widgets.signal_selector import SignalSelector
+from sophys_live_view.widgets.metadata_viewer import MetadataViewer
 
 
 class SophysOperationGUI(QMainWindow):
 
     loginChanged = Signal([bool])
 
-    def __init__(self, model, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down', all_logs=False):
+    def __init__(self, model, kafka_datasource, kafka_ip, kafka_topic, has_api_key=False, reading_order='up_down', all_logs=False, yml_file_path=None):
         super().__init__()
         self.all_logs = all_logs
         self._kafka_ip = kafka_ip
         self._kafka_topic = kafka_topic
+        self.kafka_datasource = kafka_datasource
         self.has_api_key = has_api_key
+        self.yml_file_path = yml_file_path
 
         self.model = model
         self.runEngine = self.model.run_engine
@@ -38,17 +45,64 @@ class SophysOperationGUI(QMainWindow):
             Widgets for controlling the Queue Server.
         """
         hsplitter = QSplitter(Qt.Horizontal)
-        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order)
+        queue = SophysQueueTable(self.model, self.loginChanged, self.reading_order, self.yml_file_path)
         hsplitter.addWidget(queue)
 
-        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic)
+        running = SophysRunningItem(self.model, self.loginChanged, self._kafka_ip, self._kafka_topic, self.yml_file_path)
         hsplitter.addWidget(running)
 
-        history = SophysHistoryTable(self.model, self.loginChanged)
+        history = SophysHistoryTable(self.model, self.loginChanged, self.yml_file_path)
         hsplitter.addWidget(history)
 
         hsplitter.setSizes([500, 100, 500])
         return hsplitter
+
+    def showMetadataGUI(self):
+        self.metadata_viewer.setMinimumSize(500, 300)
+        self.metadata_viewer.show()
+
+    def showLiveViewWidgets(self):
+        wid = QScrollArea()
+        lay = QGridLayout()
+        lay.setContentsMargins(0, 0, 0, 0)
+        wid.setLayout(lay)
+
+        self.data_source_manager = DataSourceManager()
+        self.data_source_manager.add_data_source(self.kafka_datasource)
+
+        self.run_selector = RunSelector(self.data_source_manager)
+
+        self.signal_selector = SignalSelector(
+            self.data_source_manager, self.run_selector.selected_streams_changed
+        )
+
+        self.plot_display = PlotDisplay(
+            self.data_source_manager,
+            self.run_selector.selected_streams_changed,
+            self.signal_selector.selected_signals_changed_1d,
+            self.signal_selector.selected_signals_changed_2d,
+            self.signal_selector.custom_signal_added,
+            show_stats_by_default=False
+        )
+
+        show_metadata = QPushButton("Show Metadata")
+        show_metadata.setIcon(qta.icon("fa5s.file-alt"))
+        self.metadata_viewer = MetadataViewer(
+            self.data_source_manager, self.run_selector.selected_streams_changed
+        )
+        show_metadata.clicked.connect(self.showMetadataGUI)
+
+        lay.addWidget(self.run_selector, 0, 0, 1, 1)
+        lay.addWidget(show_metadata, 1, 0, 1, 1)
+        lay.addWidget(self.plot_display, 0, 1, 2, 2)
+        lay.addWidget(self.signal_selector, 0, 3, 2, 1)
+        
+        self.signal_selector.set_plot_tab_changed_signal(
+            self.plot_display.plot_tab_changed
+        )
+
+        self.data_source_manager.start()
+        return wid
 
     def monitorWidgets(self):
         """
@@ -56,8 +110,7 @@ class SophysOperationGUI(QMainWindow):
         """
         monitorTabs = QTabWidget()
 
-        visual_elements = VisualElements(cnpem_icon=None, lnls_icon=None, background_icon=None)
-        live_view = LiveView(self._kafka_topic, self._kafka_ip, visual_elements)
+        live_view = self.showLiveViewWidgets()
         monitorTabs.addTab(live_view, "Live View")
 
         console = SophysConsoleMonitor(self.model, self.all_logs)

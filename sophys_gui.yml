@@ -3,15 +3,16 @@ channels:
     - conda-forge
 dependencies:
     - qtpy==2.3.1
-    - qtawesome==1.2.3
+    - qtawesome==1.4.0
     - bluesky-queueserver-api==0.0.10
     - bluesky-widgets>=0.0.15
     - pyepics==3.5.2
     - pip==23.1.2
     - python<3.12.0
     - pyqt==5.15.9
+    - pyyaml
     - pip:
         - typesentry==0.2.7
         - git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
-        - git+https://gitlab.cnpem.br/SOL/bluesky/kafka-bluesky-live.git
+        - git+https://github.com/cnpem/sophys-live-view.git
         - git+https://github.com/cnpem/sophys-gui.git

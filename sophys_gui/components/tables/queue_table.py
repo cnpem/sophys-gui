@@ -21,9 +21,9 @@ class SophysQueueTable(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged, reading_order):
+    def __init__(self, model, loginChanged, reading_order, yml_file_path=None):
         super().__init__()
-        self.queueModel = QueueModel(model, reading_order)
+        self.queueModel = QueueModel(model, reading_order, yml_file_path)
         self.serverModel = model
         self.loop = None
         self.cmd_btns = {}
