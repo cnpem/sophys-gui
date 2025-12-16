@@ -133,4 +133,4 @@ def openYaml(yml_file_path):
                 config = yaml.safe_load(f)
 
         return config
-    return None
+    return {}
