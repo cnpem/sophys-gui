@@ -44,7 +44,7 @@ class SophysRunningItem(QWidget):
             loginChanged.connect(btn.setEnabled)
             glay.addWidget(btn, 7, idy, 1, 2)
 
-    def newKwargsName(self, key, runningItem):
+    def newKwargsName(self, runningItem):
 
         name = runningItem.get("name", "")
         plan_configuration = self.config.get(name, {})
@@ -63,7 +63,7 @@ class SophysRunningItem(QWidget):
                     kwargs_dict.update(parameters_dict)
                     break
 
-        return kwargs_dict.get(key, key)
+        return kwargs_dict
             
 
     def createDictionaryWidget(self, arg_dict, runningItem):
@@ -75,13 +75,9 @@ class SophysRunningItem(QWidget):
         widget.setLayout(lay)
         idx = 0
         key_list = list(arg_dict.keys())
+        new_kwargs = self.newKwargsName(runningItem)
         for key in key_list:
-
-            new_key = key
-
-            if self.yml_file_path:
-                new_key = self.newKwargsName(key, runningItem)
-
+            new_key = new_kwargs.get(key, key)
             title = QLabel(new_key)
             title.setStyleSheet("font-weight: 300;")
             lay.addWidget(title, idx, 0, 1, 1)
