@@ -60,13 +60,13 @@ QUEUE_BTNS = [
         "tooltip": "Move the selected item to the last position of the queue."
     },
     {
-        "title": "Delete",
-        "icon": "fa5s.trash-alt",
-        "cmd": lambda re: re.delete_item(),
-        "enabled": False,
-        "confirm": True,
-        "permission": 1,
-        "tooltip": "Delete the selected item from the queue."
+        "title": "Add Plan",
+        "icon": "fa5s.plus",
+        "cmd": lambda re: re.add_plan_item(),
+        "enabled": True,
+        "permission": 0,
+        "tooltip": "Open a form that will create a new queue item " \
+            "and placed it in the last position of the queue."
     },
     {
         "title": "Duplicate",
@@ -78,22 +78,13 @@ QUEUE_BTNS = [
             "item that will be placed after the selected item."
     },
     {
-        "title": "Copy",
-        "icon": "fa5s.copy",
-        "cmd": lambda re: re.copy_queue_item(),
-        "enabled": False,
-        "permission": 1,
-        "tooltip": "Copy the selected item data into a form for creating a " \
-            "new queue item that will be placed after the selected item."
-    },
-    {
-        "title": "Edit",
-        "icon": "fa5s.pencil-alt",
-        "cmd": lambda re: re.edit_queue_item(),
-        "enabled": False,
-        "permission": 1,
-        "tooltip": "Copy the selected item data into a form that will " \
-            "update selected item."
+        "title": "Add Stop Item",
+        "icon": "mdi6.block-helper",
+        "cmd": lambda re: re.add_stop_queue(),
+        "enabled": True,
+        "permission": 0,
+        "tooltip": "Add an instruction for stopping the queue " \
+            "and placed it in the last position of the queue."
     },
     {
         "title": "Clear All",
@@ -103,33 +94,6 @@ QUEUE_BTNS = [
         "confirm": True,
         "permission": 0,
         "tooltip": "Delete all the queue items."
-    },
-    {
-        "title": "Add Plan",
-        "icon": "fa5s.plus",
-        "cmd": lambda re: re.add_plan_item(),
-        "enabled": True,
-        "permission": 0,
-        "tooltip": "Open a form that will create a new queue item " \
-            "and placed it in the last position of the queue."
-    },
-    {
-        "title": "Add Instruction",
-        "icon": "mdi6.block-helper",
-        "cmd": lambda re: re.add_instruction_item(),
-        "enabled": True,
-        "permission": 0,
-        "tooltip": "Add a customized instruction " \
-            "and placed it in the last position of the queue."
-    },
-    {
-        "title": "Add Stop Item",
-        "icon": "mdi6.block-helper",
-        "cmd": lambda re: re.add_stop_queue(),
-        "enabled": True,
-        "permission": 0,
-        "tooltip": "Add an instruction for stopping the queue " \
-            "and placed it in the last position of the queue."
     }
 ]
 
