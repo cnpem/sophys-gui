@@ -53,3 +53,10 @@ example_plan:
             "Detectors Config.":
                 "use_det1": "Use Detector 1"
                 "use_det2": "Use Detector 2"
+
+![image](https://raw.githubusercontent.com/Murilo-cnpem/my-repo/refs/heads/main/Captura%20de%20tela%20de%202025-12-16%2011-20-21.png)
+![image](https://raw.githubusercontent.com/Murilo-cnpem/my-repo/refs/heads/main/PlanNewNames.png)
+![image](https://raw.githubusercontent.com/Murilo-cnpem/my-repo/refs/heads/main/RunningItemName.png)
+![image](https://raw.githubusercontent.com/Murilo-cnpem/my-repo/refs/heads/main/HistoryNewName.png)
+
+
