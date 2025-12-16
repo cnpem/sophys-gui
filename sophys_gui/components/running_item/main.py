@@ -1,8 +1,9 @@
+import yaml
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QWidget, QGridLayout, \
     QLabel, QGroupBox, QHBoxLayout, QSizePolicy
 from sophys_gui.functions import getHeader, createSingleBtn, \
-    addArgsToKwargs
+    addArgsToKwargs, openYaml
 from ..led import SophysLed
 from .util import CONTROL_BTNS
 from .progress import ProgressBar
@@ -24,11 +25,13 @@ class SophysRunningItem(QWidget):
 
     """
 
-    def __init__(self, model, loginChanged, kafka_bootstrap, kafka_topic):
+    def __init__(self, model, loginChanged, kafka_bootstrap, kafka_topic, yml_file_path = None):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.group = QGroupBox()
         self.runEngine = model.run_engine
+        self.yml_file_path = yml_file_path
+        self.config = openYaml(self.yml_file_path)
         self._setupUi(loginChanged, kafka_bootstrap, kafka_topic)
 
     def createBtns(self, glay, loginChanged):
@@ -41,7 +44,29 @@ class SophysRunningItem(QWidget):
             loginChanged.connect(btn.setEnabled)
             glay.addWidget(btn, 7, idy, 1, 2)
 
-    def createDictionaryWidget(self, arg_dict):
+    def newKwargsName(self, runningItem):
+
+        name = runningItem.get("name", "")
+        plan_configuration = self.config.get(name, {})
+        parameters_dict = plan_configuration.get("param_names", {})
+
+        kwargs_dict = dict()
+
+        if isinstance(parameters_dict, dict):
+
+            for value in parameters_dict.values():
+
+                if isinstance(value, dict):
+                    kwargs_dict.update(value)
+            
+                else:
+                    kwargs_dict.update(parameters_dict)
+                    break
+
+        return kwargs_dict
+            
+
+    def createDictionaryWidget(self, arg_dict, runningItem):
         """
             Create a widget that displays a dictionary.
         """
@@ -50,8 +75,10 @@ class SophysRunningItem(QWidget):
         widget.setLayout(lay)
         idx = 0
         key_list = list(arg_dict.keys())
+        new_kwargs = self.newKwargsName(runningItem)
         for key in key_list:
-            title = QLabel(key)
+            new_key = new_kwargs.get(key, key)
+            title = QLabel(new_key)
             title.setStyleSheet("font-weight: 300;")
             lay.addWidget(title, idx, 0, 1, 1)
 
@@ -92,14 +119,20 @@ class SophysRunningItem(QWidget):
         """
         item = {}
         if key in runningItem:
-            item = runningItem[key]
+
+            if key == 'name':
+                plan_name = runningItem[key]
+                item = self.config.get(plan_name, {}).get("name", plan_name)
+            else:
+                item = runningItem[key]
         if isinstance(item, str):
             value = QLabel(item)
             value.setAlignment(Qt.AlignCenter)
         else:
             argsDict = self.handleArgsList(runningItem)
-            value = self.createDictionaryWidget(argsDict)
+            value = self.createDictionaryWidget(argsDict, runningItem)
         return value
+
 
     @DeferredFunction
     def updateRunningItemWidget(self, evt):
