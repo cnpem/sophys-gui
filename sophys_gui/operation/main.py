@@ -1,7 +1,7 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QMainWindow, QWidget, QSplitter, \
-    QGridLayout, QTabWidget, QScrollArea, QPushButton
+    QGridLayout, QTabWidget, QPushButton, QVBoxLayout
 from sophys_gui.components import SophysQueueTable, \
     SophysHistoryTable, SophysRunningItem, QueueController, \
     SophysConsoleMonitor, SophysLogin
@@ -62,10 +62,7 @@ class SophysOperationGUI(QMainWindow):
         self.metadata_viewer.show()
 
     def showLiveViewWidgets(self):
-        wid = QScrollArea()
-        lay = QGridLayout()
-        lay.setContentsMargins(0, 0, 0, 0)
-        wid.setLayout(lay)
+        wid = QSplitter(Qt.Horizontal)
 
         self.data_source_manager = DataSourceManager()
         self.data_source_manager.add_data_source(self.kafka_datasource)
@@ -91,11 +88,15 @@ class SophysOperationGUI(QMainWindow):
             self.data_source_manager, self.run_selector.selected_streams_changed
         )
         show_metadata.clicked.connect(self.showMetadataGUI)
-
-        lay.addWidget(self.run_selector, 0, 0, 1, 1)
-        lay.addWidget(show_metadata, 1, 0, 1, 1)
-        lay.addWidget(self.plot_display, 0, 1, 2, 2)
-        lay.addWidget(self.signal_selector, 0, 3, 2, 1)
+        
+        vlaywid = QWidget()
+        vlay = QVBoxLayout()
+        vlaywid.setLayout(vlay)
+        vlay.addWidget(self.run_selector)
+        vlay.addWidget(show_metadata)
+        wid.addWidget(vlaywid)
+        wid.addWidget(self.plot_display)
+        wid.addWidget(self.signal_selector)
         
         self.signal_selector.set_plot_tab_changed_signal(
             self.plot_display.plot_tab_changed
