@@ -18,6 +18,7 @@ class ProgressBar(QProgressBar):
         self.multi_run = False
         self.setMaximum(100)
         self.setMinimum(0)
+        self.metadata = {}
         self.kafka_monitor = KafkaDataRegister(kafka_bootstrap, kafka_topic)
         self.kafka_timer = QTimer()
         self.kafka_timer.setInterval(150)
@@ -26,15 +27,18 @@ class ProgressBar(QProgressBar):
 
     @DeferredFunction
     def handle_plan_args(self, runningItem):
-        self.total_events = 1
+        self.total_events = self.metadata.get("total_seq_num", 1)
+
         kwargs = runningItem["kwargs"]
         isGrid = "grid" in runningItem["name"]
         isList = "list" in runningItem["name"]
+       
         if "metadata" in kwargs:
             if "total_seq_num" in kwargs["metadata"]:
                 self.total_events = int(kwargs["metadata"]["total_seq_num"])
                 self.multi_run = True
                 return
+            
         if "num" in kwargs:
             self.total_events = kwargs["num"]
         elif "args" in kwargs:
@@ -71,7 +75,13 @@ class ProgressBar(QProgressBar):
     def kafka_monitor_callback(self):
         kafka_data = self.kafka_monitor.get_data()
         events_size = len(kafka_data)
+
         if events_size > 0:
+            if "total_seq_num" in kafka_data[0]:
+                self.metadata = kafka_data[0]
+                self.total_events = int(self.metadata.get("total_seq_num", 1))
+                self.multi_run = True
+
             last_run = kafka_data[-1]
             seq_num = 0
             if "seq_num" in last_run:
