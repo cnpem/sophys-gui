@@ -42,7 +42,7 @@ class SophysConsoleMonitor(QScrollArea):
             if "run_engine" in line: 
                 self.console.setTextColor(QColor("#2f00ff"))
             else:
-                self.console.setTextColor(QColor("#009933"))
+                self.console.setTextColor(QColor("#00501B"))
         elif "[D " in line:
             self.console.setTextColor(QColor("#007A99"))
         else:
