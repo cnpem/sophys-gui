@@ -301,11 +301,15 @@ class HistoryModel(ListModel):
             hlay.addWidget(lbl)
             vlay.addLayout(hlay)
 
+        traceback = result["traceback"]
+        if traceback == "":
+            traceback = "The plan was completed successfully!"
+
         title = QLabel("<strong>Traceback</strong>", alignment=Qt.AlignCenter)
         vlay.addWidget(title)
 
         scroll = QScrollArea()
-        log = QLabel(result["traceback"])
+        log = QLabel(traceback)
         scroll.setWidget(log)
         scroll.setWidgetResizable(True)
         vlay.addWidget(scroll)
@@ -318,16 +322,11 @@ class HistoryModel(ListModel):
         if len(selected_row) > 0:
             selected_item = self._re_model.run_engine._plan_history_items[selected_row[0]]
             row_id = selected_row[0]+1
-            if selected_item["result"]["exit_status"] == "failed":
-                self.window = QMainWindow()
-                self.window.setWindowTitle(f"Error log of the run number {row_id}")
-                self.window.setCentralWidget(
-                    self.create_traceback_widget(selected_item["result"]))
-                self.window.show()
-            else:
-                app = QApplication.instance()
-                app.popup[0].set_text(f"No error log of the run number {row_id}!")
-                app.popup[0].show_popup()
+            self.window = QMainWindow()
+            self.window.setWindowTitle(f"Error log of the run number {row_id}")
+            self.window.setCentralWidget(
+                self.create_traceback_widget(selected_item["result"]))
+            self.window.show()
 
 
 class QueueModel(ListModel):
