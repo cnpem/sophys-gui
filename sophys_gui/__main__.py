@@ -35,8 +35,6 @@ def main():
     window.show()
     app.createPopup(window)
 
-    __backend_model.run_engine.load_re_manager_status(unbuffered=True)
-
     ret = app.exec_()
     __backend_model.exit()
     sys.exit(ret)

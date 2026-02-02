@@ -162,7 +162,7 @@ class ListModel(QAbstractTableModel):
 
     def __init__(self, re_model, plan_changed, plan_items, row_count, listId, yml_file_path = None, parent=None):
         super().__init__(parent)
-
+        self.vis_buffer = 500
         self._re_model = re_model
         self.plan_items = plan_items
         self.row_count = row_count
@@ -250,6 +250,7 @@ class ListModel(QAbstractTableModel):
 
     @Slot(object)
     def onPlanListChanged(self, _):
+        self.plan_items = self.plan_items[self.rowCount()-self.vis_buffer:]
         self.beginResetModel()
         self.endResetModel()
         self.updateTable.emit(self.rowCount())
