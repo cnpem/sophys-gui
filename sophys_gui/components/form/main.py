@@ -212,7 +212,6 @@ class SophysForm(QDialog):
         itemParameters = self.getItemParameters()
         item = self.getItemMetadata(itemParameters)
         isItemUpdate = "edit" in self.modalMode
-        
         if isItemUpdate:
             self.model.queue_item_update(item=item)
         else:
@@ -291,7 +290,8 @@ class SophysForm(QDialog):
             item = argsParams[0]
         elif isMotors:
             argsParams = argsParams.copy()
-            argsParams.pop(0)
+            if isinstance(argsParams[0], list):
+                argsParams.pop(0)
             item = argsParams
         return item
 
