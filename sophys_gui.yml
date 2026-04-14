@@ -6,7 +6,6 @@ dependencies:
     - qtawesome==1.4.0
     - bluesky-queueserver-api==0.0.10
     - bluesky-widgets>=0.0.15
-    - pyepics==3.5.2
     - pip==23.1.2
     - python<3.12.0
     - pyqt==5.15.9
