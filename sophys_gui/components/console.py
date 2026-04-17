@@ -1,7 +1,62 @@
-from qtpy.QtCore import Qt, Signal, Slot
+import time
+
+from qtpy.QtCore import Qt, QObject, Signal, Slot, QUrl, QThread
 from qtpy.QtGui import QTextOption, QColor
 from qtpy.QtWidgets import QTextEdit, QScrollArea
-from suitscase.utilities.threading import AsyncFunction
+
+from bluesky_queueserver_api.comm_base import RequestTimeoutError
+from bluesky_queueserver_api.console_monitor import _ConsoleMonitor as ConsoleMonitor
+
+
+class ConsolePollingWorker(QObject):
+    new_message_received = Signal(str, str)  # timestamp, msg
+
+    @staticmethod
+    def create(thread: QThread, console_monitor: ConsoleMonitor):
+        polling_worker = ConsolePollingWorker(console_monitor)
+        polling_worker.moveToThread(thread)
+
+        thread.started.connect(polling_worker.run)
+        thread.finished.connect(polling_worker.deleteLater)
+
+        return polling_worker
+
+    def __init__(self, console_monitor: ConsoleMonitor):
+        super().__init__()
+
+        self._console_monitor = console_monitor
+        self._last_text_uid = None
+
+    @Slot()
+    def run(self):
+        old_max_lines = self._console_monitor.text_max_lines
+
+        self._console_monitor.text_max_lines = 0
+        self._console_monitor.enable()
+
+        current_thread = QThread.currentThread()
+        while not current_thread.isInterruptionRequested():
+            if self._console_monitor.text_uid == self._last_text_uid:
+                time.sleep(0.1)
+
+                continue
+
+            self._last_text_uid = self._console_monitor.text_uid
+
+            msgs = list()
+            while True:
+                try:
+                    msgs.append(self._console_monitor.next_msg(timeout=0))
+                except RequestTimeoutError:
+                    break
+
+            for msg in msgs:
+                self.new_message_received.emit("", msg)
+
+        self._console_monitor.disable()
+        self._console_monitor.text_max_lines = old_max_lines
+
+        current_thread.quit()
 
 
 class SophysConsoleMonitor(QScrollArea):
@@ -19,16 +74,19 @@ class SophysConsoleMonitor(QScrollArea):
 
     """
 
-    appendLine = Signal(str)
-
     def __init__(self, model, all_logs=False):
         super().__init__()
         self.all_logs = all_logs
         self.run_engine = model.run_engine
-        self.appendLine.connect(self.onAppendLine)
 
         self._setupUi()
-        self.serverMonitor()
+
+        self._worker_thread = QThread()
+
+        polling_worker = ConsolePollingWorker.create(self._worker_thread, self.run_engine._client._console_monitor)
+        polling_worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
+
+        self._worker_thread.start()
 
     @Slot(str)
     def onAppendLine(self, line: str):
@@ -49,24 +107,6 @@ class SophysConsoleMonitor(QScrollArea):
             self.console.setTextColor(QColor("#000000"))
         self.console.append(line)
         self.scrollBar.setValue(self.scrollBar.maximum())
-
-    @AsyncFunction
-    def serverMonitor(self):
-        """
-            Monitor and send new labels for the label widget.
-        """
-        self.run_engine.start_console_output_monitoring()
-        while True:
-            newOutput = self.run_engine.console_monitoring_thread()
-            if newOutput:
-                new_console_line = newOutput[1].strip()
-                if new_console_line != "":
-                    is_debug = ("[D " in new_console_line) or ("bluesky_queueserver" in new_console_line) or \
-                        ("run_engine" in new_console_line)
-                    if not is_debug or self.all_logs:
-                        self.appendLine.emit(new_console_line)
-            else:
-                break
 
     def getConsoleLabel(self):
         """
