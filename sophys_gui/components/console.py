@@ -1,12 +1,84 @@
+import logging
 import time
 
 from qtpy.QtCore import QCoreApplication, Qt, QObject, Signal, Slot, QUrl, QThread
 from qtpy.QtGui import QTextOption, QColor
 from qtpy.QtWidgets import QTextEdit, QScrollArea
+from qtpy.QtWebSockets import QWebSocket, QWebSocketProtocol
 
 from bluesky_queueserver_api.comm_base import RequestTimeoutError
 from bluesky_queueserver_api.console_monitor import _ConsoleMonitor as ConsoleMonitor
 
+
+class ConsoleWebSocketWorker(QObject):
+    try_connecting = Signal()
+    closed_for_good = Signal()
+
+    new_message_received = Signal(str, str)  # timestamp, msg
+
+    @staticmethod
+    def create(thread: QThread, websocket_url: QUrl):
+        streaming_worker = ConsoleWebSocketWorker(websocket_url)
+        streaming_worker.moveToThread(thread)
+        streaming_worker.closed_for_good.connect(thread.quit)
+
+        thread.started.connect(streaming_worker.open_connection)
+        thread.finished.connect(streaming_worker.deleteLater)
+
+        return streaming_worker
+
+    def __init__(self, websocket_url: QUrl):
+        super().__init__()
+
+        self._ws_url = websocket_url
+        self._socket = None
+
+        self._reconnect_attempts = 0
+
+        self._logger = logging.getLogger("sophys.gui.console.worker")
+
+        self.try_connecting.connect(self.open_connection)
+
+    @Slot()
+    def open_connection(self):
+        if self._socket is None:
+            self._socket = QWebSocket()
+
+            self._socket.connected.connect(self._on_connect)
+            self._socket.disconnected.connect(self._on_disconnect)
+
+            self._socket.textMessageReceived.connect(self._receive_new_message)
+
+        self._socket.open(self._ws_url)
+
+    @Slot(str)
+    def _receive_new_message(self, message: str):
+        print(message)
+
+    @Slot()
+    def _on_connect(self):
+        self._reconnect_attempts = 0
+
+    @Slot()
+    def _on_disconnect(self):
+        close_code = self._socket.closeCode()
+
+        if close_code == QWebSocketProtocol.CloseCode.CloseCodeNormal:
+            self.closed_for_good.emit()
+
+            return
+
+        if self._reconnect_attempts >= 3:
+            self._logger.error("Console WebSocket has disconnected three times in a row. Giving up.")
+            self._logger.debug("Close code: %d | Close reason: %s", close_code, self._socket.closeReason())
+
+            self.closed_for_good.emit()
+
+        self._logger.warning("Console WebSocket has disconnected. Attempting to reconnect...")
+        self._logger.debug("Close code: %d | Close reason: %s", close_code, self._socket.closeReason())
+
+        self._reconnect_attempts += 1
+        self.try_connecting.emit()
 
 class ConsolePollingWorker(QObject):
     new_message_received = Signal(str, str)  # timestamp, msg
@@ -83,8 +155,17 @@ class SophysConsoleMonitor(QScrollArea):
 
         self._worker_thread = QThread()
 
-        self._worker = ConsolePollingWorker.create(self._worker_thread, self.run_engine._client._console_monitor)
-        self._worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
+        base_uri = getattr(self.run_engine, "base_uri", None)
+        if base_uri is not None:
+            ws_uri = QUrl(base_uri)
+            ws_uri.setPath("/api/console_output/ws")
+            ws_uri.setScheme("ws")
+
+            streaming_worker = ConsoleWebSocketWorker.create(self._worker_thread, ws_uri)
+            streaming_worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
+        else:
+            polling_worker = ConsolePollingWorker.create(self._worker_thread, self.run_engine._client._console_monitor)
+            polling_worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
 
         self._worker_thread.start()
 
