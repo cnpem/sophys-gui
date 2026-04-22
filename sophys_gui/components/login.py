@@ -1,7 +1,7 @@
 from enum import IntEnum
 
-from qtpy.QtCore import Qt, Signal, Slot
-from qtpy.QtGui import QFont
+from qtpy.QtCore import QSize, Qt, Signal, Slot
+from qtpy.QtGui import QFont, QShortcut, QKeySequence
 from qtpy.QtWidgets import (
     QApplication,
     QWidget,
@@ -11,7 +11,6 @@ from qtpy.QtWidgets import (
     QGridLayout,
     QPushButton,
     QToolButton,
-    QSize,
     QWidgetAction,
     QHBoxLayout,
 )
@@ -44,6 +43,7 @@ class SophysLogin(QWidget):
         self.setToolTip(tooltip_msg)
 
         layout = QHBoxLayout()
+        self.setLayout(layout)
 
         self._info_message = QLabel("Anonymous User")
         self._info_message.setStyleSheet(
@@ -83,6 +83,7 @@ class SophysLogin(QWidget):
         login_button.clicked.connect(self.attempt_login)
 
         credentials_layout.addWidget(login_button, 3, 0, 1, 2)
+        QShortcut(QKeySequence(Qt.Key_Tab), credentials_form, activated=self.change_focus)
 
         logged_out_button = QToolButton()
         logged_out_button_icon = qta.icon("ri.login-circle-line")
@@ -103,7 +104,7 @@ class SophysLogin(QWidget):
         logged_in_button_icon = qta.icon("ri.logout-circle-line")
         logged_in_button.setIconSize(QSize(30, 30))
         logged_in_button.setIcon(logged_in_button_icon)
-        logged_in_button.clicked.connect(self._buttons_widget.logout)
+        logged_in_button.clicked.connect(self.logout)
 
         _ = self._buttons_widget.addWidget(logged_out_button)
         assert _ == self.ButtonsConfiguration.LOGGED_OFF
@@ -117,6 +118,12 @@ class SophysLogin(QWidget):
 
         self.setMaximumHeight(75)
 
+    def change_focus(self):
+        if self._email_line_edit.hasFocus():
+            self._password_line_edit.setFocus(True)
+        else:
+            self._email_line_edit.setFocus(True)
+
     @Slot()
     def attempt_login(self):
         re = self._run_engine
@@ -129,12 +136,21 @@ class SophysLogin(QWidget):
 
         self._buttons_widget.setCurrentIndex(self.ButtonsConfiguration.LOADING)
 
-        response = re._client.login(
-            username=user_name, password=password, provider="ldap/token"
-        )
+        _exc = None
+        try:
+            response = re._client.login(
+                username=user_name, password=password, provider="ldap/token"
+            )
+        except Exception as exc:
+            print(f"Failed to login to httpserver: {exc}")
+            _exc = exc
 
-        if response is None:
+        if _exc is not None or response is None:
             self.logout()
+
+            if _exc is not None:
+                raise _exc
+
             return
 
         self._app.saveRunEngineClient(re._client)
@@ -147,19 +163,21 @@ class SophysLogin(QWidget):
 
         re._client.permissions_reload()
 
+        self._info_message.setText(user_name)
         self._buttons_widget.setCurrentIndex(self.ButtonsConfiguration.LOGGED_IN)
         self.login_status_changed.emit(True)
 
     @Slot()
     def logout(self):
+        self._buttons_widget.setCurrentIndex(self.ButtonsConfiguration.LOGGED_OFF)
+        self._info_message.setText("Anonymous User")
+        self.login_status_changed.emit(False)
+
         re = self._run_engine
 
         re._user_name = "GUI Client"
         re._user_group = "primary"
 
-        re._client.logout()
-
         self._app.saveRunEngineClient(None)
 
-        self._buttons_widget.setCurrentIndex(self.ButtonsConfiguration.LOGGED_OFF)
-        self.login_status_changed.emit(False)
+        re._client.logout()
