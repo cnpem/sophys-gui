@@ -1,6 +1,6 @@
 import time
 
-from qtpy.QtCore import Qt, QObject, Signal, Slot, QUrl, QThread
+from qtpy.QtCore import QCoreApplication, Qt, QObject, Signal, Slot, QUrl, QThread
 from qtpy.QtGui import QTextOption, QColor
 from qtpy.QtWidgets import QTextEdit, QScrollArea
 
@@ -83,10 +83,12 @@ class SophysConsoleMonitor(QScrollArea):
 
         self._worker_thread = QThread()
 
-        polling_worker = ConsolePollingWorker.create(self._worker_thread, self.run_engine._client._console_monitor)
-        polling_worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
+        self._worker = ConsolePollingWorker.create(self._worker_thread, self.run_engine._client._console_monitor)
+        self._worker.new_message_received.connect(lambda _, msg: self.onAppendLine(msg))
 
         self._worker_thread.start()
+
+        QCoreApplication.instance().aboutToQuit.connect(self.exit)
 
     @Slot(str)
     def onAppendLine(self, line: str):
@@ -97,7 +99,7 @@ class SophysConsoleMonitor(QScrollArea):
         elif "[W " in line:
             self.console.setTextColor(QColor("#cc9900"))
         elif "[I " in line:
-            if "run_engine" in line: 
+            if "run_engine" in line:
                 self.console.setTextColor(QColor("#2f00ff"))
             else:
                 self.console.setTextColor(QColor("#00501B"))
@@ -124,3 +126,7 @@ class SophysConsoleMonitor(QScrollArea):
         self.setWidget(self.console)
         self.setWidgetResizable(True)
         self.scrollBar = self.verticalScrollBar()
+
+    def exit(self):
+        self._worker_thread.requestInterruption()
+        self._worker_thread.wait()
