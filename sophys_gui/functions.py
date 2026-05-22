@@ -85,7 +85,7 @@ def getMotorInput(paramMeta):
     separator = "-.-"
     motorDescription = paramMeta["description"]
     motorTypeIndex = motorDescription.index(separator)
-    if motorTypeIndex:
+    if motorTypeIndex == False:
         motorTyping = motorDescription[motorTypeIndex:].replace(separator, "")
         return motorTyping
     return None
