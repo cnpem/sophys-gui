@@ -359,6 +359,7 @@ class SophysForm(QDialog):
                 self.md_widget = inputWid
         elif isArgs:
             inputWid = SophysInputMotor(self.model, paramMeta, self.getIterableInput)
+            isStr = False
         elif isIterable and not isBool:
             inputWid = self.getIterableInput(paramMeta, paramType)
         elif isDevice or isLiteral or isBool:
