@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sophys-gui"
+description = "Control GUI for the Bluesky queue."
+authors = [{ name = "SWC - LNLS" }]
+dependencies = [
+    "QtPy==2.3.1",
+    "QtAwesome>1.2.3",
+    "bluesky-queueserver-api==0.0.10",
+    "bluesky-widgets",
+    "typesentry==0.2.7",
+    "numpy>=2.0.0",
+    "assonant[naming-standards]",
+    "sophys_live_view",
+    "PyYAML",
+]
+dynamic = ["version"]
+readme = "README.md"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"*" = ["*.css", "*.yml", "*json"]
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "node-and-date"
+version_file = "sophys_gui/__version__.py"
+
+[tool.ruff]
+exclude = ["__version__.py", "docs/*"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "N", "B", "UP"]
+ignore = ["E203", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # Ignore assert warnings in test files
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+    "pytest-qt",
+    "ruff",
+]
+all = [
+    "sophys-gui[dev]"
+]
+
+[project.scripts]
+sophys-gui = "sophys_gui.__main__:main"
+
