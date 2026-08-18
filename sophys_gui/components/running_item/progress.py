@@ -1,7 +1,6 @@
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QProgressBar
 from sophys_gui.server import KafkaDataRegister
-from suitscase.utilities.threading import DeferredFunction
 
 
 class ProgressBar(QProgressBar):
@@ -25,7 +24,6 @@ class ProgressBar(QProgressBar):
         self.kafka_timer.timeout.connect(self.kafka_monitor_callback)
         self.run_engine.events.running_item_changed.connect(self.runningItemChanged)
 
-    @DeferredFunction
     def handle_plan_args(self, runningItem):
         self.total_events = self.metadata.get("total_seq_num", 1)
 
@@ -54,7 +52,6 @@ class ProgressBar(QProgressBar):
                 if args_size > 0:
                     self.total_events = args_size
 
-    @DeferredFunction
     def runningItemChanged(self, evt):
         runningItem = self.run_engine._running_item
         hasRunningItem = len(runningItem) != 0
@@ -71,7 +68,6 @@ class ProgressBar(QProgressBar):
             self.event_sum = 0
             self.kafka_monitor.get_data()
 
-    @DeferredFunction
     def kafka_monitor_callback(self):
         kafka_data = self.kafka_monitor.get_data()
         events_size = len(kafka_data)

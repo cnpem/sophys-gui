@@ -21,11 +21,12 @@ def main():
     parser.add_argument("--yml-file-path", required=False, default=None, help="Path to a yaml file for the customize sophys form.")
     args = parser.parse_args()
 
+    app = SophysApplication(sys.argv)
+
     __backend_model = ServerModel(args.http_server, args.http_server_api_key)
     __kafka_data_source = KafkaDataSource(
         args.kafka_topic, [args.kafka_bootstrap], hour_offset=1
     )
-    app = SophysApplication(sys.argv)
     has_api_key = True if args.http_server_api_key else False
     window = SophysOperationGUI(
         __backend_model, __kafka_data_source, args.kafka_bootstrap, args.kafka_topic,
@@ -37,9 +38,7 @@ def main():
 
     __backend_model.run_engine.load_re_manager_status(unbuffered=True)
 
-    ret = app.exec_()
-    __backend_model.exit()
-    sys.exit(ret)
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
