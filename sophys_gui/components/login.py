@@ -1,5 +1,5 @@
 from qtpy.QtWidgets import QApplication
-from suitscase import LoginCNPEM
+from suitscase.widgets import LoginCNPEM
 from sophys_gui.functions import addLineJumps
 
 
