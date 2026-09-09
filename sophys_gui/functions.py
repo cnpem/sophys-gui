@@ -76,7 +76,7 @@ def addArgsToKwargs(argsList):
     """
         Concatenate arguments and keyword arguments.
     """
-    args = argsList[0].copy()
+    args = argsList.copy()
     if isinstance(args[0][0], list):
         argsList[1]["detectors"] = args.pop(0)
     argsList[1]["args"] = args
