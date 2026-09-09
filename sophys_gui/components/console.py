@@ -1,3 +1,4 @@
+import logging
 import time
 
 from qtpy.QtCore import QCoreApplication, Qt, QObject, Signal, Slot, QUrl, QThread
@@ -6,6 +7,8 @@ from qtpy.QtWidgets import QTextEdit, QScrollArea
 
 from bluesky_queueserver_api.comm_base import RequestTimeoutError
 from bluesky_queueserver_api.console_monitor import _ConsoleMonitor as ConsoleMonitor
+
+logger = logging.getLogger("sophys.gui.console")
 
 
 class ConsolePollingWorker(QObject):
@@ -25,7 +28,6 @@ class ConsolePollingWorker(QObject):
         super().__init__()
 
         self._console_monitor = console_monitor
-        self._last_text_uid = None
 
     @Slot()
     def run(self):
@@ -34,15 +36,10 @@ class ConsolePollingWorker(QObject):
         self._console_monitor.text_max_lines = 0
         self._console_monitor.enable()
 
+        logger.debug("Console monitoring has started.")
+
         current_thread = QThread.currentThread()
         while not current_thread.isInterruptionRequested():
-            if self._console_monitor.text_uid == self._last_text_uid:
-                time.sleep(0.1)
-
-                continue
-
-            self._last_text_uid = self._console_monitor.text_uid
-
             msgs = list()
             while True:
                 try:
@@ -51,7 +48,13 @@ class ConsolePollingWorker(QObject):
                     break
 
             for msg in msgs:
-                self.new_message_received.emit("", msg)
+                logger.debug("New message has been received.")
+                self.new_message_received.emit(str(msg.get("timestamp")), msg.get("msg", ""))
+
+            if len(msgs) == 0:
+                time.sleep(0.1)
+
+        logger.debug("Console monitoring has ended.")
 
         self._console_monitor.disable()
         self._console_monitor.text_max_lines = old_max_lines
@@ -107,7 +110,7 @@ class SophysConsoleMonitor(QScrollArea):
             self.console.setTextColor(QColor("#007A99"))
         else:
             self.console.setTextColor(QColor("#000000"))
-        self.console.append(line)
+        self.console.append(line.strip())
         self.scrollBar.setValue(self.scrollBar.maximum())
 
     def getConsoleLabel(self):
