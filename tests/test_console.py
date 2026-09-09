@@ -7,12 +7,12 @@ from bluesky_queueserver_api.comm_threads import ReManagerComm_HTTP_Threads
 from sophys_gui.components.console import ConsolePollingWorker
 
 
-CONSOLE_MESSAGES = ("This is message #1.", "This is message #2.", "This is message #3.")
+CONSOLE_MESSAGES = ({"timestamp": 0, "msg": "This is message #1."}, {"timestamp": 1, "msg": "This is message #2."}, {"timestamp": 2, "msg": "This is message #3."})
 
 
 class DummyReManagerComm(ReManagerComm_HTTP_Threads):
     def __init__(self):
-        super().__init__(http_server_uri="https://localhost", console_monitor_poll_period=0.1)
+        super().__init__(http_server_uri="http://test", console_monitor_poll_period=0.1)
 
     def get_console_monitor(self):
         return self._console_monitor
@@ -22,10 +22,10 @@ class DummyReManagerComm(ReManagerComm_HTTP_Threads):
 def test_polling_worker(qtbot, httpx_mock):
     for response_message in CONSOLE_MESSAGES:
         httpx_mock.add_response(
-            url="https://localhost/api/console_output_update",
+            url="http://test/api/console_output_update",
             json={
                 "console_output_msgs": [response_message],
-                "last_msg_uid": hash(response_message),
+                "last_msg_uid": hash(response_message["msg"]),
             },
         )
 
@@ -41,11 +41,12 @@ def test_polling_worker(qtbot, httpx_mock):
         worker_thread.start()
 
     assert blocker.signal_triggered, blocker._timeout_message
+
     for signal, expected_message in zip(blocker.all_signals_and_args, CONSOLE_MESSAGES):
-        assert signal.args[1] == expected_message
+        assert signal.args[1] == expected_message["msg"]
 
     worker_thread.requestInterruption()
     worker_thread.wait(1_000)
 
     print(httpx_mock.get_requests())
-    
+
