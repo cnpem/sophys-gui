@@ -19,11 +19,13 @@ def main():
     parser.add_argument("--reading-order", required=False, default='up_down', help="The reading order of the parameters in the form for the addition of a new plan.")
     parser.add_argument("--show-all-logs", required=False, default=False, help="Don't hide the queue server logs")
     parser.add_argument("--yml-file-path", required=False, default=None, help="Path to a yaml file for the customize sophys form.")
+    parser.add_argument("--live-view-hour-offset", required=False, default=1, help="Hour offset where live view will seek for old runs.", type=float)
     args = parser.parse_args()
 
+    #args.live_view_hour_offset
     __backend_model = ServerModel(args.http_server, args.http_server_api_key)
     __kafka_data_source = KafkaDataSource(
-        args.kafka_topic, [args.kafka_bootstrap], hour_offset=1
+        args.kafka_topic, [args.kafka_bootstrap], hour_offset=args.live_view_hour_offset
     )
     app = SophysApplication(sys.argv)
     has_api_key = True if args.http_server_api_key else False
