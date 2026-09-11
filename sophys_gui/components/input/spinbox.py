@@ -48,6 +48,18 @@ class SophysSpinBox(QWidget):
         if isNone:
             self.stack.setCurrentIndex(0)
         else:
+            if isinstance(value, str):
+                dec = 4
+                if "e-" in value.lower():
+                    scientic_val = value.lower().split("e-")
+                    dec_prec = 0
+                    if "." in scientic_val[0]:
+                        dec_prec = len(scientic_val[0].split(".")[1])
+                    dec = dec_prec + int(scientic_val[1])
+                elif "." in str(value):
+                    dec_prec = len(str(value).split(".")[1])
+                    dec = 4 if dec_prec <= 4 else dec_prec
+                self.spinbox.setDecimals(dec)
             self.spinbox.setValue(float(value) if isinstance(self.spinbox, QDoubleSpinBox) else int(value))
             self.stack.setCurrentIndex(1)
             if not self.isRequired:
