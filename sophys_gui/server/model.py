@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from functools import partial
 import threading
 
@@ -16,7 +17,7 @@ def is_main_thread(thread: QThread) -> bool:
 
 class MonitorConditionWorker(QObject):
     @staticmethod
-    def create(thread: QThread, parent: QObject, run_engine):
+    def create(thread: QThread, parent: QObject, run_engine: RunEngineClient):
         worker = MonitorConditionWorker(parent, run_engine)
         worker.moveToThread(thread)
 
@@ -25,7 +26,7 @@ class MonitorConditionWorker(QObject):
 
         return worker
 
-    def __init__(self, parent, run_engine):
+    def __init__(self, parent: QObject, run_engine: RunEngineClient):
         super().__init__()
 
         assert hasattr(parent, "run_in_main_thread")
@@ -40,7 +41,7 @@ class MonitorConditionWorker(QObject):
 
         self._main_thread = QThread.currentThread()
 
-    def add_condition(self, condition, on_change):
+    def add_condition(self, condition: Callable, on_change: Callable):
         self._conditions.append((condition, on_change))
         self.stop_current_processing()
 
@@ -72,7 +73,7 @@ class MonitorConditionWorker(QObject):
 
         current_thread.quit()
 
-    def _run_with_monitor(self, monitor, condition, on_change):
+    def _run_with_monitor(self, monitor: WaitMonitor, condition: Callable, on_change: Callable):
         try:
             client = self._run_engine._client
 
@@ -93,18 +94,13 @@ class ServerModel(QObject):
         Class for monitoring and communicating with the Bluesky Run Engine.
     """
 
-    def __init__(self, http_server_uri, api_key=None):
+    def __init__(self, http_server_uri: str, api_key: str | None = None):
         super().__init__()
 
-        if api_key is not None:
-            self.run_engine = RunEngineClient(
-                http_server_uri=http_server_uri,
-                http_server_api_key=api_key
-            )
-        else:
-            self.run_engine = RunEngineClient(
-                http_server_uri=http_server_uri
-            )
+        self.run_engine = RunEngineClient(
+            http_server_uri=http_server_uri,
+            http_server_api_key=api_key
+        )
 
         # NOTE: Keep a reference to the URI for widgets to use.
         setattr(self.run_engine, "base_uri", http_server_uri)
@@ -117,16 +113,17 @@ class ServerModel(QObject):
         )
         self._condition_monitor.add_condition(
             lambda status: (
-                status["plan_queue_mode"] != self.run_engine.events.status_changed
+                status["plan_queue_mode"] != self.run_engine.events.status_changed  # ty: ignore[unresolved-attribute]
             ),
             partial(self.run_engine.load_re_manager_status, unbuffered=True),
         )
         self._worker_thread.start()
 
-        QCoreApplication.instance().aboutToQuit.connect(self.exit)
+        if (instance := QCoreApplication.instance()) is not None:
+            instance.aboutToQuit.connect(self.exit)
 
     @Slot(object)
-    def run_in_main_thread(self, functor, *args, **kwargs):
+    def run_in_main_thread(self, functor: Callable, *args, **kwargs):
         assert is_main_thread(QThread.currentThread())
 
         functor(*args, **kwargs)
