@@ -36,8 +36,8 @@ class SophysOperationGUI(QMainWindow):
         """
             Logout user when closing the GUI.
         """
-        if self.client_data != None:
-            self.login.logoutUser()
+        if self.client_data is not None:
+            self.login.logout()
         self.runEngine.stop_console_output_monitoring()
 
     def queueControls(self):
@@ -127,7 +127,7 @@ class SophysOperationGUI(QMainWindow):
         if not self.has_api_key:
             self.login = SophysLogin(self.model.run_engine)
             self.login.setMaximumWidth(500)
-            self.loginChanged = self.login.login_signal
+            self.loginChanged = self.login.login_status_changed
             glay.addWidget(self.login, 0, 2, 1, 1)
 
         controller = QueueController(self.model.run_engine, self.loginChanged)

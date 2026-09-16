@@ -12,6 +12,5 @@ dependencies:
     - pyyaml
     - pip:
         - typesentry==0.2.7
-        - git+https://gitlab.cnpem.br/SOL/GUI/suitscase.git
         - git+https://github.com/cnpem/sophys-live-view.git
         - git+https://github.com/cnpem/sophys-gui.git
