@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--kafka-bootstrap", required=True, help="The Kafka broker address to connect to. (e.g. 127.0.0.1:kafka_port)")
     parser.add_argument("--kafka-topic", required=True, help="The Kafka topic to listen to. (e.g. test_bluesky_raw_docs)")
     parser.add_argument("--reading-order", required=False, default='up_down', help="The reading order of the parameters in the form for the addition of a new plan.")
-    parser.add_argument("--show-all-logs", required=False, default=False, help="Don't hide the queue server logs")
+    parser.add_argument("--show-all-logs", action="store_true", help="Don't hide the queue server logs")
     parser.add_argument("--yml-file-path", required=False, default=None, help="Path to a yaml file for the customize sophys form.")
     args = parser.parse_args()
 
