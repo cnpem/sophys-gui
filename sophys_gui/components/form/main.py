@@ -611,8 +611,9 @@ class SophysForm(QDialog):
 
             for allowed_name in sorted(allowedNames):
 
-                display_name = self.config.get(allowed_name, {}).get("name", allowed_name)
-                combobox.addItem(display_name, allowed_name)
+                display_name = self.config.get(allowed_name, {}).get("name")
+                if display_name:
+                    combobox.addItem(display_name, allowed_name)
         else:
 
             for allowed_name in sorted(allowedNames):
