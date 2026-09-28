@@ -1,12 +1,11 @@
 from collections.abc import Callable
 from functools import partial
 import threading
-
-from qtpy.QtCore import QCoreApplication, QObject, QMetaObject, QThread, Slot, Q_ARG
+import time as ttime
 
 from bluesky_queueserver_api import WaitMonitor
 from bluesky_widgets.models.run_engine_client import RunEngineClient
-
+from qtpy.QtCore import Q_ARG, QCoreApplication, QMetaObject, QObject, QThread, Slot
 
 
 def is_main_thread(thread: QThread) -> bool:
@@ -35,8 +34,8 @@ class MonitorConditionWorker(QObject):
 
         self._conditions = list()
         self._failed_conditions = set()
+        self._executing_conditions = set()
 
-        self._monitors = list()
         self._threads = list()
 
         self._main_thread = QThread.currentThread()
@@ -46,30 +45,34 @@ class MonitorConditionWorker(QObject):
         self.stop_current_processing()
 
     def stop_current_processing(self):
-        for monitor in self._monitors:
+        for _, monitor in self._executing_conditions:
             monitor.cancel()
 
     @Slot()
     def run(self):
         current_thread = QThread.currentThread()
         while not current_thread.isInterruptionRequested():
-            self._monitors.clear()
-            self._threads.clear()
+            self._threads = [_t for _t in self._threads if _t.is_alive()]
 
             for condition, on_change in self._conditions:
                 if condition in self._failed_conditions:
                     continue
+                if condition in self._executing_conditions:
+                    continue
 
                 monitor = WaitMonitor()
-                self._monitors.append(monitor)
 
                 thread = threading.Thread(target=self._run_with_monitor, args=(monitor, condition, on_change))
                 self._threads.append(thread)
 
+                self._executing_conditions.add((condition, monitor))
+
                 thread.start()
 
-            for thread in self._threads:
-                thread.join()
+            while all(_t.is_alive() for _t in self._threads):
+                ttime.sleep(0.4)
+                for thread in self._threads:
+                    thread.join(timeout=0.2)
 
         current_thread.quit()
 
@@ -78,11 +81,13 @@ class MonitorConditionWorker(QObject):
             client = self._run_engine._client
 
             try:
-                client.wait_for_condition(condition, monitor=monitor)
+                client.wait_for_condition(condition, timeout=10, monitor=monitor)
             except (client.WaitCancelError, client.WaitTimeoutError):
                 pass
             else:
                 QMetaObject.invokeMethod(self._parent, "run_in_main_thread", Q_ARG(object, on_change))
+
+                self._executing_conditions.remove((condition, monitor))
         except Exception:
             self._failed_conditions.add(condition)
 
@@ -113,7 +118,7 @@ class ServerModel(QObject):
         )
         self._condition_monitor.add_condition(
             lambda status: (
-                status["plan_queue_mode"] != self.run_engine.events.status_changed  # ty: ignore[unresolved-attribute]
+                status["status_uid"] != self.run_engine.re_manager_status.get("status_uid", "")
             ),
             partial(self.run_engine.load_re_manager_status, unbuffered=True),
         )
