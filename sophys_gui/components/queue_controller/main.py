@@ -134,7 +134,7 @@ class QueueController(QWidget):
         if resCode == QMessageBox.Yes:
             return True
         return False
-    
+
     def handle_destroy(self):
         confirmation = self.confirmationDialog()
         if confirmation:
@@ -152,7 +152,7 @@ class QueueController(QWidget):
         btn.clicked.connect(self.handle_destroy)
         groupLay.addWidget(btn)
         hlay.addWidget(group)
-        
+
     def getQueueController(self):
         """
             Group the buttons stacks for controlling the queue.
@@ -183,7 +183,7 @@ class QueueController(QWidget):
 
     def _setupUi(self, loginChanged):
         hlay = QHBoxLayout(self)
-        
+
 
         if not self.execution_monitor:
             self.addDestroyButton(hlay)

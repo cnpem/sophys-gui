@@ -56,6 +56,7 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-qt",
+    "pytest-httpx",
     "ruff",
 ]
 all = [

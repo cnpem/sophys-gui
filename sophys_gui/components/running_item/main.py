@@ -8,8 +8,6 @@ from ..led import SophysLed
 from .util import CONTROL_BTNS
 from .progress import ProgressBar
 
-from suitscase.utilities.threading import DeferredFunction
-
 
 class SophysRunningItem(QWidget):
     """
@@ -134,7 +132,6 @@ class SophysRunningItem(QWidget):
         return value
 
 
-    @DeferredFunction
     def updateRunningItemWidget(self, evt):
         """
             Update the widget showing the current running item.
