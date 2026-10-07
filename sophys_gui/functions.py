@@ -1,10 +1,10 @@
-import qtawesome as qta
-import os as _os
-import yaml
 import ast
+import os as _os
+
+import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QPushButton, QDoubleSpinBox, \
-    QSpinBox
+from qtpy.QtWidgets import QDoubleSpinBox, QLabel, QPushButton, QSpinBox
+import yaml
 
 
 def getItemRecursively(original_obj: object, attrs: list):

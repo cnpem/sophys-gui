@@ -1,5 +1,5 @@
 from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QTableView, QHeaderView, QMessageBox
+from qtpy.QtWidgets import QHeaderView, QMessageBox, QTableView
 
 
 class SophysTable(QTableView):

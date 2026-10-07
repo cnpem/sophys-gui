@@ -1,16 +1,35 @@
-import time
-import yaml
-import typing
-import qtawesome as qta
-import typesentry
 from math import floor
+import time
+import typing
+
+import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
-    QComboBox, QGroupBox, QLineEdit, QLabel, QVBoxLayout, \
-    QApplication, QCompleter, QComboBox, QWidget, QPushButton
+from qtpy.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QCompleter,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+import typesentry
+import yaml
+
 from sophys_gui.functions import evaluateValue, getMotorInput, openYaml
-from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
-    SophysInputMotor, SophysComboBox
+
+from ..input import (
+    SophysComboBox,
+    SophysInputDict,
+    SophysInputList,
+    SophysInputMotor,
+    SophysSpinBox,
+)
 from .metadata import SophysMetadataForm
 from .util import UNKNOWN_TYPES
 
@@ -99,7 +118,10 @@ class SophysForm(QDialog):
         widget = inputWid["widget"]
         strType = str(inputWid["type"]).lower()
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
-        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
+        isContainer = any([item in str(inputWid["type"]) for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType
+        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+        isBool = "bool" in strType and not isContainer
+        isIterable = any([item in strType for item in ["sequence", "iterable", "list", "object"]]) and not isNumber and not isBool
         isUnion = "union" in strType
         isDetector = inputWid["kind"] == "POSITIONAL_ONLY" or key == "detectors"
         if isDetector and isinstance(value, str) or (isIterable and not isinstance(value, list) and not isUnion):
@@ -110,12 +132,29 @@ class SophysForm(QDialog):
         """
             Create a list for type with only one value.
         """
-        if not isinstance(widType, list):
+        if isinstance(widType, str):
+            try:
+                widType = self.convertTypeToPythonType(widType)
+            except Exception:
+                pass
+        if isinstance(widType, str):
+            widType = [widType]
+            if not isinstance(valueList, list):
+                valueList = [valueList]
+        elif not isinstance(widType, list):
             try:
                 len(widType) > 1
             except Exception:
                 widType = [widType]
                 valueList = [valueList]
+            if not isinstance(valueList, list):
+                valueList = [valueList]
+        elif not isinstance(valueList, list):
+            valueList = [valueList]
+        if not isinstance(valueList, list):
+            valueList = [valueList]
+        if not isinstance(widType, list):
+            widType = [widType]
         return valueList, widType
 
     def verifyValueType(self, valueList, widType):
@@ -129,6 +168,8 @@ class SophysForm(QDialog):
             generic_type = str(types)
             if "typing.Literal" in generic_type or "list" in generic_type:
                 continue
+            if idx >= len(curValueList):
+                break
             wid2Verify.append(curWidType[idx])
             value2Verify.append(curValueList[idx])
         try:
@@ -155,7 +196,10 @@ class SophysForm(QDialog):
         for key, inputWid in self.inputWidgets.items():
             strType = str(inputWid["type"])
             isLiteral = "Literal" in strType
-            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)
+            isContainer = any([item in strType for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType.lower() or isinstance(inputWid["type"], list)
+            isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+            isBool = "bool" in strType and not isContainer
+            isIterable = (any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)) and not isNumber and not isBool
             isRequired = inputWid["required"]
             value = self.handleSingleListValue(inputWid, key)
             hasParam = self.getHasParameters(value)
@@ -346,9 +390,10 @@ class SophysForm(QDialog):
         """
         strType = str(paramType)
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
-        isNumber = any([item in strType for item in ["int", "float"]])
-        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
-        isBool = "bool" in strType
+        isContainer = any([item in strType for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType.lower()
+        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+        isBool = "bool" in strType and not isContainer
+        isIterable = (any([item in strType for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(paramType, list)) and not isNumber and not isBool
         isLiteral = "Literal" in strType
         isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
         isDict  = "dict" in strType
@@ -360,14 +405,14 @@ class SophysForm(QDialog):
         elif isArgs:
             inputWid = SophysInputMotor(self.model, paramMeta, self.getIterableInput)
             isStr = False
-        elif isIterable and not isBool:
-            inputWid = self.getIterableInput(paramMeta, paramType)
-        elif isDevice or isLiteral or isBool:
-            inputWid = SophysComboBox(self.model, paramType)
         elif isNumber:
-            numericType = "int" if "int" in paramType else "float"
+            numericType = "int" if "int" in str(paramType) else "float"
             inputWid = SophysSpinBox(numericType, isRequired)
             inputWid.setMaximumHeight(50)
+        elif isDevice or isLiteral or isBool:
+            inputWid = SophysComboBox(self.model, paramType)
+        elif isIterable:
+            inputWid = self.getIterableInput(paramMeta, paramType)
         else:
             isStr = True
             inputWid = QLineEdit()
@@ -396,7 +441,7 @@ class SophysForm(QDialog):
     def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
         return eval(varType) if varType != "" else object
-    
+
     def getParamPythonType(self, paramMeta):
         """
             Convert a string or an array to a python variable type.
@@ -424,7 +469,7 @@ class SophysForm(QDialog):
         lbl.setMaximumHeight(50)
         lbl.setAlignment(Qt.AlignCenter)
         return lbl
-    
+
     def changeParamTitle(self, title):
 
         if self.yml_file_path:
@@ -464,7 +509,7 @@ class SophysForm(QDialog):
         inputWid = self.getInputWidget(paramMeta, paramType, isRequired)
         glay.addWidget(inputWid, *pos, rowStretch, 1)
         pos[0] += 1
-        
+
         pythonType = self.getParamPythonType(paramMeta)
         if isinstance(pythonType, str):
             pythonType = self.convertTypeToPythonType(pythonType)
@@ -518,9 +563,9 @@ class SophysForm(QDialog):
 
         if self.yml_file_path:
             display_title = self.config.get(self.chosenItem, {}).get("name", self.chosenItem)
-        
+
         return display_title
-    
+
     def groupBoxParameters(self, parameters, glay):
 
         plan_config = self.config.get(self.chosenItem)
@@ -547,7 +592,7 @@ class SophysForm(QDialog):
                     if pos_combo[1] > 2:
                         pos_combo[0] += 1
                         pos_combo[1] = 0
-                        
+
             else:
                 pos = [0, 0]
                 for param_key, display_title in param_names.items():
@@ -556,7 +601,7 @@ class SophysForm(QDialog):
                         self.addInputWidget(paramMeta, pos, glay)
         else:
             self.addParameters(parameters, glay)
-        
+
     def changeCurrentItem(self, currentItem):
         """
             Update the current plan input parameters.
@@ -569,7 +614,7 @@ class SophysForm(QDialog):
             retry_count += 1
         if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
-        
+
         self.chosenItem = itemAllowedParams["name"]
         display_title = self.changePlanName()
 
@@ -640,7 +685,7 @@ class SophysForm(QDialog):
 
         combobox.activated.connect(
             lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
-        
+
         currItem = combobox.currentData()
 
         glay.addWidget(combobox, 0, 0, 1, 5)
@@ -676,7 +721,7 @@ class SophysForm(QDialog):
                 lay.addWidget(itemCombbox)
             else:
                 currItem = self.selectedItemMetadata()["name"]
-        
+
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 

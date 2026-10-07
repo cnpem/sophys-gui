@@ -1,11 +1,12 @@
-import threading
 from queue import Queue
-import msgpack_numpy
+import threading
+
 from kafka import KafkaConsumer
+import msgpack_numpy
 
 
 class KafkaDataRegister():
-    
+
     def __init__(self, kafka_uri, kafka_topic):
         self.kafka_topic = kafka_topic
         self.kafka_uri = kafka_uri

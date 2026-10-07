@@ -1,10 +1,10 @@
 import qtawesome as qta
-from qtpy.QtWidgets import QVBoxLayout, QHBoxLayout, \
-    QWidget, QGridLayout, QPushButton
+from qtpy.QtWidgets import QGridLayout, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
-from sophys_gui.functions import getHeader, addLineJumps
-from ..switch import SophysSwitchButton
+from sophys_gui.functions import addLineJumps, getHeader
+
 from ..list_models import QueueModel
+from ..switch import SophysSwitchButton
 from .table_view import SophysTable
 from .util import QUEUE_BTNS, QUEUE_TABLE_BTNS
 
