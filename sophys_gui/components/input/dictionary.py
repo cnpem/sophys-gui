@@ -1,8 +1,16 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
-    QGridLayout, QLineEdit, QVBoxLayout, QStackedWidget, \
-    QSizePolicy, QScrollArea
+from qtpy.QtWidgets import (
+    QGridLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class SophysInputDict(QWidget):

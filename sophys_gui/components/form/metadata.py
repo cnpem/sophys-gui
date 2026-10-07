@@ -1,9 +1,18 @@
 from typing import Literal
-from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, QLabel, \
-    QLineEdit, QComboBox
-from assonant.naming_standards import BeamlineName, ExperimentStage, \
-    ExperimentalTechniquesAcronyms
 
+from assonant.naming_standards import (
+    BeamlineName,
+    ExperimentalTechniquesAcronyms,
+    ExperimentStage,
+)
+from qtpy.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QLabel,
+    QLineEdit,
+)
 
 BLUESKY_AUTOSAVE_METADATA = {
     "metadata_save_file_location": {
@@ -70,7 +79,7 @@ class SophysMetadataForm(QDialog):
         btns.accepted.connect(self.saveMetadata)
         btns.rejected.connect(self.reject)
         return btns
-    
+
     def saveMetadata(self):
         autosave_metadata = self.getValues()
         self.global_metadata_updater(autosave_metadata)

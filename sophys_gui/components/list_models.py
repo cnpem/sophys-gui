@@ -1,14 +1,29 @@
 import copy
-import re
-import yaml
 from datetime import datetime
-from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Slot, \
-    Signal
+import re
+
+from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal, Slot
 from qtpy.QtGui import QBrush, QColor
-from qtpy.QtWidgets import QMainWindow, QLabel, QScrollArea, QApplication, QWidget, \
-    QVBoxLayout, QHBoxLayout
-from sophys_gui.functions import getItemRecursively, addArgsToKwargs, addLineJumps, openYaml
+from qtpy.QtWidgets import (
+    QApplication,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
+import yaml
+
+from sophys_gui.functions import (
+    addArgsToKwargs,
+    addLineJumps,
+    getItemRecursively,
+    openYaml,
+)
+
 from .form import SophysForm
+
 
 class ListModel(QAbstractTableModel):
     update_visible = True
@@ -27,7 +42,7 @@ class ListModel(QAbstractTableModel):
     def userRender(self, item: dict, user: str):
         """Renders the 'User' column items."""
         return str(user[0])
-    
+
     def changeParametersName(self, key, plan_name):
 
         plan_configuration = self.config.get(plan_name, {})
@@ -41,7 +56,7 @@ class ListModel(QAbstractTableModel):
 
                 if isinstance(value, dict):
                     kwargs_dict.update(value)
-            
+
                 else:
                     kwargs_dict.update(parameters_dict)
                     break
@@ -175,7 +190,7 @@ class ListModel(QAbstractTableModel):
             self.columns = self.columns_history
         else:
             self.columns = self.columns_queue
-    
+
     def getColumns(self):
         return self.columns
 
@@ -213,7 +228,7 @@ class ListModel(QAbstractTableModel):
                 return QBrush(QColor(self.getBackgroundColor(row)))
             if role == Qt.DisplayRole:
                 name = getItemRecursively(item, column_spec[1])
-                      
+
                 if self.yml_file_path:
                     new_name = self.config.get(str(name), {}).get("name", name)
 
@@ -436,21 +451,21 @@ class QueueModel(ListModel):
     def add_plan_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("plan")
         SophysForm(self._re_model.run_engine, "add_plan",
-            allowed_parameters, allowed_names, yml_file_path=self.yml_file_path, hasEnv=self.has_open_environment(), 
+            allowed_parameters, allowed_names, yml_file_path=self.yml_file_path, hasEnv=self.has_open_environment(),
             metadata_updater=self.global_metadata_updater, readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_instruction_item(self):
         allowed_parameters, allowed_names = self.get_name_param_variables("instruction")
         SophysForm(self._re_model.run_engine, "add_instruction",
-            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(), 
+            allowed_parameters, allowed_names, hasEnv=self.has_open_environment(),
             readingOrder=self.reading_order).exec()
 
     @Slot()
     def add_stop_queue(self):
         allowed_parameters, allowed_names = self.get_name_param_variables('instruction')
         form = SophysForm(
-            self._re_model.run_engine, "add_instruction", 
+            self._re_model.run_engine, "add_instruction",
             allowed_parameters, allowed_names, readingOrder=self.reading_order)
         form.addItemToQueue()
 

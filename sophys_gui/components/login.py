@@ -1,21 +1,20 @@
 from enum import IntEnum
 
+import qtawesome as qta
 from qtpy.QtCore import QSize, Qt, Signal, Slot
-from qtpy.QtGui import QFont, QShortcut, QKeySequence
+from qtpy.QtGui import QFont, QKeySequence, QShortcut
 from qtpy.QtWidgets import (
     QApplication,
-    QWidget,
-    QLineEdit,
-    QStackedWidget,
-    QLabel,
     QGridLayout,
-    QPushButton,
-    QToolButton,
-    QWidgetAction,
     QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QStackedWidget,
+    QToolButton,
+    QWidget,
+    QWidgetAction,
 )
-
-import qtawesome as qta
 
 from sophys_gui.functions import addLineJumps
 

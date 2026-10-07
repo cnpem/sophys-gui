@@ -1,8 +1,16 @@
 import qtawesome as qta
 from qtpy.QtCore import QSize
-from qtpy.QtWidgets import QWidget, QHBoxLayout, QGroupBox, \
-    QStackedWidget, QPushButton, QMessageBox
+from qtpy.QtWidgets import (
+    QGroupBox,
+    QHBoxLayout,
+    QMessageBox,
+    QPushButton,
+    QStackedWidget,
+    QWidget,
+)
+
 from sophys_gui.functions import addLineJumps
+
 from ..led import SophysLed
 from .util import CONFIG
 
