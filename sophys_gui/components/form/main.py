@@ -36,6 +36,20 @@ from .util import UNKNOWN_TYPES
 NoneType = type(None)
 
 
+def isContainerAnnotation(typeStr):
+    """
+        Detect subscripted container annotations (e.g. ``List[float]``,
+        ``dict[str, int]``).
+
+        ``typing.Union`` / ``Optional`` / ``Literal`` also use brackets but
+        describe a scalar choice, so they are explicitly excluded.
+    """
+    loweredType = str(typeStr).lower()
+    if any(item in loweredType for item in ["union", "optional", "literal"]):
+        return False
+    return "[" in str(typeStr) and "]" in str(typeStr)
+
+
 class SophysForm(QDialog):
     """
         Window for adding, editting and copying plans or instructions.
@@ -118,8 +132,9 @@ class SophysForm(QDialog):
         widget = inputWid["widget"]
         strType = str(inputWid["type"]).lower()
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
-        isContainer = any([item in str(inputWid["type"]) for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType
-        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+        isContainer = isContainerAnnotation(str(inputWid["type"]))
+        isDict = "dict" in strType
+        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
         isBool = "bool" in strType and not isContainer
         isIterable = any([item in strType for item in ["sequence", "iterable", "list", "object"]]) and not isNumber and not isBool
         isUnion = "union" in strType
@@ -196,8 +211,9 @@ class SophysForm(QDialog):
         for key, inputWid in self.inputWidgets.items():
             strType = str(inputWid["type"])
             isLiteral = "Literal" in strType
-            isContainer = any([item in strType for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType.lower() or isinstance(inputWid["type"], list)
-            isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+            isContainer = isContainerAnnotation(strType) or isinstance(inputWid["type"], list)
+            isDict = "dict" in strType.lower()
+            isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
             isBool = "bool" in strType and not isContainer
             isIterable = (any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)) and not isNumber and not isBool
             isRequired = inputWid["required"]
@@ -390,8 +406,9 @@ class SophysForm(QDialog):
         """
         strType = str(paramType)
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
-        isContainer = any([item in strType for item in ["Sequence", "Iterable", "List"]]) or "list[" in strType.lower()
-        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer
+        isContainer = isContainerAnnotation(strType)
+        isDict = "dict" in strType.lower()
+        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
         isBool = "bool" in strType and not isContainer
         isIterable = (any([item in strType for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(paramType, list)) and not isNumber and not isBool
         isLiteral = "Literal" in strType
@@ -440,7 +457,23 @@ class SophysForm(QDialog):
 
     def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
-        return eval(varType) if varType != "" else object
+        if varType == "":
+            return object
+
+        evalNamespace = {
+            "typing": typing,
+            "NoneType": NoneType,
+            "Literal": typing.Literal,
+            "Union": typing.Union,
+            "Optional": typing.Optional,
+            "Any": typing.Any,
+            "List": typing.List,
+            "Dict": typing.Dict,
+        }
+        try:
+            return eval(varType, evalNamespace)
+        except Exception:
+            return object
 
     def getParamPythonType(self, paramMeta):
         """
