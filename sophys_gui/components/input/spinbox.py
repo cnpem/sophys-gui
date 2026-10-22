@@ -1,5 +1,12 @@
-from qtpy.QtWidgets import QWidget, QLabel, QHBoxLayout, \
-    QHBoxLayout, QStackedWidget, QCheckBox, QDoubleSpinBox
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QDoubleSpinBox,
+    QHBoxLayout,
+    QLabel,
+    QStackedWidget,
+    QWidget,
+)
+
 from sophys_gui.functions import handleSpinboxWidget
 
 

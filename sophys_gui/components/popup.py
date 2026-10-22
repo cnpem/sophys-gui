@@ -1,7 +1,7 @@
 import math as _math
-from qtpy.QtCore import Qt, QPropertyAnimation, QTimer
-from qtpy.QtWidgets import QWidget, QHBoxLayout, \
-    QLabel, QGraphicsOpacityEffect
+
+from qtpy.QtCore import QPropertyAnimation, Qt, QTimer
+from qtpy.QtWidgets import QGraphicsOpacityEffect, QHBoxLayout, QLabel, QWidget
 
 
 class PopupWidget(QWidget):

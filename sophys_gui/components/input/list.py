@@ -1,10 +1,18 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QLabel, \
-    QPushButton, QGridLayout, QGroupBox, QHBoxLayout, \
-    QLineEdit, QHBoxLayout
-from .combobox import SophysComboBox
+from qtpy.QtWidgets import (
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QWidget,
+)
+
 from sophys_gui.functions import evaluateValue, handleSpinboxWidget
+
+from .combobox import SophysComboBox
 
 
 class SophysInputList(QWidget):

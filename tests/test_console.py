@@ -1,11 +1,8 @@
+from bluesky_queueserver_api.comm_threads import ReManagerComm_HTTP_Threads
 import pytest
-
 from qtpy.QtCore import QThread
 
-from bluesky_queueserver_api.comm_threads import ReManagerComm_HTTP_Threads
-
 from sophys_gui.components.console import ConsolePollingWorker
-
 
 CONSOLE_MESSAGES = ({"timestamp": 0, "msg": "This is message #1."}, {"timestamp": 1, "msg": "This is message #2."}, {"timestamp": 2, "msg": "This is message #3."})
 
@@ -49,4 +46,3 @@ def test_polling_worker(qtbot, httpx_mock):
     worker_thread.wait(1_000)
 
     print(httpx_mock.get_requests())
-

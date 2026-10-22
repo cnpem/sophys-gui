@@ -1,12 +1,19 @@
-import yaml
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QGridLayout, \
-    QLabel, QGroupBox, QHBoxLayout, QSizePolicy
-from sophys_gui.functions import getHeader, createSingleBtn, \
-    addArgsToKwargs, openYaml
+from qtpy.QtWidgets import (
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QSizePolicy,
+    QWidget,
+)
+import yaml
+
+from sophys_gui.functions import addArgsToKwargs, createSingleBtn, getHeader, openYaml
+
 from ..led import SophysLed
-from .util import CONTROL_BTNS
 from .progress import ProgressBar
+from .util import CONTROL_BTNS
 
 
 class SophysRunningItem(QWidget):
@@ -56,13 +63,13 @@ class SophysRunningItem(QWidget):
 
                 if isinstance(value, dict):
                     kwargs_dict.update(value)
-            
+
                 else:
                     kwargs_dict.update(parameters_dict)
                     break
 
         return kwargs_dict
-            
+
 
     def createDictionaryWidget(self, arg_dict, runningItem):
         """

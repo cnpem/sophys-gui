@@ -1,9 +1,12 @@
+import signal
 import sys
 import time
-import signal
 import traceback
+
 from qtpy.QtWidgets import QApplication, QMessageBox
+
 from sophys_gui.functions import getFilePath
+
 from .popup import PopupWidget
 
 

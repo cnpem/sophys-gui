@@ -1,5 +1,6 @@
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QProgressBar
+
 from sophys_gui.server import KafkaDataRegister
 
 
@@ -30,13 +31,13 @@ class ProgressBar(QProgressBar):
         kwargs = runningItem["kwargs"]
         isGrid = "grid" in runningItem["name"]
         isList = "list" in runningItem["name"]
-       
+
         if "metadata" in kwargs:
             if "total_seq_num" in kwargs["metadata"]:
                 self.total_events = int(kwargs["metadata"]["total_seq_num"])
                 self.multi_run = True
                 return
-            
+
         if "num" in kwargs:
             self.total_events = kwargs["num"]
         elif "args" in kwargs:

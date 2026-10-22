@@ -4,11 +4,12 @@ import argparse
 import sys
 
 import qtawesome
+from sophys_live_view.utils.kafka_data_source import KafkaDataSource
 
-from sophys_gui.server import ServerModel
 from sophys_gui.components import SophysApplication
 from sophys_gui.operation import SophysOperationGUI
-from sophys_live_view.utils.kafka_data_source import KafkaDataSource
+from sophys_gui.server import ServerModel
+
 
 def main():
     parser = argparse.ArgumentParser()

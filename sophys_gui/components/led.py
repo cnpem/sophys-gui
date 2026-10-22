@@ -1,5 +1,5 @@
 import qtawesome as qta
-from qtpy.QtWidgets import QStackedWidget, QLabel, QPushButton
+from qtpy.QtWidgets import QLabel, QPushButton, QStackedWidget
 
 
 class SophysLed(QStackedWidget):

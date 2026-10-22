@@ -1,12 +1,11 @@
 import logging
 import time
 
-from qtpy.QtCore import QCoreApplication, Qt, QObject, Signal, Slot, QUrl, QThread
-from qtpy.QtGui import QTextOption, QColor
-from qtpy.QtWidgets import QTextEdit, QScrollArea
-
 from bluesky_queueserver_api.comm_base import RequestTimeoutError
 from bluesky_queueserver_api.console_monitor import _ConsoleMonitor as ConsoleMonitor
+from qtpy.QtCore import QCoreApplication, QObject, Qt, QThread, QUrl, Signal, Slot
+from qtpy.QtGui import QColor, QTextOption
+from qtpy.QtWidgets import QScrollArea, QTextEdit
 
 logger = logging.getLogger("sophys.gui.console")
 

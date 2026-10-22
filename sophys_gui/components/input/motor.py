@@ -1,8 +1,16 @@
 import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QWidget, QLabel, QPushButton, \
-    QGridLayout, QVBoxLayout, QScrollArea
-from sophys_gui.functions import getMotorInput, addLineJumps
+from qtpy.QtWidgets import (
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
+
+from sophys_gui.functions import addLineJumps, getMotorInput
+
 from .list import SophysInputList
 
 

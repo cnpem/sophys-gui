@@ -1,6 +1,5 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QGridLayout, \
-    QSlider, QPushButton
+from qtpy.QtWidgets import QGridLayout, QLabel, QPushButton, QSlider
 
 
 class SophysSwitchButton(QPushButton):

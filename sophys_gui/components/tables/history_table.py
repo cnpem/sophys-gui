@@ -1,8 +1,8 @@
 import qtawesome as qta
-from qtpy.QtWidgets import QVBoxLayout, QWidget, \
-    QGridLayout, QPushButton
+from qtpy.QtWidgets import QGridLayout, QPushButton, QVBoxLayout, QWidget
 
-from sophys_gui.functions import getHeader, addLineJumps
+from sophys_gui.functions import addLineJumps, getHeader
+
 from ..list_models import HistoryModel
 from .table_view import SophysTable
 from .util import HISTORY_BTNS
