@@ -1,6 +1,9 @@
+import collections.abc
+import logging
 from math import floor
 import time
 import typing
+from typing import get_args, get_origin
 
 import qtawesome as qta
 from qtpy.QtCore import Qt
@@ -33,21 +36,40 @@ from ..input import (
 from .metadata import SophysMetadataForm
 from .util import UNKNOWN_TYPES
 
+logger = logging.getLogger(__name__)
+
 NoneType = type(None)
 
+CONTAINER_ORIGINS = {
+    list,
+    dict,
+    set,
+    tuple,
+    collections.abc.Sequence,
+    collections.abc.Iterable,
+    collections.abc.Mapping,
+}
 
-def isContainerAnnotation(typeStr):
+def isContainerAnnotation(annotation):
     """
-        Detect subscripted container annotations (e.g. ``List[float]``,
-        ``dict[str, int]``).
+    Check whether an annotation represents a container,
+    either directly or nested inside another annotation.
+    """
+    # Handle bare container types, such as list and dict.
+    if any(annotation is item for item in CONTAINER_ORIGINS):
+        return True
 
-        ``typing.Union`` / ``Optional`` / ``Literal`` also use brackets but
-        describe a scalar choice, so they are explicitly excluded.
-    """
-    loweredType = str(typeStr).lower()
-    if any(item in loweredType for item in ["union", "optional", "literal"]):
-        return False
-    return "[" in str(typeStr) and "]" in str(typeStr)
+    # Handle parameterized annotations, such as list[int].
+    origin = get_origin(annotation)
+
+    if origin in CONTAINER_ORIGINS:
+        return True
+
+    # Inspect nested annotations, such as Optional[dict] and Union[int, list].
+    return any(
+        isContainerAnnotation(arg)
+        for arg in get_args(annotation)
+    )
 
 
 class SophysForm(QDialog):
@@ -132,7 +154,11 @@ class SophysForm(QDialog):
         widget = inputWid["widget"]
         strType = str(inputWid["type"]).lower()
         value = widget.currentText() if isinstance(widget, QComboBox) else widget.text()
-        isContainer = isContainerAnnotation(str(inputWid["type"]))
+        if isinstance(inputWid["type"], str):
+            annotation = self.convertTypeToPythonType(inputWid["type"])
+        else:
+            annotation = inputWid["type"]
+        isContainer = isContainerAnnotation(annotation)
         isDict = "dict" in strType
         isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
         isBool = "bool" in strType and not isContainer
@@ -209,13 +235,16 @@ class SophysForm(QDialog):
         }
         isValid = True
         for key, inputWid in self.inputWidgets.items():
-            strType = str(inputWid["type"])
-            isLiteral = "Literal" in strType
-            isContainer = isContainerAnnotation(strType) or isinstance(inputWid["type"], list)
-            isDict = "dict" in strType.lower()
-            isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
-            isBool = "bool" in strType and not isContainer
-            isIterable = (any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)) and not isNumber and not isBool
+            annotation = inputWid["type"]
+            strType = str(annotation)
+            loweredType = strType.lower()
+
+            isLiteral = "literal" in loweredType
+            isContainer = isContainerAnnotation(annotation) or isinstance(annotation, list)
+            isDict = "dict" in loweredType
+            isNumber = any(item in loweredType for item in ["int", "float"]) and not isContainer and not isDict
+            isBool = "bool" in loweredType and not isContainer
+            isIterable = (any(item in loweredType for item in ["sequence", "iterable", "list", "object"]) or isinstance(annotation, list)) and not isNumber and not isBool
             isRequired = inputWid["required"]
             value = self.handleSingleListValue(inputWid, key)
             hasParam = self.getHasParameters(value)
@@ -405,15 +434,15 @@ class SophysForm(QDialog):
             Get the parameter widget based on its types.
         """
         strType = str(paramType)
+        loweredType = strType.lower()
         isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
-        isContainer = isContainerAnnotation(strType)
-        isDict = "dict" in strType.lower()
-        isNumber = any([item in strType for item in ["int", "float"]]) and not isContainer and not isDict
-        isBool = "bool" in strType and not isContainer
-        isIterable = (any([item in strType for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(paramType, list)) and not isNumber and not isBool
-        isLiteral = "Literal" in strType
+        isContainer = isContainerAnnotation(paramType)
+        isDict = "dict" in loweredType
+        isNumber = any(item in loweredType for item in ["int", "float"]) and not isContainer and not isDict
+        isBool = "bool" in loweredType and not isContainer
+        isIterable = (any(item in loweredType for item in ["Sequence", "Iterable", "list", "object"]) or isinstance(paramType, list)) and not isNumber and not isBool
+        isLiteral = "literal" in loweredType
         isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
-        isDict  = "dict" in strType
         isStr = "str" in strType
         if isDict:
             inputWid = SophysInputDict()
@@ -456,23 +485,22 @@ class SophysForm(QDialog):
         return varType
 
     def convertTypeToPythonType(self, varType):
+        """
+        Convert a string representation of a type to an actual Python type object.
+        """
         varType = self.replaceUnknownTypes(varType)
         if varType == "":
             return object
 
         evalNamespace = {
+            **typing.__dict__,
             "typing": typing,
             "NoneType": NoneType,
-            "Literal": typing.Literal,
-            "Union": typing.Union,
-            "Optional": typing.Optional,
-            "Any": typing.Any,
-            "List": typing.List,
-            "Dict": typing.Dict,
         }
         try:
             return eval(varType, evalNamespace)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to evaluate type '{varType}': {e}. Returning 'object' as a fallback.")
             return object
 
     def getParamPythonType(self, paramMeta):
