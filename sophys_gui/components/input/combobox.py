@@ -35,7 +35,7 @@ class SophysComboBox(QComboBox):
             if device[availableDevices]:
                 optionsList.append(key)
         return optionsList
-    
+
     def updateOptions(self):
         self.clear()
         self.addItems(sorted(self.options_list))
