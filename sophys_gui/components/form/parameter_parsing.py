@@ -1,3 +1,4 @@
+import collections
 import importlib
 import logging
 import numbers
@@ -44,12 +45,20 @@ def is_device(type_variable: type) -> bool:
 
 
 def is_literal(type_variable: type) -> bool:
-    return "literal" in str(type_variable).lower()
+    return (
+        "literal" in str(type_variable).lower()
+        and not is_mapping(type_variable)
+        and not is_iterable(type_variable)
+    )
 
 
 def is_bool(type_variable: type) -> bool:
     try:
         TypeAdapter(type_variable).validate_python(True, strict=True)
+
+        # HACK: Avoid common bool protocols (e.g. Hashable)
+        if type_variable in collections.abc.__dict__.values():
+            return False
     except ValidationError:
         return False
     return True
@@ -57,7 +66,12 @@ def is_bool(type_variable: type) -> bool:
 
 def is_integer(type_variable: type) -> bool:
     try:
-        return isinstance(TypeAdapter(type_variable).validate_python(0, strict=True), numbers.Integral)
+        if not isinstance(TypeAdapter(type_variable).validate_python(0, strict=True), numbers.Integral):
+            return False
+
+        # HACK: Avoid common bool protocols (e.g. Hashable)
+        if type_variable in collections.abc.__dict__.values():
+            return False
     except ValidationError:
         return False
     return True
@@ -65,7 +79,12 @@ def is_integer(type_variable: type) -> bool:
 
 def is_float(type_variable: type) -> bool:
     try:
-        return not isinstance(TypeAdapter(type_variable).validate_python(0.0, strict=True), numbers.Integral)
+        if isinstance(TypeAdapter(type_variable).validate_python(0.0, strict=True), numbers.Integral):
+            return False
+
+        # HACK: Avoid common bool protocols (e.g. Hashable)
+        if type_variable in collections.abc.__dict__.values():
+            return False
     except ValidationError:
         return False
     return True
