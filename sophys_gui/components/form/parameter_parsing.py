@@ -115,7 +115,7 @@ def get_python_type_from_annotation(annotation: str) -> type:
 
         return typing.Any
 
-def get_widget_for_parameter(parameter_name: str, parameter_information: dict, *, run_engine_model) -> tuple[QLabel, type[QWidget], dict]:
+def get_widget_for_parameter(parameter_name: str, parameter_information: dict, *, run_engine_model=None) -> tuple[QLabel, type[QWidget], dict]:
     is_required = is_parameter_required(parameter_information)
 
     widget_title = parameter_name + (" (required)" if is_required else "")

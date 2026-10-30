@@ -4,6 +4,8 @@ import typing
 
 import pytest
 
+from qtpy.QtWidgets import QLineEdit
+
 from sophys_gui.components.form.parameter_parsing import (
     get_python_type_from_annotation,
     is_bool,
@@ -12,7 +14,7 @@ from sophys_gui.components.form.parameter_parsing import (
     is_integer,
     is_iterable,
     is_literal,
-    is_mapping,
+    is_mapping, get_widget_for_parameter,
 )
 
 
@@ -93,3 +95,26 @@ def test_type_checks(
 )
 def test_python_type_from_annotation(annotation: str, type_variable: type):
     assert get_python_type_from_annotation(annotation) == type_variable
+
+
+run_engine_model_sentinel = object()
+
+
+@pytest.mark.parametrize(
+    [
+        "parameter_information",
+        "expected_class",
+        "expected_args",
+    ],
+    [
+        ({"name": "test_widget", "annotation": {"type": "str"}}, QLineEdit, {}),
+    ],
+)
+def test_widgets_from_parameter_information(parameter_information: dict, expected_class: type, expected_args: dict, qapp):
+    title_widget, result_class, result_args = get_widget_for_parameter(parameter_information["name"], parameter_information, run_engine_model=run_engine_model_sentinel)
+
+    assert result_class is expected_class
+    for argument_name, expected_argument_value in expected_args.items():
+        assert argument_name in result_args
+        assert result_args[argument_name] == expected_argument_value
+
