@@ -180,7 +180,10 @@ class SophysInputMotor(QWidget):
             titleWid.setAlignment(Qt.AlignCenter)
             glay.addWidget(titleWid, 0, col)
 
-            wid = self.iterableInput({"name":title}, argType, True)
+            if "motor" in title:
+                argType = "__MOVABLE__"
+
+            wid = self.iterableInput(self.run_engine, argType, True)
             self.widList.append(wid)
             tooltipMsg = addLineJumps(tooltip)
             wid.setTooltip(tooltipMsg)

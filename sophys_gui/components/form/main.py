@@ -1,18 +1,41 @@
-import time
-import yaml
-import typing
-import qtawesome as qta
-import typesentry
 from math import floor
+import time
+import typing
+
+import qtawesome as qta
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, \
-    QComboBox, QGroupBox, QLineEdit, QLabel, QVBoxLayout, \
-    QApplication, QCompleter, QComboBox, QWidget, QPushButton
+from qtpy.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QCompleter,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+import typesentry
+import yaml
+
 from sophys_gui.functions import evaluateValue, getMotorInput, openYaml
-from ..input import SophysInputList, SophysInputDict, SophysSpinBox, \
-    SophysInputMotor, SophysComboBox
+
+from ..input import (
+    SophysComboBox,
+    SophysInputDict,
+    SophysInputList,
+    SophysInputMotor,
+    SophysSpinBox,
+)
 from .metadata import SophysMetadataForm
-from .util import UNKNOWN_TYPES
+from .parameter_parsing import (
+    get_python_type_from_annotation,
+    get_widget_for_parameter,
+    is_parameter_required, is_literal, is_iterable,
+)
 
 NoneType = type(None)
 
@@ -152,22 +175,21 @@ class SophysForm(QDialog):
             "args": []
         }
         isValid = True
-        for key, inputWid in self.inputWidgets.items():
-            strType = str(inputWid["type"])
-            isLiteral = "Literal" in strType
-            isIterable = any([item in strType.lower() for item in ["Sequence", "Iterable", "list", "object"]]) or isinstance(inputWid["type"], list)
-            isRequired = inputWid["required"]
-            value = self.handleSingleListValue(inputWid, key)
+        for key, input_widget in self.inputWidgets.items():
+            parameter_type = input_widget["type"]
+            is_required = input_widget["required"]
+
+            value = self.handleSingleListValue(input_widget, key)
             hasParam = self.getHasParameters(value)
             if hasParam:
-                if not isinstance(inputWid["widget"], QLineEdit):
+                if not isinstance(input_widget["widget"], QLineEdit):
                     value = evaluateValue(value)
-                if isLiteral and not isIterable:
+                if is_literal(parameter_type) and not is_iterable(parameter_type):
                     value = str(value)
-                validParam = self.verifyValueType(value, inputWid["type"])
+                validParam = self.verifyValueType(value, parameter_type)
                 if validParam:
-                    isDetectors = inputWid["kind"] == "POSITIONAL_ONLY"
-                    isMotors = inputWid["kind"] == "VAR_POSITIONAL"
+                    isDetectors = input_widget["kind"] == "POSITIONAL_ONLY"
+                    isMotors = input_widget["kind"] == "VAR_POSITIONAL"
                     if isMotors:
                         inputValues["args"].extend(value)
                     elif isDetectors:
@@ -177,7 +199,7 @@ class SophysForm(QDialog):
                 else:
                     isValid = False
                     exception = "001: Invalid Input type!!"
-            elif isRequired:
+            elif is_required:
                 isValid = False
                 exception = "002: Missing required fields!!"
             if key == "md" and self.autosave_metadata != None:
@@ -252,13 +274,13 @@ class SophysForm(QDialog):
 
         return self.btns
 
-    def setWidgetValue(self, inputWid, item, isStr):
+    def setWidgetValue(self, inputWid, item):
         """
             Set the widget value if it already has one.
         """
         if isinstance(inputWid, QComboBox):
             inputWid.setCurrentText(str(item))
-        elif isStr:
+        elif hasattr(inputWid, "setText"):
             inputWid.setText(str(item))
         else:
             inputWid.setValue(item)
@@ -295,7 +317,7 @@ class SophysForm(QDialog):
             item = argsParams
         return item
 
-    def handleModalMode(self, inputWid, paramMeta, isStr):
+    def handleModalMode(self, inputWid, paramMeta):
         """
         Handle default or existing values when opening the form.
         """
@@ -315,15 +337,7 @@ class SophysForm(QDialog):
             if hasArgs and (item == None):
                 item = self.handleArgsParam(metadata["args"], paramName)
             if (item != None):
-                self.setWidgetValue(inputWid, item, isStr)
-
-    def getIterableInput(self, paramMeta, inputType, isGrouped=False):
-        """
-            Handle iterable inputs with pre existing options.
-        """
-        if "motor" in paramMeta["name"]:
-            inputType = "__MOVABLE__"
-        return SophysInputList(self.model, inputType, not isGrouped)
+                self.setWidgetValue(inputWid, item)
 
     def getInputTooltip(self, param):
         """
@@ -340,91 +354,25 @@ class SophysForm(QDialog):
             return description
         return ""
 
-    def getInputWidget(self, paramMeta, paramType, isRequired):
+    def getInputWidget(self, parameter_information: dict) -> tuple[QLabel, QWidget]:
         """
             Get the parameter widget based on its types.
         """
-        strType = str(paramType)
-        isDevice = any([item in strType for item in ["__MOVABLE__", "__READABLE__", "__FLYABLE__"]])
-        isNumber = any([item in strType for item in ["int", "float"]])
-        isIterable = any([item in strType for item in ["Sequence", "Iterable", "list", "object"]])
-        isBool = "bool" in strType
-        isLiteral = "Literal" in strType
-        isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
-        isDict  = "dict" in strType
-        isStr = "str" in strType
-        if isDict:
-            inputWid = SophysInputDict()
-            if paramMeta["name"] == "md":
-                self.md_widget = inputWid
-        elif isArgs:
-            inputWid = SophysInputMotor(self.model, paramMeta, self.getIterableInput)
-            isStr = False
-        elif isIterable and not isBool:
-            inputWid = self.getIterableInput(paramMeta, paramType)
-        elif isDevice or isLiteral or isBool:
-            inputWid = SophysComboBox(self.model, paramType)
-        elif isNumber:
-            numericType = "int" if "int" in paramType else "float"
-            inputWid = SophysSpinBox(numericType, isRequired)
-            inputWid.setMaximumHeight(50)
-        else:
-            isStr = True
-            inputWid = QLineEdit()
-        self.handleModalMode(inputWid, paramMeta, isStr)
-        if not isArgs:
-            tooltipMsg = self.getInputTooltip(paramMeta)
-            inputWid.setToolTip(tooltipMsg)
-        return inputWid
+        title_widget, widget_type, widget_ctor_arguments = get_widget_for_parameter(parameter_information["name"], parameter_information, run_engine_model=self.model)
+        widget = widget_type(**widget_ctor_arguments)
 
-    def getIsRequired(self, paramMeta, varType):
-        """
-            Get if input is required.
-        """
-        hasDefaultValue = "default" in paramMeta
-        return not (hasDefaultValue or "Optional" in varType)
+        if widget_type is SophysSpinBox:
+            widget.setMaximumHeight(50)
+        if widget_type is not SophysInputMotor:
+            tooltip_message = self.getInputTooltip(parameter_information)
+            widget.setToolTip(tooltip_message)
 
-    def replaceUnknownTypes(self, varType):
-        """
-            Replace bluesky types for python types in order for the
-            type check to work.
-        """
-        for keyType, replaceType in UNKNOWN_TYPES.items():
-            varType = varType.replace(keyType, replaceType)
-        return varType
+        if parameter_information["name"] == "md":
+            self.md_widget = widget
 
-    def convertTypeToPythonType(self, varType):
-        varType = self.replaceUnknownTypes(varType)
-        return eval(varType) if varType != "" else object
-    
-    def getParamPythonType(self, paramMeta):
-        """
-            Convert a string or an array to a python variable type.
-        """
-        isArgs = "-.-" in paramMeta["description"] if "description" in paramMeta else False
-        if isArgs:
-            motorTyping = getMotorInput(paramMeta).replace("\"", "'").replace("',", "|")
-            motorArray = motorTyping.split(";")
-            motorTypes = motorArray[2].split(",")
-            arrayType = []
-            for strType in motorTypes:
-                strType = strType.replace("|", "',")
-                arrayType.append(self.convertTypeToPythonType(strType))
-            return arrayType
-        hasAnnotation = "annotation" in paramMeta
-        varType = paramMeta["annotation"]["type"] if hasAnnotation else ""
-        return varType
+        self.handleModalMode(widget, parameter_information)
+        return title_widget, widget
 
-    def getInputTitle(self, title, isRequired):
-        """
-            Create the input title widget.
-        """
-        reqText = " (required)" if isRequired else ""
-        lbl = QLabel(title + reqText)
-        lbl.setMaximumHeight(50)
-        lbl.setAlignment(Qt.AlignCenter)
-        return lbl
-    
     def changeParamTitle(self, title):
 
         if self.yml_file_path:
@@ -445,34 +393,27 @@ class SophysForm(QDialog):
 
         return display_title
 
-    def addParameterInput(self, paramMeta, pos, glay):
+    def addParameterInput(self, parameter_information, pos, group_layout):
         """
             Add one parameter input with its title.
         """
+        title_widget, widget = self.getInputWidget(parameter_information)
 
-        paramType = self.getParamPythonType(paramMeta)
-        isRequired = self.getIsRequired(paramMeta, paramType)
+        title = title_widget.text()
 
-        title = paramMeta["name"]
-        display_title = self.changeParamTitle(title)
-
-        lbl = self.getInputTitle(display_title, isRequired)
-        glay.addWidget(lbl, *pos, 1, 1)
+        group_layout.addWidget(title_widget, *pos, 1, 1)
         pos[0] += 1
 
-        rowStretch = 1 if title != "md" else 6 - pos[0]
-        inputWid = self.getInputWidget(paramMeta, paramType, isRequired)
-        glay.addWidget(inputWid, *pos, rowStretch, 1)
+        stretch = 1 if widget is not self.md_widget else 6 - pos[0]
+        group_layout.addWidget(widget, *pos, stretch, 1)
         pos[0] += 1
-        
-        pythonType = self.getParamPythonType(paramMeta)
-        if isinstance(pythonType, str):
-            pythonType = self.convertTypeToPythonType(pythonType)
+
+        input_type = get_python_type_from_annotation(parameter_information.get("annotation", {}).get("type", "typing.Any"))
         self.inputWidgets[title] = {
-            "widget": inputWid,
-            "required": isRequired,
-            "type": pythonType,
-            "kind": paramMeta["kind"]["name"]
+            "widget": widget,
+            "required": is_parameter_required(parameter_information),
+            "type": input_type,
+            "kind": parameter_information["kind"]["name"]
         }
 
         return pos
@@ -518,9 +459,9 @@ class SophysForm(QDialog):
 
         if self.yml_file_path:
             display_title = self.config.get(self.chosenItem, {}).get("name", self.chosenItem)
-        
+
         return display_title
-    
+
     def groupBoxParameters(self, parameters, glay):
 
         plan_config = self.config.get(self.chosenItem)
@@ -547,7 +488,7 @@ class SophysForm(QDialog):
                     if pos_combo[1] > 2:
                         pos_combo[0] += 1
                         pos_combo[1] = 0
-                        
+
             else:
                 pos = [0, 0]
                 for param_key, display_title in param_names.items():
@@ -556,7 +497,7 @@ class SophysForm(QDialog):
                         self.addInputWidget(paramMeta, pos, glay)
         else:
             self.addParameters(parameters, glay)
-        
+
     def changeCurrentItem(self, currentItem):
         """
             Update the current plan input parameters.
@@ -569,7 +510,7 @@ class SophysForm(QDialog):
             retry_count += 1
         if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
-        
+
         self.chosenItem = itemAllowedParams["name"]
         display_title = self.changePlanName()
 
@@ -640,7 +581,7 @@ class SophysForm(QDialog):
 
         combobox.activated.connect(
             lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
-        
+
         currItem = combobox.currentData()
 
         glay.addWidget(combobox, 0, 0, 1, 5)
@@ -676,7 +617,7 @@ class SophysForm(QDialog):
                 lay.addWidget(itemCombbox)
             else:
                 currItem = self.selectedItemMetadata()["name"]
-        
+
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 

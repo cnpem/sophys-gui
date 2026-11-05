@@ -1,8 +1,8 @@
 UNKNOWN_TYPES = {
-    "typing.Sequence": "typing.List",
-    "__READABLE__": "typing.Any",
-    "__DEVICE__": "typing.Any",
-    "__CALLABLE__": "typing.Any",
-    "__MOVABLE__": "typing.Any",
-    "__FLYABLE__": "typing.Any"
+    "typing.Sequence": "list",
+    "__READABLE__": "typing.Annotated[typing.Any, '__READABLE__']",
+    "__DEVICE__": "typing.Annotated[typing.Any, '__DEVICE__']",
+    "__CALLABLE__": "collections.abc.Callable",
+    "__MOVABLE__": "typing.Annotated[typing.Any, '__MOVABLE__']",
+    "__FLYABLE__": "typing.Annotated[typing.Any, '__FLYABLE__']",
 }
