@@ -42,6 +42,9 @@ class SophysForm(QDialog):
             form_gui_widget = "", max_rows = 3, max_cols = 3, showOnlyInputs = False, readingOrder="up_down"):
         super().__init__()
 
+        self._md_inline_widget = None
+        self.md_widget = None
+
         self.yml_file_path = yml_file_path
         self.readingOrder = readingOrder
         self.showOnlyInputs = showOnlyInputs
@@ -56,7 +59,6 @@ class SophysForm(QDialog):
         self.hasEnv = hasEnv
         self.plan_description = None
         self.autosave_metadata = None
-        self.md_widget = None
         self.global_metadata_updater = metadata_updater
         self.itemType = "instruction" if "instruction" in modalMode else "plan"
         self.config = openYaml(self.yml_file_path)
@@ -396,7 +398,7 @@ class SophysForm(QDialog):
     def convertTypeToPythonType(self, varType):
         varType = self.replaceUnknownTypes(varType)
         return eval(varType) if varType != "" else object
-    
+
     def getParamPythonType(self, paramMeta):
         """
             Convert a string or an array to a python variable type.
@@ -424,7 +426,7 @@ class SophysForm(QDialog):
         lbl.setMaximumHeight(50)
         lbl.setAlignment(Qt.AlignCenter)
         return lbl
-    
+
     def changeParamTitle(self, title):
 
         if self.yml_file_path:
@@ -454,17 +456,21 @@ class SophysForm(QDialog):
         isRequired = self.getIsRequired(paramMeta, paramType)
 
         title = paramMeta["name"]
-        display_title = self.changeParamTitle(title)
-
-        lbl = self.getInputTitle(display_title, isRequired)
-        glay.addWidget(lbl, *pos, 1, 1)
-        pos[0] += 1
-
-        rowStretch = 1 if title != "md" else 6 - pos[0]
         inputWid = self.getInputWidget(paramMeta, paramType, isRequired)
-        glay.addWidget(inputWid, *pos, rowStretch, 1)
-        pos[0] += 1
-        
+
+        if title == "md":
+            # Leave it for adding as the last parameter
+            self._md_inline_widget = inputWid
+        else:
+            display_title = self.changeParamTitle(title)
+
+            lbl = self.getInputTitle(display_title, isRequired)
+            glay.addWidget(lbl, *pos, 1, 1)
+            pos[0] += 1
+
+            glay.addWidget(inputWid, *pos, 1, 1)
+            pos[0] += 1
+
         pythonType = self.getParamPythonType(paramMeta)
         if isinstance(pythonType, str):
             pythonType = self.convertTypeToPythonType(pythonType)
@@ -508,9 +514,19 @@ class SophysForm(QDialog):
                 pos[0] -= 2
 
     def addParameters(self, parameters, glay):
+        self._md_inline_widget = None
+
         pos = [0, 0]
         for paramMeta in parameters:
             self.addInputWidget(paramMeta, pos, glay)
+
+        # Add the 'md' parameter as the last widget on the layout
+        if self._md_inline_widget is not None:
+            display_title = self.changeParamTitle("md")
+            title_widget = self.getInputTitle(display_title, isRequired=False)
+
+            glay.addWidget(title_widget, pos[0], pos[1], 1, 1)
+            glay.addWidget(self._md_inline_widget, pos[0] + 1, pos[1], 2 * self.max_rows - pos[0] + 1, 1)
 
     def changePlanName(self):
 
@@ -518,9 +534,9 @@ class SophysForm(QDialog):
 
         if self.yml_file_path:
             display_title = self.config.get(self.chosenItem, {}).get("name", self.chosenItem)
-        
+
         return display_title
-    
+
     def groupBoxParameters(self, parameters, glay):
 
         plan_config = self.config.get(self.chosenItem)
@@ -547,7 +563,7 @@ class SophysForm(QDialog):
                     if pos_combo[1] > 2:
                         pos_combo[0] += 1
                         pos_combo[1] = 0
-                        
+
             else:
                 pos = [0, 0]
                 for param_key, display_title in param_names.items():
@@ -556,7 +572,7 @@ class SophysForm(QDialog):
                         self.addInputWidget(paramMeta, pos, glay)
         else:
             self.addParameters(parameters, glay)
-        
+
     def changeCurrentItem(self, currentItem):
         """
             Update the current plan input parameters.
@@ -569,7 +585,7 @@ class SophysForm(QDialog):
             retry_count += 1
         if retry_count > 5 and itemAllowedParams is None:
             raise Exception()
-        
+
         self.chosenItem = itemAllowedParams["name"]
         display_title = self.changePlanName()
 
@@ -640,7 +656,7 @@ class SophysForm(QDialog):
 
         combobox.activated.connect(
             lambda idx: self.changeCurrentItem(combobox.itemData(idx)))
-        
+
         currItem = combobox.currentData()
 
         glay.addWidget(combobox, 0, 0, 1, 5)
@@ -676,7 +692,7 @@ class SophysForm(QDialog):
                 lay.addWidget(itemCombbox)
             else:
                 currItem = self.selectedItemMetadata()["name"]
-        
+
         self.changeCurrentItem(currItem)
         lay.addLayout(self.parametersLayout)
 
