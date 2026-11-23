@@ -88,7 +88,7 @@ class SophysOperationGUI(QMainWindow):
             self.data_source_manager, self.run_selector.selected_streams_changed
         )
         show_metadata.clicked.connect(self.showMetadataGUI)
-        
+
         vlaywid = QWidget()
         vlay = QVBoxLayout()
         vlaywid.setLayout(vlay)
@@ -97,7 +97,7 @@ class SophysOperationGUI(QMainWindow):
         wid.addWidget(vlaywid)
         wid.addWidget(self.plot_display)
         wid.addWidget(self.signal_selector)
-        
+
         self.signal_selector.set_plot_tab_changed_signal(
             self.plot_display.plot_tab_changed
         )
@@ -147,3 +147,5 @@ class SophysOperationGUI(QMainWindow):
 
         if self.has_api_key:
             self.loginChanged.emit(True)
+
+        self.login.update_state_based_on_current_permissions()

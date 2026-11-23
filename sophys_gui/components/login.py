@@ -1,4 +1,5 @@
 from enum import IntEnum
+import logging
 
 from qtpy.QtCore import QSize, Qt, Signal, Slot
 from qtpy.QtGui import QFont, QShortcut, QKeySequence
@@ -18,6 +19,8 @@ from qtpy.QtWidgets import (
 import qtawesome as qta
 
 from sophys_gui.functions import addLineJumps
+
+logger = logging.getLogger("sophys.gui.login")
 
 
 class SophysLogin(QWidget):
@@ -181,3 +184,15 @@ class SophysLogin(QWidget):
         self._app.saveRunEngineClient(None)
 
         re._client.logout()
+
+    def update_state_based_on_current_permissions(self):
+        response = self._run_engine._client.api_scopes()
+        if not isinstance(response, dict):
+            logger.error("Received unexpected response from api_scopes endpoint: %s", repr(response))
+
+            return
+
+        allowed_scopes = set(response.get("scopes", []))
+
+        has_write_access = any(scope.startswith(("write:", "admin:")) for scope in allowed_scopes)
+        self.login_status_changed.emit(has_write_access)
