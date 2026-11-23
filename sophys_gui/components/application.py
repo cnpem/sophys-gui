@@ -1,10 +1,38 @@
+import signal
 import sys
 import time
-import signal
 import traceback
-from qtpy.QtWidgets import QApplication, QMessageBox
+from types import TracebackType
+
+from qtpy.QtWidgets import QApplication, QMessageBox, QTextEdit
+
 from sophys_gui.functions import getFilePath
+
 from .popup import PopupWidget
+
+
+class ResizableMessageBox(QMessageBox):
+    def __init__(self, max_width: int, max_height: int, *, parent=None):
+        super().__init__(parent=parent)
+
+        self.max_width = max_width
+        self.max_height = max_height
+
+        self._override_max_size()
+
+    def _override_max_size(self):
+        self.setMaximumWidth(self.max_width)
+        self.setMaximumHeight(self.max_height)
+
+        text_edit = self.findChild(QTextEdit)
+        if text_edit is not None:
+            text_edit.setMaximumWidth(16777215)
+            text_edit.setMaximumHeight(16777215)
+
+    def event(self, event):
+        res = super().event(event)
+        self._override_max_size()
+        return res
 
 
 class SophysApplication(QApplication):
@@ -39,23 +67,26 @@ class SophysApplication(QApplication):
             style = f.read()
         self.setStyleSheet(style)
 
-    def showBugError(self, exctype, excvalue, tracebackobj):
+    def showBugError(self, exctype: type[BaseException], excvalue: BaseException, tracebackobj: TracebackType):
         """
             Show a new window for unknown errors.
         """
-        timestring = time.strftime("%Y-%m-%d, %H:%M:%S") + '\n'
-        notice = timestring + \
-            'An unhandled exception occurred. Please report the problem '\
-            'via email to swc@lnls.br.'
-        errmsg = '{}: {}'.format(exctype.__name__, excvalue)+'\n\n'+\
-                ''.join(traceback.format_tb(tracebackobj))
-        errorbox = QMessageBox()
+        timestring = time.strftime("%Y-%m-%d, %H:%M:%S")
+        notice = (
+            timestring
+            + "\n"
+            + "An unhandled exception occurred. Please report the problem via email to swc@lnls.br."
+        )
+
+        exception_msg = "".join(traceback.format_exception(exctype, value=excvalue, tb=tracebackobj))
+
+        errorbox = ResizableMessageBox(1200, 1200)
         errorbox.setText(notice)
-        errorbox.setInformativeText(errmsg)
+        errorbox.setDetailedText(exception_msg)
         errorbox.setIcon(QMessageBox.Critical)
-        errorbox.setStyleSheet("text-align: center;")
+        errorbox.setSizeGripEnabled(True)
         errorbox.setObjectName("ControlApp")
-        errorbox.exec_()
+        errorbox.exec()
 
     def showExpectedError(self, message):
         """
@@ -98,7 +129,7 @@ class SophysApplication(QApplication):
                 return errorMsg
         return ""
 
-    def excepthook(self, exctype, excvalue, tracebackobj):
+    def excepthook(self, exctype: type, excvalue: BaseException, tracebackobj: TracebackType):
         """
             Catch thrown exceptions.
         """
